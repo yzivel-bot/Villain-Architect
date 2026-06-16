@@ -364,15 +364,15 @@ circle.vdot:hover { opacity: 0.75; }
 }
 
 .rp-title {
-  font-family: 'Levit 1950 EMO', 'Bebas Neue', sans-serif;
-  font-size: 34px;
-  font-weight: normal;
-  line-height: 0.95;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: normal;
   color: #fff;
   width: 100%;
   flex-shrink: 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 
 /* reset button beside tab row */
@@ -632,6 +632,8 @@ const FEMALE_NAMES = new Set([
   'Miranda Priestly','Catherine Tramell','Regina George',
   'Dolores Umbridge','Maleficent'
 ]);
+
+const ALIEN_NAMES = new Set(['Thanos','Xenomorph']);
 
 const VILLAINS = [
   { name:'Hannibal Lecter',   anon:'Half Masked',  kills:'60+',      wealth:'Wealthy',      status:'Outcast'  },
@@ -963,14 +965,15 @@ function buildSVG() {
   positions.forEach((p, i) => {
     const v      = VILLAINS[i];
     const female = FEMALE_NAMES.has(v.name);
-    const color  = female ? '#FF3399' : '#00E5FF';
+    const alien  = ALIEN_NAMES.has(v.name);
+    const color  = alien ? '#43B749' : female ? '#FF3399' : '#00E5FF';
 
     const gIcon = makeSVG('text', {
       class:'vlabel vgender', id:`icon-${i}`,
       x:p.x+10, y:p.y+4,
       style:`fill:${color}; font-size:9px;`
     });
-    gIcon.textContent = female ? '♀' : '♂';
+    gIcon.textContent = alien ? '★' : female ? '♀' : '♂';
     labelsG.appendChild(gIcon);
 
     const lbl = makeSVG('text', {
@@ -1031,13 +1034,16 @@ function makeSVG(tag, attrs = {}) {
 
 
 function showTip(e, v, p) {
+  const alien  = ALIEN_NAMES.has(v.name);
   const female = FEMALE_NAMES.has(v.name);
+  const gender = alien ? 'Alien' : female ? 'Female' : 'Male';
   tipEl.innerHTML = `
     <strong>${v.name}</strong><br>
     Anonymity: ${v.anon}<br>
     Wealth: ${v.wealth}<br>
     Status: ${v.status}<br>
-    Body Count: ${v.kills}
+    Body Count: ${v.kills}<br>
+    Gender: ${gender}
   `;
   tipEl.style.display = 'block';
   positionTip(e);
