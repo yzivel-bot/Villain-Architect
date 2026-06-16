@@ -805,10 +805,13 @@ function computePositions(xDimKey, yDimKey) {
   const colW = xDim.isLog ? plotW / 4 : plotW / (xDim.max - 1);
   const rowH = yDim.isLog ? plotH / 4 : plotH / (yDim.max - 1);
 
+  const xMin = PAD.l + DOT, xMax = PAD.l + plotW - DOT;
+  const yMin = PAD.t + DOT, yMax = PAD.t + plotH - DOT;
+
   if (!xDim.isLog && !yDim.isLog) {
-    /* both categorical — bin-grid */
-    const cellW = Math.min(colW * 0.78, 90);
-    const cellH = Math.min(rowH * 0.72, 26);
+    /* both categorical — bin-grid, then shift each bin inward to stay in bounds */
+    const cellW = Math.min(colW * 0.72, 70);
+    const cellH = Math.min(rowH * 0.65, 22);
     const bins  = {};
     pts.forEach((p, i) => {
       const key = `${p.xVal}|${p.yVal}`;
@@ -822,6 +825,14 @@ function computePositions(xDimKey, yDimKey) {
         pts[idx].x += ((j % cols) - (cols - 1) / 2) * cellW;
         pts[idx].y += (Math.floor(j / cols) - (rows - 1) / 2) * cellH;
       });
+      /* shift the whole bin so no dot goes outside bounds */
+      const bxMin = Math.min(...indices.map(i => pts[i].x));
+      const bxMax = Math.max(...indices.map(i => pts[i].x));
+      const byMin = Math.min(...indices.map(i => pts[i].y));
+      const byMax = Math.max(...indices.map(i => pts[i].y));
+      const dx = bxMin < xMin ? xMin - bxMin : bxMax > xMax ? xMax - bxMax : 0;
+      const dy = byMin < yMin ? yMin - byMin : byMax > yMax ? yMax - byMax : 0;
+      indices.forEach(idx => { pts[idx].x += dx; pts[idx].y += dy; });
     }
   } else if (xDim.isLog && !yDim.isLog) {
     /* body count on X, categorical Y — jitter Y */
@@ -833,8 +844,7 @@ function computePositions(xDimKey, yDimKey) {
     pts.forEach(p => { p.x += (seededRand(p.name, 7) - 0.5) * spread; });
   }
 
-  const xMin = PAD.l + DOT, xMax = PAD.l + plotW - DOT;
-  const yMin = PAD.t + DOT, yMax = PAD.t + plotH - DOT;
+  /* final safety clamp */
   pts.forEach(p => {
     p.x = Math.max(xMin, Math.min(xMax, p.x));
     p.y = Math.max(yMin, Math.min(yMax, p.y));
@@ -986,7 +996,15 @@ function buildSVG() {
   }));
   svg.appendChild(trailG);
 
-  positions.forEach((p, i) => {
+  /* render male → female → alien so alien dots are always on top in SVG z-order */
+  const zOrder = [
+    ...positions.map((p,i) => i).filter(i => !FEMALE_NAMES.has(VILLAINS[i].name) && !ALIEN_NAMES.has(VILLAINS[i].name)),
+    ...positions.map((p,i) => i).filter(i =>  FEMALE_NAMES.has(VILLAINS[i].name)),
+    ...positions.map((p,i) => i).filter(i =>  ALIEN_NAMES.has(VILLAINS[i].name)),
+  ];
+
+  zOrder.forEach(i => {
+    const p      = positions[i];
     const v      = VILLAINS[i];
     const female = FEMALE_NAMES.has(v.name);
     const alien  = ALIEN_NAMES.has(v.name);
