@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Red+Hat+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@font-face {
+  font-family: 'Levit 1950 EMO';
+  src: local('Levit 1950 EMO Display'), local('Levit1950EMO-Display'), local('Levit 1950 EMO');
+}
+</style>
+<style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -117,7 +123,31 @@ html, body {
 .g-dot:hover { transform: scale(1.12); }
 .g-dot.pink  { background: #FF3399; }
 .g-dot.cyan  { background: #00E5FF; }
-.g-dot.green { background: #3CB371; }
+.g-dot.green { background: #43B749; }
+
+/* gender tooltip wrapper */
+.g-dot-wrap { position: relative; }
+.g-tip {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.9);
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+.g-dot-wrap:hover .g-tip { opacity: 1; }
+/* active gender selection ring */
+.g-dot.selected { box-shadow: 0 0 0 2px #fff; }
 
 .toggle-row { display: flex; height: 24px; }
 
@@ -327,12 +357,34 @@ circle.vdot:hover { opacity: 0.75; }
 }
 
 .rp-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-family: 'Levit 1950 EMO', 'Bebas Neue', sans-serif;
+  font-size: 34px;
+  font-weight: normal;
+  line-height: 0.95;
   color: #fff;
   width: 100%;
   flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
+/* reset button beside tab row */
+.reset-btn {
+  height: 28px;
+  padding: 0 14px;
+  border: 1px solid #383838;
+  border-radius: 28px;
+  background: transparent;
+  color: #555;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s, color 0.2s;
+  letter-spacing: 0.5px;
+}
+.reset-btn:hover { border-color: #666; color: #888; }
 
 .rp-subtitle {
   font-size: 12px;
@@ -430,9 +482,10 @@ circle.vdot:hover { opacity: 0.75; }
       <select id="genre-sel">
         <option>Horror</option>
         <option>Thriller</option>
-        <option>Sci-Fi</option>
-        <option>Action</option>
+        <option>Comedy</option>
         <option>Drama</option>
+        <option>Crime</option>
+        <option>Action</option>
       </select>
       <svg width="11" height="7" viewBox="0 0 11 7" fill="none">
         <path d="M1 1L5.5 6L10 1" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
@@ -443,9 +496,18 @@ circle.vdot:hover { opacity: 0.75; }
   <div class="ctrl-group">
     <span class="ctrl-label">Gender</span>
     <div class="gender-row">
-      <button class="g-dot pink" title="Female"></button>
-      <button class="g-dot cyan" title="Male"></button>
-      <button class="g-dot green" title="Non-binary"></button>
+      <div class="g-dot-wrap">
+        <button class="g-dot pink" id="g-female" onclick="setGender('female')"></button>
+        <div class="g-tip">Female</div>
+      </div>
+      <div class="g-dot-wrap">
+        <button class="g-dot cyan" id="g-male" onclick="setGender('male')"></button>
+        <div class="g-tip">Male</div>
+      </div>
+      <div class="g-dot-wrap">
+        <button class="g-dot green" id="g-alien" onclick="setGender('alien')"></button>
+        <div class="g-tip">Alien</div>
+      </div>
     </div>
   </div>
 
@@ -509,10 +571,11 @@ circle.vdot:hover { opacity: 0.75; }
 <!-- ══════════ CENTER PANEL ══════════ -->
 <div class="center-panel">
   <div class="tabs-row" id="tabs-row">
-    <button class="tab-btn on" data-tab="anonymity">Anonymity</button>
-    <button class="tab-btn" data-tab="wealth">Estimated Wealth</button>
-    <button class="tab-btn" data-tab="social">Social Status</button>
-    <button class="tab-btn" data-tab="lethality">Lethality</button>
+    <button class="tab-btn" data-dim="anonymity">Anonymity</button>
+    <button class="tab-btn" data-dim="wealth">Estimated Wealth</button>
+    <button class="tab-btn" data-dim="social">Social Status</button>
+    <button class="tab-btn" data-dim="bodycount">Body Count</button>
+    <button class="reset-btn" id="reset-btn">Reset</button>
   </div>
   <div class="scatter-wrap" id="scatter-wrap">
     <svg id="scatter-svg"></svg>
@@ -617,9 +680,9 @@ const VILLAINS = [
 ];
 
 /* numeric mappings */
-const ANON_MAP  = { 'Visible':1, 'Face Paint':2, 'Half Masked':3, 'Fully Masked':4, 'Alien':5 };
-const STATUS_MAP= { 'Outcast':1, 'Ordinary':2, 'Elite':3, 'Ruler':4 };
-const WEALTH_MAP= { 'None':1,'Poor':1,'Working':2,'Middle Class':3,'Wealthy':4,'Infinite':5 };
+const ANON_MAP   = { 'Visible':1,'Face Paint':2,'Half Masked':3,'Fully Masked':4,'Alien':5 };
+const STATUS_MAP = { 'Outcast':1,'Ordinary':2,'Elite':3,'Ruler':4 };
+const WEALTH_MAP = { 'None':1,'Poor':1,'Working':2,'Middle Class':3,'Wealthy':4,'Infinite':5 };
 
 const BODY_KEYWORDS = {
   'Trillions':1e8,'Planets':1e6,'Armies':5e4,'Systemic':500,
@@ -642,146 +705,119 @@ function seededRand(str, salt) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   SCATTER PLOT ENGINE
+   DIMENSION DEFINITIONS  (each button = one axis dimension)
 ══════════════════════════════════════════════════════════ */
-const svg    = document.getElementById('scatter-svg');
-const wrap   = document.getElementById('scatter-wrap');
-const tipEl  = document.getElementById('tooltip');
-
-let activeTab = 'anonymity';
-let W = 0, H = 0;
-const PAD = { t:55, b:55, l:70, r:30 };
-
-/* axis configs per tab */
-const AXES = {
+const DIMS = {
   anonymity: {
-    xLabel:'ANONYMITY',
-    yLabel:'SOCIAL STATUS',
-    xCats:['Visible','Face Paint','Half Masked','Fully Masked','Alien'],
-    yCats:['Outcast','Ordinary','Elite','Ruler'],
-    xFn: v => ANON_MAP[v.anon],
-    yFn: v => STATUS_MAP[v.status],
-    xMax:5, yMax:4, xIsLog:false, yIsLog:false
+    label: 'ANONYMITY',
+    cats:  ['Visible','Face Paint','Half Masked','Fully Masked','Alien'],
+    fn:    v => ANON_MAP[v.anon],
+    max:   5,
+    isLog: false,
+    charVal: () => charState.anon + 1
   },
   wealth: {
-    xLabel:'ESTIMATED WEALTH',
-    yLabel:'SOCIAL STATUS',
-    xCats:['None/Poor','Working','Middle Class','Wealthy','Infinite'],
-    yCats:['Outcast','Ordinary','Elite','Ruler'],
-    xFn: v => WEALTH_MAP[v.wealth],
-    yFn: v => STATUS_MAP[v.status],
-    xMax:5, yMax:4, xIsLog:false, yIsLog:false
+    label: 'ESTIMATED WEALTH',
+    cats:  ['None/Poor','Working','Middle Class','Wealthy','Infinite'],
+    fn:    v => WEALTH_MAP[v.wealth],
+    max:   5,
+    isLog: false,
+    charVal: () => charState.wealth + 1
   },
   social: {
-    xLabel:'SOCIAL STATUS',
-    yLabel:'BODY COUNT',
-    xCats:['Outcast','Ordinary','Elite','Ruler'],
-    yCats:null,
-    xFn: v => STATUS_MAP[v.status],
-    yFn: v => bodyNum(v.kills),
-    xMax:4, yMax:null, xIsLog:false, yIsLog:true
+    label: 'SOCIAL STATUS',
+    cats:  ['Outcast','Ordinary','Elite','Ruler'],
+    fn:    v => STATUS_MAP[v.status],
+    max:   4,
+    isLog: false,
+    charVal: () => charState.social + 1
   },
-  lethality: {
-    xLabel:'ESTIMATED WEALTH',
-    yLabel:'BODY COUNT',
-    xCats:['None/Poor','Working','Middle Class','Wealthy','Infinite'],
-    yCats:null,
-    xFn: v => WEALTH_MAP[v.wealth],
-    yFn: v => bodyNum(v.kills),
-    xMax:5, yMax:null, xIsLog:false, yIsLog:true
+  bodycount: {
+    label: 'BODY COUNT',
+    cats:  null,
+    fn:    v => bodyNum(v.kills),
+    max:   null,
+    isLog: true,
+    charVal: () => 5
   }
 };
 
-/* Your Character state */
-const charState = { anon:2, wealth:3, social:0 };
+/* ══════════════════════════════════════════════════════════
+   SCATTER PLOT ENGINE
+══════════════════════════════════════════════════════════ */
+const svg   = document.getElementById('scatter-svg');
+const wrap  = document.getElementById('scatter-wrap');
+const tipEl = document.getElementById('tooltip');
 
-function getCharCoords(tab) {
-  const anonVal = charState.anon + 1;       /* 1-5 */
-  const wealthVal = charState.wealth + 1;   /* 1-5 */
-  const socialVal = charState.social + 1;   /* 1-4 */
-  const killsVal  = 5; /* placeholder body count */
+/* selection state: first click = X axis, second click = Y axis */
+let selectedDims = []; /* array of 0–2 dim keys */
+let charDotColor  = '#fff';
+let charDotStroke = 'none';
+let W = 0, H = 0;
+const PAD = { t:55, b:55, l:70, r:30 };
+const charState   = { anon:2, wealth:3, social:0 };
 
-  if (tab === 'anonymity') return { x: anonVal,   y: socialVal };
-  if (tab === 'wealth')    return { x: wealthVal,  y: socialVal };
-  if (tab === 'social')    return { x: socialVal,  y: killsVal  };
-  if (tab === 'lethality') return { x: wealthVal,  y: killsVal  };
-}
-
-function toScreen(xVal, yVal, ax) {
+function toScreen(xVal, yVal, xDim, yDim) {
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
 
-  let sx = PAD.l + ((xVal - 1) / (ax.xMax - 1)) * plotW;
+  const sx = PAD.l + ((xVal - 1) / (xDim.max - 1)) * plotW;
 
   let sy;
-  if (ax.yIsLog) {
-    const allY = VILLAINS.map(v => bodyNum(v.kills));
-    const yMax = Math.log1p(Math.max(...allY));
-    sy = PAD.t + plotH - (Math.log1p(yVal) / yMax) * plotH;
+  if (yDim.isLog) {
+    const logMax = Math.log1p(Math.max(...VILLAINS.map(v => yDim.fn(v))));
+    sy = PAD.t + plotH - (Math.log1p(yVal) / logMax) * plotH;
   } else {
-    sy = PAD.t + plotH - ((yVal - 1) / (ax.yMax - 1)) * plotH;
+    sy = PAD.t + plotH - ((yVal - 1) / (yDim.max - 1)) * plotH;
   }
-
   return { x: sx, y: sy };
 }
 
-
-function computePositions(tab) {
-  const ax    = AXES[tab];
+function computePositions(xDimKey, yDimKey) {
+  const xDim  = DIMS[xDimKey];
+  const yDim  = DIMS[yDimKey];
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
-  const DOT   = 9; /* safe radius including stroke */
+  const DOT   = 9;
 
-  /* base screen position for every villain */
   const pts = VILLAINS.map(v => {
-    const xVal = ax.xFn(v);
-    const yVal = ax.yFn(v);
-    const pos  = toScreen(xVal, yVal, ax);
+    const xVal = xDim.fn(v);
+    const yVal = yDim.fn(v);
+    const pos  = toScreen(xVal, yVal, xDim, yDim);
     return { x: pos.x, y: pos.y, xVal, yVal, name: v.name, female: FEMALE_NAMES.has(v.name) };
   });
 
-  const colW = plotW / (ax.xMax - 1);
+  const colW = plotW / (xDim.max - 1);
 
-  if (!ax.yIsLog) {
-    /* ── Categorical X and Y: arrange collisions in a compact grid ── */
-    const rowH  = plotH / (ax.yMax - 1);
+  if (!yDim.isLog) {
+    const rowH  = plotH / (yDim.max - 1);
     const cellW = Math.min(colW * 0.78, 90);
     const cellH = Math.min(rowH * 0.72, 26);
-
-    /* group indices by (xVal, yVal) bin */
-    const bins = {};
+    const bins  = {};
     pts.forEach((p, i) => {
       const key = `${p.xVal}|${p.yVal}`;
       (bins[key] = bins[key] || []).push(i);
     });
-
     for (const indices of Object.values(bins)) {
       const n    = indices.length;
-      const cols = Math.ceil(Math.sqrt(n * 1.5)); /* wider than tall */
+      const cols = Math.ceil(Math.sqrt(n * 1.5));
       const rows = Math.ceil(n / cols);
       indices.forEach((idx, j) => {
-        const col = (j % cols) - (cols - 1) / 2;
-        const row = Math.floor(j / cols) - (rows - 1) / 2;
-        pts[idx].x += col * cellW;
-        pts[idx].y += row * cellH;
+        pts[idx].x += ((j % cols) - (cols - 1) / 2) * cellW;
+        pts[idx].y += (Math.floor(j / cols) - (rows - 1) / 2) * cellH;
       });
     }
   } else {
-    /* ── Log Y: only jitter X within the column ── */
     const spread = colW * 0.55;
-    pts.forEach(p => {
-      p.x += (seededRand(p.name, 7) - 0.5) * spread;
-    });
+    pts.forEach(p => { p.x += (seededRand(p.name, 7) - 0.5) * spread; });
   }
 
-  /* clamp every dot inside the plot bounds */
   const xMin = PAD.l + DOT, xMax = PAD.l + plotW - DOT;
   const yMin = PAD.t + DOT, yMax = PAD.t + plotH - DOT;
   pts.forEach(p => {
     p.x = Math.max(xMin, Math.min(xMax, p.x));
     p.y = Math.max(yMin, Math.min(yMax, p.y));
   });
-
   return pts;
 }
 
@@ -794,190 +830,153 @@ function buildSVG() {
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
 
-  /* clear and rebuild */
   svg.innerHTML = '';
 
-  /* defs */
+  /* defs always needed */
   const defs = makeSVG('defs');
-
-  /* clip path — keep dots inside plot area */
   const clip = makeSVG('clipPath', { id:'plot-clip' });
-  clip.appendChild(makeSVG('rect', {
-    x: PAD.l, y: PAD.t,
-    width: plotW, height: plotH
-  }));
+  clip.appendChild(makeSVG('rect', { x:PAD.l, y:PAD.t, width:plotW, height:plotH }));
   defs.appendChild(clip);
-
-  /* glow filter for "Your Character" */
   const filt = makeSVG('filter', { id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%' });
   const fgBlur = makeSVG('feGaussianBlur', { stdDeviation:'3', result:'blur' });
   const fgMerge = makeSVG('feMerge');
   fgMerge.appendChild(makeSVG('feMergeNode', { in:'blur' }));
   fgMerge.appendChild(makeSVG('feMergeNode', { in:'SourceGraphic' }));
-  filt.appendChild(fgBlur);
-  filt.appendChild(fgMerge);
+  filt.appendChild(fgBlur); filt.appendChild(fgMerge);
   defs.appendChild(filt);
   svg.appendChild(defs);
 
-  /* axis lines */
-  const axisG = makeSVG('g', { class:'axis-g' });
+  /* ── Empty state: fewer than 2 dimensions selected ── */
+  if (selectedDims.length < 2) {
+    const msg = selectedDims.length === 0
+      ? 'Select two axes above to build the chart'
+      : `"${DIMS[selectedDims[0]].label}" selected — pick one more axis`;
+    const t = makeSVG('text', {
+      x: W / 2, y: H / 2,
+      'text-anchor': 'middle',
+      style: 'font-family:"Red Hat Display",sans-serif; font-size:13px; fill:#2d2d2d;'
+    });
+    t.textContent = msg;
+    svg.appendChild(t);
+    return;
+  }
 
-  /* subtle horizontal grid lines */
-  const ax = AXES[activeTab];
-  if (!ax.yIsLog && ax.yCats) {
-    ax.yCats.forEach((_, i) => {
-      const y = PAD.t + plotH - (i / (ax.yCats.length - 1)) * plotH;
+  /* ── Chart state: exactly 2 dims ── */
+  const [xKey, yKey] = selectedDims;
+  const xDim = DIMS[xKey];
+  const yDim = DIMS[yKey];
+
+  /* axis lines + grid */
+  const axisG = makeSVG('g');
+  if (!yDim.isLog && yDim.cats) {
+    yDim.cats.forEach((_, i) => {
+      const y = PAD.t + plotH - (i / (yDim.cats.length - 1)) * plotH;
       axisG.appendChild(makeSVG('line', {
-        x1: PAD.l, y1: y, x2: PAD.l + plotW, y2: y,
+        x1:PAD.l, y1:y, x2:PAD.l+plotW, y2:y,
         stroke:'#1c1c1c', 'stroke-width':'1'
       }));
     });
   }
-
-  /* X axis baseline */
   axisG.appendChild(makeSVG('line', {
-    x1: PAD.l, y1: PAD.t + plotH,
-    x2: PAD.l + plotW, y2: PAD.t + plotH,
+    x1:PAD.l, y1:PAD.t+plotH, x2:PAD.l+plotW, y2:PAD.t+plotH,
+    stroke:'#2a2a2a', 'stroke-width':'1'
+  }));
+  axisG.appendChild(makeSVG('line', {
+    x1:PAD.l, y1:PAD.t, x2:PAD.l, y2:PAD.t+plotH,
     stroke:'#2a2a2a', 'stroke-width':'1'
   }));
 
-  /* Y axis line */
-  axisG.appendChild(makeSVG('line', {
-    x1: PAD.l, y1: PAD.t,
-    x2: PAD.l, y2: PAD.t + plotH,
-    stroke:'#2a2a2a', 'stroke-width':'1'
-  }));
-
-  /* X axis category labels */
-  if (ax.xCats) {
-    ax.xCats.forEach((cat, i) => {
-      const x = PAD.l + (i / (ax.xCats.length - 1)) * plotW;
-      const t = makeSVG('text', {
-        x, y: PAD.t + plotH + 20,
-        class:'ax-text',
-        'text-anchor':'middle'
-      });
+  /* X labels */
+  if (xDim.cats) {
+    xDim.cats.forEach((cat, i) => {
+      const x = PAD.l + (i / (xDim.cats.length - 1)) * plotW;
+      const t = makeSVG('text', { x, y:PAD.t+plotH+20, class:'ax-text', 'text-anchor':'middle' });
       t.textContent = cat;
       axisG.appendChild(t);
     });
   }
 
-  /* Y axis labels */
-  if (!ax.yIsLog && ax.yCats) {
-    ax.yCats.forEach((cat, i) => {
-      const y = PAD.t + plotH - (i / (ax.yCats.length - 1)) * plotH;
-      const t = makeSVG('text', {
-        x: PAD.l - 8, y: y + 4,
-        class:'ax-text',
-        'text-anchor':'end'
-      });
+  /* Y labels */
+  if (!yDim.isLog && yDim.cats) {
+    yDim.cats.forEach((cat, i) => {
+      const y = PAD.t + plotH - (i / (yDim.cats.length - 1)) * plotH;
+      const t = makeSVG('text', { x:PAD.l-8, y:y+4, class:'ax-text', 'text-anchor':'end' });
       t.textContent = cat;
       axisG.appendChild(t);
     });
-  } else if (ax.yIsLog) {
+  } else if (yDim.isLog) {
     const labels = ['1','10','100','1K','10K','1M+'];
     const vals   = [1, 10, 100, 1000, 10000, 1000000];
-    const allY   = VILLAINS.map(v => bodyNum(v.kills));
-    const yLogMax = Math.log1p(Math.max(...allY));
+    const logMax = Math.log1p(Math.max(...VILLAINS.map(v => yDim.fn(v))));
     labels.forEach((lbl, i) => {
-      const y = PAD.t + plotH - (Math.log1p(vals[i]) / yLogMax) * plotH;
-      if (y > PAD.t - 5 && y < PAD.t + plotH + 5) {
-        const t = makeSVG('text', {
-          x: PAD.l - 6, y: y + 4,
-          class:'ax-text',
-          'text-anchor':'end'
-        });
+      const y = PAD.t + plotH - (Math.log1p(vals[i]) / logMax) * plotH;
+      if (y > PAD.t-5 && y < PAD.t+plotH+5) {
+        const t = makeSVG('text', { x:PAD.l-6, y:y+4, class:'ax-text', 'text-anchor':'end' });
         t.textContent = lbl;
         axisG.appendChild(t);
       }
     });
   }
 
-  /* Axis titles */
+  /* axis titles */
   const xTitle = makeSVG('text', {
-    x: PAD.l + plotW / 2,
-    y: H - 8,
-    class:'ax-text',
-    'text-anchor':'middle',
+    x: PAD.l+plotW/2, y: H-8, class:'ax-text', 'text-anchor':'middle',
     style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;'
   });
-  xTitle.textContent = ax.xLabel;
+  xTitle.textContent = xDim.label;
   axisG.appendChild(xTitle);
 
   const yTitle = makeSVG('text', {
-    x: 14,
-    y: PAD.t + plotH / 2,
-    class:'ax-text',
-    'text-anchor':'middle',
+    x:14, y:PAD.t+plotH/2, class:'ax-text', 'text-anchor':'middle',
     style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;',
-    transform: `rotate(-90, 14, ${PAD.t + plotH / 2})`
+    transform:`rotate(-90, 14, ${PAD.t+plotH/2})`
   });
-  yTitle.textContent = ax.yLabel;
+  yTitle.textContent = yDim.label;
   axisG.appendChild(yTitle);
-
   svg.appendChild(axisG);
 
-  /* dots group (clipped to plot bounds) */
-  const dotsG  = makeSVG('g', { id:'dots-g', 'clip-path':'url(#plot-clip)' });
-  const labelsG = makeSVG('g', { id:'labels-g' });
+  /* dots + labels */
+  const dotsG   = makeSVG('g', { 'clip-path':'url(#plot-clip)' });
+  const labelsG = makeSVG('g');
+  const positions = computePositions(xKey, yKey);
 
-  const positions = computePositions(activeTab);
-
-  /* "Your Character" dashed trajectory lines */
-  const charPos = getCharPos();
-  const trailG = makeSVG('g', { id:'trail-g', opacity:'0.35' });
-
-  /* diagonal dashes */
-  const d1 = makeSVG('line', {
-    x1: PAD.l, y1: charPos.y,
-    x2: charPos.x, y2: PAD.t + plotH,
-    stroke:'#fff', 'stroke-width':'1',
-    'stroke-dasharray':'4 6'
-  });
-  const d2 = makeSVG('line', {
-    x1: charPos.x, y1: PAD.t,
-    x2: charPos.x + plotW * 0.3, y2: charPos.y,
-    stroke:'#fff', 'stroke-width':'1',
-    'stroke-dasharray':'4 6'
-  });
-  trailG.appendChild(d1);
-  trailG.appendChild(d2);
+  /* Your Character dashed lines */
+  const charPos = getCharPos(xDim, yDim);
+  const trailG  = makeSVG('g', { opacity:'0.35' });
+  trailG.appendChild(makeSVG('line', {
+    x1:PAD.l, y1:charPos.y, x2:charPos.x, y2:PAD.t+plotH,
+    stroke:'#fff', 'stroke-width':'1', 'stroke-dasharray':'4 6'
+  }));
+  trailG.appendChild(makeSVG('line', {
+    x1:charPos.x, y1:PAD.t, x2:charPos.x+plotW*0.3, y2:charPos.y,
+    stroke:'#fff', 'stroke-width':'1', 'stroke-dasharray':'4 6'
+  }));
   svg.appendChild(trailG);
 
   positions.forEach((p, i) => {
-    const v = VILLAINS[i];
+    const v      = VILLAINS[i];
     const female = FEMALE_NAMES.has(v.name);
     const color  = female ? '#FF3399' : '#00E5FF';
 
-    /* gender icon label — hidden by default */
     const gIcon = makeSVG('text', {
-      class:'vlabel vgender',
-      id:`icon-${i}`,
-      x: p.x + 10, y: p.y + 4,
+      class:'vlabel vgender', id:`icon-${i}`,
+      x:p.x+10, y:p.y+4,
       style:`fill:${color}; font-size:9px;`
     });
     gIcon.textContent = female ? '♀' : '♂';
     labelsG.appendChild(gIcon);
 
-    /* name label — hidden by default */
     const lbl = makeSVG('text', {
-      class:'vlabel',
-      id:`lbl-${i}`,
-      x: p.x + 18, y: p.y + 4,
-      style:'font-size:10px;'
+      class:'vlabel', id:`lbl-${i}`,
+      x:p.x+18, y:p.y+4, style:'font-size:10px;'
     });
     lbl.textContent = v.name;
     labelsG.appendChild(lbl);
 
-    /* dot */
     const circle = makeSVG('circle', {
-      class:'vdot',
-      id:`dot-${i}`,
-      cx: p.x, cy: p.y,
-      r: 7,
-      fill: color,
-      stroke: female ? '#fff' : 'none',
-      'stroke-width': female ? '1.5' : '0'
+      class:'vdot', id:`dot-${i}`,
+      cx:p.x, cy:p.y, r:7,
+      fill:color, stroke:'none', 'stroke-width':'0'
     });
     circle.addEventListener('mouseenter', e => {
       gIcon.style.opacity = '1';
@@ -992,22 +991,17 @@ function buildSVG() {
     dotsG.appendChild(circle);
   });
 
-  /* "Your Character" dot */
+  /* Your Character dot */
   const charCircle = makeSVG('circle', {
-    id:'char-dot',
-    cx: charPos.x, cy: charPos.y,
-    r: 9,
-    fill:'#fff',
-    filter:'url(#glow)',
-    style:'cursor:default;'
+    id:'char-dot', cx:charPos.x, cy:charPos.y, r:9,
+    fill:charDotColor, stroke:charDotStroke, 'stroke-width':'2',
+    filter:'url(#glow)', style:'cursor:default;'
   });
   dotsG.appendChild(charCircle);
 
-  /* "Your Character" label — always visible */
   const charLbl = makeSVG('text', {
-    id:'char-lbl',
-    class:'vlabel always-on',
-    x: charPos.x + 13, y: charPos.y + 4,
+    id:'char-lbl', class:'vlabel always-on',
+    x:charPos.x+13, y:charPos.y+4,
     style:'font-weight:600; font-size:11px;'
   });
   charLbl.textContent = document.getElementById('char-name').value || 'Your Character';
@@ -1017,20 +1011,8 @@ function buildSVG() {
   svg.appendChild(labelsG);
 }
 
-function getCharPos() {
-  const ax = AXES[activeTab];
-  const xVal = charState.anon + 1;
-  const wVal = charState.wealth + 1;
-  const sVal = charState.social + 1;
-  const kVal = 5;
-
-  let rawX, rawY;
-  if (ax === AXES.anonymity) { rawX = xVal; rawY = sVal; }
-  else if (ax === AXES.wealth) { rawX = wVal; rawY = sVal; }
-  else if (ax === AXES.social) { rawX = sVal; rawY = kVal; }
-  else { rawX = wVal; rawY = kVal; }
-
-  return toScreen(rawX, rawY, ax);
+function getCharPos(xDim, yDim) {
+  return toScreen(xDim.charVal(), yDim.charVal(), xDim, yDim);
 }
 
 
@@ -1040,16 +1022,6 @@ function makeSVG(tag, attrs = {}) {
   return el;
 }
 
-/* smooth re-position of dots when tab changes */
-function updatePositions() {
-  const positions = computePositions(activeTab);
-  const ax = AXES[activeTab];
-  const plotW = W - PAD.l - PAD.r;
-  const plotH = H - PAD.t - PAD.b;
-
-  /* rebuild axis labels inline (simpler than animating them) */
-  buildSVG();
-}
 
 function showTip(e, v, p) {
   const female = FEMALE_NAMES.has(v.name);
@@ -1082,15 +1054,49 @@ function hideTip() {
 /* ══════════════════════════════════════════════════════════
    UI CONTROLS
 ══════════════════════════════════════════════════════════ */
-/* tabs */
+/* tabs — first click = X axis, second click = Y axis; clicking selected = deselect */
 document.getElementById('tabs-row').addEventListener('click', e => {
   const btn = e.target.closest('.tab-btn');
   if (!btn) return;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  activeTab = btn.dataset.tab;
+  const dim = btn.dataset.dim;
+  const idx = selectedDims.indexOf(dim);
+  if (idx !== -1) {
+    /* deselect */
+    selectedDims.splice(idx, 1);
+  } else if (selectedDims.length < 2) {
+    selectedDims.push(dim);
+  } else {
+    /* both slots full — replace the oldest (first) */
+    selectedDims = [selectedDims[1], dim];
+  }
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (!b.dataset.label) b.dataset.label = b.textContent;
+    const pos = selectedDims.indexOf(b.dataset.dim);
+    b.classList.toggle('on', pos !== -1);
+    b.textContent = pos === 0 ? `${b.dataset.label} (X)` : pos === 1 ? `${b.dataset.label} (Y)` : b.dataset.label;
+  });
   buildSVG();
 });
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  selectedDims = [];
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('on');
+    if (b.dataset.label) b.textContent = b.dataset.label;
+    /* also clear stored label so next interaction re-reads correctly */
+  });
+  buildSVG();
+});
+
+function setGender(g) {
+  const colors = { female:'#FF3399', male:'#00E5FF', alien:'#43B749' };
+  charDotColor  = colors[g];
+  charDotStroke = '#fff';
+  document.querySelectorAll('.g-dot').forEach(el => el.classList.remove('selected'));
+  const idMap = { female:'g-female', male:'g-male', alien:'g-alien' };
+  document.getElementById(idMap[g]).classList.add('selected');
+  buildSVG();
+}
 
 /* cerebral/physical toggle */
 function setTog(which) {
