@@ -684,7 +684,12 @@ const FEMALE_NAMES = new Set([
   'Dolores Umbridge','Maleficent'
 ]);
 
-const ALIEN_NAMES = new Set(['Thanos','Xenomorph']);
+const ALIEN_NAMES  = new Set(['Thanos','Xenomorph']);
+const PINNED_NAMES = new Set([
+  'Hannibal Lecter','Darth Vader','Lord Voldemort','Thanos','Scar',
+  'Cruella de Vil','Miranda Priestly','Palpatine','Pennywise',
+  'Loki','Jigsaw','Maleficent','Captain Hook'
+]);
 
 const VILLAINS = [
   { name:'Hannibal Lecter',   anon:'Half Masked',  kills:'60+',      wealth:'Wealthy',      status:'Outcast'  },
@@ -1060,8 +1065,11 @@ function buildSVG() {
     const alien  = ALIEN_NAMES.has(v.name);
     const color  = alien ? '#43B749' : female ? '#FF3399' : '#00E5FF';
 
+    const pinned = PINNED_NAMES.has(v.name);
+
     const gIcon = makeSVG('text', {
-      class:'vlabel vgender', id:`icon-${i}`,
+      class: pinned ? 'vlabel vgender always-on' : 'vlabel vgender',
+      id:`icon-${i}`,
       x:p.x+10, y:p.y+4,
       style:`fill:${color}; font-size:9px;`
     });
@@ -1069,7 +1077,8 @@ function buildSVG() {
     labelsG.appendChild(gIcon);
 
     const lbl = makeSVG('text', {
-      class:'vlabel', id:`lbl-${i}`,
+      class: pinned ? 'vlabel always-on' : 'vlabel',
+      id:`lbl-${i}`,
       x:p.x+18, y:p.y+4, style:'font-size:10px;'
     });
     lbl.textContent = v.name;
