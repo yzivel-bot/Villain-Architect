@@ -84,21 +84,22 @@ html, body {
 .edit-btn {
   background: none;
   border: none;
-  padding: 0;
+  padding: 2px;
   cursor: pointer;
-  color: #555;
+  color: #777;
   display: flex;
   align-items: center;
   line-height: 1;
+  flex-shrink: 0;
 }
-.edit-btn:hover { color: #aaa; }
+.edit-btn:hover { color: #ccc; }
 
 .editable-inp {
   width: 100%;
   background: transparent;
-  border: none;
-  border-radius: 4px;
-  padding: 0 4px;
+  border: 1px solid #fff;
+  border-radius: 16px;
+  padding: 0 12px;
   height: 24px;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
@@ -108,8 +109,9 @@ html, body {
   box-sizing: border-box;
 }
 .editable-inp.editing {
-  background: #535353;
-  padding: 0 12px;
+  background: #9e9d9d;
+  border: none;
+  padding: 0 13px; /* +1px to compensate removed border */
   cursor: text;
 }
 
@@ -500,7 +502,7 @@ circle.vdot:hover { opacity: 0.75; }
     <div class="field-header">
       <span class="ctrl-label">Project Name</span>
       <button class="edit-btn" onclick="toggleEdit('project-name')" title="Edit">
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="15" height="15" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
     <input class="editable-inp" type="text" value="Untitled Superhero Script" readonly id="project-name">
@@ -596,7 +598,7 @@ circle.vdot:hover { opacity: 0.75; }
     <div class="field-header">
       <span class="ctrl-label">Character Name</span>
       <button class="edit-btn" onclick="toggleEdit('char-name')" title="Edit">
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="15" height="15" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
     <input class="editable-inp" type="text" value="Untitled" readonly id="char-name">
