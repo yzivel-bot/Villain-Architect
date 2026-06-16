@@ -592,6 +592,22 @@ circle.vdot:hover { opacity: 0.75; }
         <span class="tl">Ruler</span>
       </div>
     </div>
+
+    <div class="sl-item">
+      <span class="sl-title" id="lbl-kills">Body Count</span>
+      <div class="sl-wrap">
+        <input type="range" class="vslider" id="sl-kills" min="0" max="5" step="any" value="2"
+               oninput="onSlider('kills',+this.value)">
+      </div>
+      <div class="sl-ticks" id="tk-kills">
+        <span class="tl">1</span>
+        <span class="tl">10</span>
+        <span class="tl hi">100</span>
+        <span class="tl">1K</span>
+        <span class="tl">10K</span>
+        <span class="tl">1M+</span>
+      </div>
+    </div>
   </div>
 
   <div class="ctrl-group">
@@ -782,7 +798,7 @@ const DIMS = {
     fn:    v => bodyNum(v.kills),
     max:   null,
     isLog: true,
-    charVal: () => 5
+    charVal: () => KILL_VALS[Math.max(0, Math.min(5, Math.round(charState.kills)))]
   }
 };
 
@@ -800,7 +816,8 @@ let charDotStroke = 'none';
 let isDragging    = false;
 let W = 0, H = 0;
 const PAD = { t:55, b:55, l:70, r:30 };
-const charState   = { anon:2, wealth:3, social:0 };
+const charState   = { anon:2, wealth:3, social:0, kills:2 };
+const KILL_VALS   = [1, 10, 100, 1000, 10000, 1000000];
 
 function logMax(dim) {
   return Math.log1p(Math.max(...VILLAINS.map(v => dim.fn(v))));
@@ -1117,9 +1134,11 @@ function updateSlidersFromState() {
   document.getElementById('sl-anon').value    = charState.anon;
   document.getElementById('sl-wealth').value  = charState.wealth;
   document.getElementById('sl-social').value  = charState.social;
+  document.getElementById('sl-kills').value   = charState.kills;
   updateTickHighlight('tk-anon',   charState.anon);
   updateTickHighlight('tk-wealth', charState.wealth);
   updateTickHighlight('tk-social', charState.social);
+  updateTickHighlight('tk-kills',  charState.kills);
 }
 
 /* split two-word category names into two SVG tspan lines */
@@ -1275,6 +1294,9 @@ function onSlider(type, val) {
   } else if (type === 'social') {
     charState.social = val;
     updateTickHighlight('tk-social', val);
+  } else if (type === 'kills') {
+    charState.kills = val;
+    updateTickHighlight('tk-kills', val);
   }
   buildSVG(); /* redraw chart with new "Your Character" position */
 }
@@ -1322,9 +1344,19 @@ svg.addEventListener('mousemove', e => {
 
   if (!xDim.isLog) {
     setCharStateFromDim(xKey, ((px - PAD.l) / plotW) * (xDim.max - 1) + 1);
+  } else {
+    const lm = logMax(xDim);
+    const logKill = Math.max(0, ((px - PAD.l) / plotW) * lm);
+    charState.kills = KILL_VALS.reduce((best, v, i) =>
+      Math.abs(Math.log1p(v) - logKill) < Math.abs(Math.log1p(KILL_VALS[best]) - logKill) ? i : best, 0);
   }
   if (!yDim.isLog) {
     setCharStateFromDim(yKey, ((PAD.t + plotH - py) / plotH) * (yDim.max - 1) + 1);
+  } else {
+    const lm = logMax(yDim);
+    const logKill = Math.max(0, ((PAD.t + plotH - py) / plotH) * lm);
+    charState.kills = KILL_VALS.reduce((best, v, i) =>
+      Math.abs(Math.log1p(v) - logKill) < Math.abs(Math.log1p(KILL_VALS[best]) - logKill) ? i : best, 0);
   }
 
   /* move dot + label live without full rebuild */
