@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VILLAIN ARCHITECT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Red+Hat+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cyan: #00E5FF;
+  --pink: #FF3399;
+  --red: #E41B23;
+  --purple: #9e65e9;
+  --panel-bg: #171616;
+  --border-col: #656262;
+  --muted: #d3cfcf;
+  --dim: #8A8A93;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Red Hat Display', system-ui, sans-serif;
+  color: #fff;
+}
+
+.app {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ════════════ LEFT PANEL ════════════ */
+.left-panel {
+  width: 282px;
+  flex-shrink: 0;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border-col);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+
+.logo {
+  font-family: 'Bebas Neue', 'Red Hat Display', sans-serif;
+  font-size: 38px;
+  line-height: 0.92;
+  color: #fff;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.project-field input {
+  width: 100%;
+  background: #535353;
+  border: none;
+  border-radius: 4px;
+  padding: 0 12px;
+  height: 24px;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  color: #fff;
+  outline: none;
+}
+
+.ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+
+.ctrl-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.genre-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  padding: 0 12px;
+  height: 24px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.genre-wrap select {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.gender-row { display: flex; gap: 8px; align-items: center; }
+
+.g-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.g-dot:hover { transform: scale(1.12); }
+.g-dot.pink  { background: #FF3399; }
+.g-dot.cyan  { background: #00E5FF; }
+.g-dot.green { background: #3CB371; }
+
+.toggle-row { display: flex; height: 24px; }
+
+.tog {
+  flex: 1;
+  height: 24px;
+  border: 1px solid #fff;
+  background: transparent;
+  color: #fff;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.tog:first-child { border-radius: 4px 0 0 4px; }
+.tog:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
+.tog.on { background: #fff; color: #000; }
+
+/* ── Sliders ── */
+.sliders-sec { display: flex; flex-direction: column; gap: 24px; }
+
+.sl-item { position: relative; }
+
+.sl-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.sl-title.lit { color: #fff; }
+
+.sl-wrap { position: relative; margin: 0 2px; }
+
+input[type=range].vslider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2px;
+  background: #444;
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+input[type=range].vslider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid #000;
+  box-shadow: 0 0 0 1.5px #777;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+input[type=range].vslider.accent::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2.5px #E41B23;
+}
+
+.sl-ticks {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 5px;
+}
+
+.tl {
+  font-size: 9px;
+  font-weight: 300;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.25;
+  min-width: 24px;
+}
+.tl.hi { color: #fff; font-weight: 600; }
+
+.char-inp {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #fff;
+  border-radius: 16px;
+  height: 24px;
+  padding: 0 12px;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  color: #fff;
+  outline: none;
+}
+
+/* ════════════ CENTER PANEL ════════════ */
+.center-panel {
+  flex: 1;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tabs-row {
+  flex-shrink: 0;
+  display: flex;
+  gap: 20px;
+  padding: 16px 24px 14px;
+}
+
+.tab-btn {
+  flex: 1;
+  height: 28px;
+  border: 1px solid var(--red);
+  border-radius: 28px;
+  background: transparent;
+  color: #fff;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s;
+  white-space: nowrap;
+}
+.tab-btn.on { background: #E41B23; border-color: #E41B23; }
+
+.scatter-wrap {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+#scatter-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+circle.vdot {
+  transition: cx 0.65s cubic-bezier(0.4,0,0.2,1),
+              cy 0.65s cubic-bezier(0.4,0,0.2,1),
+              r  0.4s ease;
+  cursor: pointer;
+}
+circle.vdot:hover { opacity: 0.75; }
+
+.vlabel {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 11px;
+  fill: #fff;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease,
+              x 0.65s cubic-bezier(0.4,0,0.2,1),
+              y 0.65s cubic-bezier(0.4,0,0.2,1);
+}
+
+.vlabel.always-on { opacity: 1; }
+
+.vgender {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease,
+              x 0.65s cubic-bezier(0.4,0,0.2,1),
+              y 0.65s cubic-bezier(0.4,0,0.2,1);
+}
+
+.ax-text {
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  fill: #4a4a4a;
+}
+
+#tooltip {
+  position: absolute;
+  background: rgba(8,8,8,0.93);
+  border: 1px solid #3a3a3a;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #fff;
+  pointer-events: none;
+  display: none;
+  z-index: 100;
+  white-space: nowrap;
+  line-height: 1.7;
+}
+
+/* ════════════ RIGHT PANEL ════════════ */
+.right-panel {
+  width: 322px;
+  flex-shrink: 0;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--border-col);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.rp-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  align-items: flex-end;
+}
+
+.rp-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.rp-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  width: 100%;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.script-box {
+  background: #353535;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.6;
+  flex-shrink: 0;
+  overflow-y: auto;
+  width: 100%;
+  max-height: 310px;
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+  position: relative;
+}
+.script-box p + p { margin-top: 6px; }
+
+.hl {
+  background: var(--purple);
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+
+.ai-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.65;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #444 transparent;
+}
+.ai-text p + p { margin-top: 6px; }
+
+.chat-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #2d2c2b;
+  border: 1px solid #2f312f;
+  border-radius: 24px;
+  padding: 0 12px;
+  height: 32px;
+  width: 100%;
+}
+.chat-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #95938f;
+}
+.chat-bar input::placeholder { color: #95938f; }
+.bar-icon {
+  color: #95938f;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════ LEFT PANEL ══════════ -->
+<div class="left-panel">
+  <div class="logo">Villain<br>Architect</div>
+
+  <div class="project-field">
+    <input type="text" value="Untitled Superhero Script">
+  </div>
+
+  <div class="ctrl-group">
+    <span class="ctrl-label">Genre</span>
+    <div class="genre-wrap">
+      <select id="genre-sel">
+        <option>Horror</option>
+        <option>Thriller</option>
+        <option>Sci-Fi</option>
+        <option>Action</option>
+        <option>Drama</option>
+      </select>
+      <svg width="11" height="7" viewBox="0 0 11 7" fill="none">
+        <path d="M1 1L5.5 6L10 1" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="ctrl-group">
+    <span class="ctrl-label">Gender</span>
+    <div class="gender-row">
+      <button class="g-dot pink" title="Female"></button>
+      <button class="g-dot cyan" title="Male"></button>
+      <button class="g-dot green" title="Non-binary"></button>
+    </div>
+  </div>
+
+  <div class="toggle-row">
+    <button class="tog on" id="tog-c" onclick="setTog('c')">Cerebral</button>
+    <button class="tog"    id="tog-p" onclick="setTog('p')">Physical</button>
+  </div>
+
+  <div class="sliders-sec">
+    <div class="sl-item">
+      <span class="sl-title" id="lbl-anon">Anonymity</span>
+      <div class="sl-wrap">
+        <input type="range" class="vslider" id="sl-anon" min="0" max="4" value="2"
+               oninput="onSlider('anon',+this.value)">
+      </div>
+      <div class="sl-ticks" id="tk-anon">
+        <span class="tl">Visible</span>
+        <span class="tl">Face<br>Paint</span>
+        <span class="tl hi">Half<br>Masked</span>
+        <span class="tl">Fully<br>Masked</span>
+        <span class="tl">Alien</span>
+      </div>
+    </div>
+
+    <div class="sl-item">
+      <span class="sl-title" id="lbl-wealth">Estimated Wealth</span>
+      <div class="sl-wrap">
+        <input type="range" class="vslider accent" id="sl-wealth" min="0" max="4" value="3"
+               oninput="onSlider('wealth',+this.value)">
+      </div>
+      <div class="sl-ticks" id="tk-wealth">
+        <span class="tl">None/<br>Poor</span>
+        <span class="tl">Working</span>
+        <span class="tl">Middle<br>Class</span>
+        <span class="tl hi">Wealthy</span>
+        <span class="tl">Infinite</span>
+      </div>
+    </div>
+
+    <div class="sl-item">
+      <span class="sl-title lit" id="lbl-social">Social Status</span>
+      <div class="sl-wrap">
+        <input type="range" class="vslider" id="sl-social" min="0" max="3" value="0"
+               oninput="onSlider('social',+this.value)">
+      </div>
+      <div class="sl-ticks" id="tk-social">
+        <span class="tl hi">Outcast</span>
+        <span class="tl">Ordinary</span>
+        <span class="tl">Elite</span>
+        <span class="tl">Ruler</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl-group">
+    <span class="ctrl-label">Character Name</span>
+    <input class="char-inp" type="text" value="Untitled" id="char-name">
+  </div>
+</div>
+
+<!-- ══════════ CENTER PANEL ══════════ -->
+<div class="center-panel">
+  <div class="tabs-row" id="tabs-row">
+    <button class="tab-btn on" data-tab="anonymity">Anonymity</button>
+    <button class="tab-btn" data-tab="wealth">Estimated Wealth</button>
+    <button class="tab-btn" data-tab="social">Social Status</button>
+    <button class="tab-btn" data-tab="lethality">Lethality</button>
+  </div>
+  <div class="scatter-wrap" id="scatter-wrap">
+    <svg id="scatter-svg"></svg>
+    <div id="tooltip"></div>
+  </div>
+</div>
+
+<!-- ══════════ RIGHT PANEL ══════════ -->
+<div class="right-panel">
+  <div class="rp-inner">
+    <div class="rp-title">ARCHITECT ADVISOR</div>
+    <div class="rp-subtitle">Tell me something about your movie or upload a scene</div>
+
+    <div class="script-box">
+      <p>The film follows a street-level, <span class="hl">detective</span>-style <span class="hl">superhero</span> operating in a&nbsp;crime-ridden city. He is deeply traumatized by a massive chemical plant disaster from years ago. That night, he was forced to make an impossible, split-second choice: save a bus full of children, or a group of factory workers. He chose the children, and the guilt of leaving those workers behind has haunted him ever since.</p>
+      <p>The story kicks off when a series of calculated, personal attacks starts tearing his life apart. His allies are targeted and his secrets are exposed. He has <span class="hl">no idea who is behind this</span> orchestration or why they're digging into his past. It's a dark, tragic <span class="hl">mystery</span> where the hero is forced to investigate his own history, entirely unaware that the threat chasing him is a direct, living consequence of the choice he made that night.</p>
+    </div>
+
+    <div class="ai-text">
+      <p>Interesting start.</p>
+      <p>A detective-style superhero facing an anonymous threat inside a mystery setup. This is a powerful, high-stakes foundation.</p>
+      <p>Since the protagonist has no idea who is behind this, your villain is currently a ghost to the audience.</p>
+      <p>To help us map this threat against our core database, we need to establish their physical and tactical footprint.</p>
+      <p>How does this unseen antagonist orchestrate these personal attacks? Are they acting as a lone mastermind operating from the shadows, or do they deploy aggressive, direct physical violence against the hero's allies?</p>
+    </div>
+  </div>
+
+  <div class="chat-bar">
+    <span class="bar-icon">
+      <img src="https://www.figma.com/api/mcp/asset/86c73091-6c1a-489e-9c55-261bb3b9b1eb" width="12" height="12" alt="">
+    </span>
+    <input type="text" placeholder="Tell me something">
+    <span class="bar-icon">
+      <img src="https://www.figma.com/api/mcp/asset/528c02c7-0557-4109-b7ce-cb859192058a" width="14" height="14" alt="">
+    </span>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════════ */
+const FEMALE_NAMES = new Set([
+  'Nurse Ratched','Amy Dunne','Annie Wilkes','Cruella de Vil',
+  'Miranda Priestly','Catherine Tramell','Regina George',
+  'Dolores Umbridge','Maleficent'
+]);
+
+const VILLAINS = [
+  { name:'Hannibal Lecter',   anon:'Half Masked',  kills:'60+',      wealth:'Wealthy',      status:'Outcast'  },
+  { name:'Darth Vader',       anon:'Fully Masked', kills:'Planets',  wealth:'Infinite',     status:'Ruler'    },
+  { name:'The Joker',         anon:'Face Paint',   kills:'30+',      wealth:'None',         status:'Outcast'  },
+  { name:'Anton Chigurh',     anon:'Visible',      kills:'12',       wealth:'Working',      status:'Outcast'  },
+  { name:'Nurse Ratched',     anon:'Visible',      kills:'1',        wealth:'Middle Class', status:'Elite'    },
+  { name:'Hans Landa',        anon:'Visible',      kills:'100+',     wealth:'Wealthy',      status:'Elite'    },
+  { name:'Norman Bates',      anon:'Visible',      kills:'5',        wealth:'Working',      status:'Ordinary' },
+  { name:'Amy Dunne',         anon:'Visible',      kills:'1',        wealth:'Wealthy',      status:'Elite'    },
+  { name:'Lord Voldemort',    anon:'Fully Masked', kills:'100+',     wealth:'Infinite',     status:'Ruler'    },
+  { name:'Hans Gruber',       anon:'Visible',      kills:'5',        wealth:'Middle Class', status:'Outcast'  },
+  { name:'Annie Wilkes',      anon:'Visible',      kills:'5',        wealth:'Middle Class', status:'Outcast'  },
+  { name:'Alex DeLarge',      anon:'Face Paint',   kills:'1',        wealth:'Poor',         status:'Outcast'  },
+  { name:'Jack Torrance',     anon:'Visible',      kills:'1',        wealth:'Working',      status:'Ordinary' },
+  { name:'Thanos',            anon:'Alien',        kills:'Trillions',wealth:'Infinite',     status:'Ruler'    },
+  { name:'Scar',              anon:'Visible',      kills:'1',        wealth:'Infinite',     status:'Ruler'    },
+  { name:'Agent Smith',       anon:'Half Masked',  kills:'Digital',  wealth:'Wealthy',      status:'Elite'    },
+  { name:'Patrick Bateman',   anon:'Visible',      kills:'15+',      wealth:'None',         status:'Outcast'  },
+  { name:'Cruella de Vil',    anon:'Face Paint',   kills:'0',        wealth:'Infinite',     status:'Ruler'    },
+  { name:'Amon Goeth',        anon:'Visible',      kills:'1000s',    wealth:'Infinite',     status:'Ruler'    },
+  { name:'Sauron',            anon:'Face Paint',   kills:'Armies',   wealth:'None',         status:'Outcast'  },
+  { name:'Hal 9000',          anon:'Fully Masked', kills:'4',        wealth:'Middle Class', status:'Outcast'  },
+  { name:'Tommy DeVito',      anon:'Visible',      kills:'5+',       wealth:'Poor',         status:'Outcast'  },
+  { name:'John Doe',          anon:'Visible',      kills:'7',        wealth:'Wealthy',      status:'Elite'    },
+  { name:'T-1000',            anon:'Fully Masked', kills:'10+',      wealth:'Wealthy',      status:'Ruler'    },
+  { name:'Miranda Priestly',  anon:'Visible',      kills:'0',        wealth:'Infinite',     status:'Ruler'    },
+  { name:'Xenomorph',         anon:'Alien',        kills:'7',        wealth:'None',         status:'Outcast'  },
+  { name:'Palpatine',         anon:'Fully Masked', kills:'Systemic', wealth:'Wealthy',      status:'Ruler'    },
+  { name:'Roy Batty',         anon:'Visible',      kills:'4',        wealth:'Infinite',     status:'Ruler'    },
+  { name:'Catherine Tramell', anon:'Visible',      kills:'3+',       wealth:'Working',      status:'Ruler'    },
+  { name:'Michael Corleone',  anon:'Visible',      kills:'Systemic', wealth:'Wealthy',      status:'Elite'    },
+  { name:'Freddy Krueger',    anon:'Fully Masked', kills:'30+',      wealth:'None',         status:'Outcast'  },
+  { name:'Bane',              anon:'Half Masked',  kills:'100',      wealth:'Poor',         status:'Outcast'  },
+  { name:'Regina George',     anon:'Visible',      kills:'0',        wealth:'None',         status:'Outcast'  },
+  { name:'Commodus',          anon:'Visible',      kills:'5+',       wealth:'Wealthy',      status:'Elite'    },
+  { name:'Pennywise',         anon:'Face Paint',   kills:'Scores',   wealth:'Infinite',     status:'Ruler'    },
+  { name:'Dolores Umbridge',  anon:'Visible',      kills:'0',        wealth:'Working',      status:'Ruler'    },
+  { name:'Magneto',           anon:'Half Masked',  kills:'Many',     wealth:'Poor',         status:'Outcast'  },
+  { name:'Loki',              anon:'Half Masked',  kills:'Many',     wealth:'Wealthy',      status:'Ruler'    },
+  { name:'Colonel Kurtz',     anon:'Visible',      kills:'Many',     wealth:'Infinite',     status:'Elite'    },
+  { name:'Auric Goldfinger',  anon:'Visible',      kills:'3',        wealth:'None',         status:'Outcast'  },
+  { name:'Leatherface',       anon:'Fully Masked', kills:'5+',       wealth:'Poor',         status:'Outcast'  },
+  { name:'Calvin Candie',     anon:'Visible',      kills:'Many',     wealth:'Wealthy',      status:'Elite'    },
+  { name:'Gollum',            anon:'Fully Masked', kills:'2',        wealth:'Wealthy',      status:'Elite'    },
+  { name:'Green Goblin',      anon:'Fully Masked', kills:'Many',     wealth:'Working',      status:'Outcast'  },
+  { name:'Jigsaw',            anon:'Fully Masked', kills:'1',        wealth:'Working',      status:'Elite'    },
+  { name:'Jason Voorhees',    anon:'Fully Masked', kills:'150+',     wealth:'None',         status:'Outcast'  },
+  { name:'Michael Myers',     anon:'Fully Masked', kills:'120+',     wealth:'Wealthy',      status:'Elite'    },
+  { name:'Maleficent',        anon:'Visible',      kills:'0',        wealth:'Infinite',     status:'Ruler'    },
+  { name:'Sweeney Todd',      anon:'Visible',      kills:'15+',      wealth:'Wealthy',      status:'Elite'    },
+  { name:'Captain Hook',      anon:'Visible',      kills:'0',        wealth:'None',         status:'Outcast'  },
+];
+
+/* numeric mappings */
+const ANON_MAP  = { 'Visible':1, 'Face Paint':2, 'Half Masked':3, 'Fully Masked':4, 'Alien':5 };
+const STATUS_MAP= { 'Outcast':1, 'Ordinary':2, 'Elite':3, 'Ruler':4 };
+const WEALTH_MAP= { 'None':1,'Poor':1,'Working':2,'Middle Class':3,'Wealthy':4,'Infinite':5 };
+
+const BODY_KEYWORDS = {
+  'Trillions':1e8,'Planets':1e6,'Armies':5e4,'Systemic':500,
+  'Scores':80,'Many':50,'Digital':30,'1000s':2000
+};
+
+function bodyNum(s) {
+  if (BODY_KEYWORDS[s]) return BODY_KEYWORDS[s];
+  const n = parseFloat(String(s).replace('+','').replace('s',''));
+  return isNaN(n) ? 5 : n + 0.1;
+}
+
+function seededRand(str, salt) {
+  let h = salt * 2654435761;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 2654435761) >>> 0;
+  }
+  return (h >>> 0) / 4294967295;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SCATTER PLOT ENGINE
+══════════════════════════════════════════════════════════ */
+const svg    = document.getElementById('scatter-svg');
+const wrap   = document.getElementById('scatter-wrap');
+const tipEl  = document.getElementById('tooltip');
+
+let activeTab = 'anonymity';
+let W = 0, H = 0;
+const PAD = { t:55, b:55, l:70, r:30 };
+
+/* axis configs per tab */
+const AXES = {
+  anonymity: {
+    xLabel:'ANONYMITY',
+    yLabel:'SOCIAL STATUS',
+    xCats:['Visible','Face Paint','Half Masked','Fully Masked','Alien'],
+    yCats:['Outcast','Ordinary','Elite','Ruler'],
+    xFn: v => ANON_MAP[v.anon],
+    yFn: v => STATUS_MAP[v.status],
+    xMax:5, yMax:4, xIsLog:false, yIsLog:false
+  },
+  wealth: {
+    xLabel:'ESTIMATED WEALTH',
+    yLabel:'SOCIAL STATUS',
+    xCats:['None/Poor','Working','Middle Class','Wealthy','Infinite'],
+    yCats:['Outcast','Ordinary','Elite','Ruler'],
+    xFn: v => WEALTH_MAP[v.wealth],
+    yFn: v => STATUS_MAP[v.status],
+    xMax:5, yMax:4, xIsLog:false, yIsLog:false
+  },
+  social: {
+    xLabel:'SOCIAL STATUS',
+    yLabel:'BODY COUNT',
+    xCats:['Outcast','Ordinary','Elite','Ruler'],
+    yCats:null,
+    xFn: v => STATUS_MAP[v.status],
+    yFn: v => bodyNum(v.kills),
+    xMax:4, yMax:null, xIsLog:false, yIsLog:true
+  },
+  lethality: {
+    xLabel:'ESTIMATED WEALTH',
+    yLabel:'BODY COUNT',
+    xCats:['None/Poor','Working','Middle Class','Wealthy','Infinite'],
+    yCats:null,
+    xFn: v => WEALTH_MAP[v.wealth],
+    yFn: v => bodyNum(v.kills),
+    xMax:5, yMax:null, xIsLog:false, yIsLog:true
+  }
+};
+
+/* Your Character state */
+const charState = { anon:2, wealth:3, social:0 };
+
+function getCharCoords(tab) {
+  const anonVal = charState.anon + 1;       /* 1-5 */
+  const wealthVal = charState.wealth + 1;   /* 1-5 */
+  const socialVal = charState.social + 1;   /* 1-4 */
+  const killsVal  = 5; /* placeholder body count */
+
+  if (tab === 'anonymity') return { x: anonVal,   y: socialVal };
+  if (tab === 'wealth')    return { x: wealthVal,  y: socialVal };
+  if (tab === 'social')    return { x: socialVal,  y: killsVal  };
+  if (tab === 'lethality') return { x: wealthVal,  y: killsVal  };
+}
+
+function toScreen(xVal, yVal, ax) {
+  const plotW = W - PAD.l - PAD.r;
+  const plotH = H - PAD.t - PAD.b;
+
+  let sx = PAD.l + ((xVal - 1) / (ax.xMax - 1)) * plotW;
+
+  let sy;
+  if (ax.yIsLog) {
+    const allY = VILLAINS.map(v => bodyNum(v.kills));
+    const yMax = Math.log1p(Math.max(...allY));
+    sy = PAD.t + plotH - (Math.log1p(yVal) / yMax) * plotH;
+  } else {
+    sy = PAD.t + plotH - ((yVal - 1) / (ax.yMax - 1)) * plotH;
+  }
+
+  return { x: sx, y: sy };
+}
+
+
+function computePositions(tab) {
+  const ax    = AXES[tab];
+  const plotW = W - PAD.l - PAD.r;
+  const plotH = H - PAD.t - PAD.b;
+  const DOT   = 9; /* safe radius including stroke */
+
+  /* base screen position for every villain */
+  const pts = VILLAINS.map(v => {
+    const xVal = ax.xFn(v);
+    const yVal = ax.yFn(v);
+    const pos  = toScreen(xVal, yVal, ax);
+    return { x: pos.x, y: pos.y, xVal, yVal, name: v.name, female: FEMALE_NAMES.has(v.name) };
+  });
+
+  const colW = plotW / (ax.xMax - 1);
+
+  if (!ax.yIsLog) {
+    /* ── Categorical X and Y: arrange collisions in a compact grid ── */
+    const rowH  = plotH / (ax.yMax - 1);
+    const cellW = Math.min(colW * 0.78, 90);
+    const cellH = Math.min(rowH * 0.72, 26);
+
+    /* group indices by (xVal, yVal) bin */
+    const bins = {};
+    pts.forEach((p, i) => {
+      const key = `${p.xVal}|${p.yVal}`;
+      (bins[key] = bins[key] || []).push(i);
+    });
+
+    for (const indices of Object.values(bins)) {
+      const n    = indices.length;
+      const cols = Math.ceil(Math.sqrt(n * 1.5)); /* wider than tall */
+      const rows = Math.ceil(n / cols);
+      indices.forEach((idx, j) => {
+        const col = (j % cols) - (cols - 1) / 2;
+        const row = Math.floor(j / cols) - (rows - 1) / 2;
+        pts[idx].x += col * cellW;
+        pts[idx].y += row * cellH;
+      });
+    }
+  } else {
+    /* ── Log Y: only jitter X within the column ── */
+    const spread = colW * 0.55;
+    pts.forEach(p => {
+      p.x += (seededRand(p.name, 7) - 0.5) * spread;
+    });
+  }
+
+  /* clamp every dot inside the plot bounds */
+  const xMin = PAD.l + DOT, xMax = PAD.l + plotW - DOT;
+  const yMin = PAD.t + DOT, yMax = PAD.t + plotH - DOT;
+  pts.forEach(p => {
+    p.x = Math.max(xMin, Math.min(xMax, p.x));
+    p.y = Math.max(yMin, Math.min(yMax, p.y));
+  });
+
+  return pts;
+}
+
+/* ── draw / update ── */
+function buildSVG() {
+  W = wrap.clientWidth;
+  H = wrap.clientHeight;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const plotW = W - PAD.l - PAD.r;
+  const plotH = H - PAD.t - PAD.b;
+
+  /* clear and rebuild */
+  svg.innerHTML = '';
+
+  /* defs */
+  const defs = makeSVG('defs');
+
+  /* clip path — keep dots inside plot area */
+  const clip = makeSVG('clipPath', { id:'plot-clip' });
+  clip.appendChild(makeSVG('rect', {
+    x: PAD.l, y: PAD.t,
+    width: plotW, height: plotH
+  }));
+  defs.appendChild(clip);
+
+  /* glow filter for "Your Character" */
+  const filt = makeSVG('filter', { id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%' });
+  const fgBlur = makeSVG('feGaussianBlur', { stdDeviation:'3', result:'blur' });
+  const fgMerge = makeSVG('feMerge');
+  fgMerge.appendChild(makeSVG('feMergeNode', { in:'blur' }));
+  fgMerge.appendChild(makeSVG('feMergeNode', { in:'SourceGraphic' }));
+  filt.appendChild(fgBlur);
+  filt.appendChild(fgMerge);
+  defs.appendChild(filt);
+  svg.appendChild(defs);
+
+  /* axis lines */
+  const axisG = makeSVG('g', { class:'axis-g' });
+
+  /* subtle horizontal grid lines */
+  const ax = AXES[activeTab];
+  if (!ax.yIsLog && ax.yCats) {
+    ax.yCats.forEach((_, i) => {
+      const y = PAD.t + plotH - (i / (ax.yCats.length - 1)) * plotH;
+      axisG.appendChild(makeSVG('line', {
+        x1: PAD.l, y1: y, x2: PAD.l + plotW, y2: y,
+        stroke:'#1c1c1c', 'stroke-width':'1'
+      }));
+    });
+  }
+
+  /* X axis baseline */
+  axisG.appendChild(makeSVG('line', {
+    x1: PAD.l, y1: PAD.t + plotH,
+    x2: PAD.l + plotW, y2: PAD.t + plotH,
+    stroke:'#2a2a2a', 'stroke-width':'1'
+  }));
+
+  /* Y axis line */
+  axisG.appendChild(makeSVG('line', {
+    x1: PAD.l, y1: PAD.t,
+    x2: PAD.l, y2: PAD.t + plotH,
+    stroke:'#2a2a2a', 'stroke-width':'1'
+  }));
+
+  /* X axis category labels */
+  if (ax.xCats) {
+    ax.xCats.forEach((cat, i) => {
+      const x = PAD.l + (i / (ax.xCats.length - 1)) * plotW;
+      const t = makeSVG('text', {
+        x, y: PAD.t + plotH + 20,
+        class:'ax-text',
+        'text-anchor':'middle'
+      });
+      t.textContent = cat;
+      axisG.appendChild(t);
+    });
+  }
+
+  /* Y axis labels */
+  if (!ax.yIsLog && ax.yCats) {
+    ax.yCats.forEach((cat, i) => {
+      const y = PAD.t + plotH - (i / (ax.yCats.length - 1)) * plotH;
+      const t = makeSVG('text', {
+        x: PAD.l - 8, y: y + 4,
+        class:'ax-text',
+        'text-anchor':'end'
+      });
+      t.textContent = cat;
+      axisG.appendChild(t);
+    });
+  } else if (ax.yIsLog) {
+    const labels = ['1','10','100','1K','10K','1M+'];
+    const vals   = [1, 10, 100, 1000, 10000, 1000000];
+    const allY   = VILLAINS.map(v => bodyNum(v.kills));
+    const yLogMax = Math.log1p(Math.max(...allY));
+    labels.forEach((lbl, i) => {
+      const y = PAD.t + plotH - (Math.log1p(vals[i]) / yLogMax) * plotH;
+      if (y > PAD.t - 5 && y < PAD.t + plotH + 5) {
+        const t = makeSVG('text', {
+          x: PAD.l - 6, y: y + 4,
+          class:'ax-text',
+          'text-anchor':'end'
+        });
+        t.textContent = lbl;
+        axisG.appendChild(t);
+      }
+    });
+  }
+
+  /* Axis titles */
+  const xTitle = makeSVG('text', {
+    x: PAD.l + plotW / 2,
+    y: H - 8,
+    class:'ax-text',
+    'text-anchor':'middle',
+    style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;'
+  });
+  xTitle.textContent = ax.xLabel;
+  axisG.appendChild(xTitle);
+
+  const yTitle = makeSVG('text', {
+    x: 14,
+    y: PAD.t + plotH / 2,
+    class:'ax-text',
+    'text-anchor':'middle',
+    style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;',
+    transform: `rotate(-90, 14, ${PAD.t + plotH / 2})`
+  });
+  yTitle.textContent = ax.yLabel;
+  axisG.appendChild(yTitle);
+
+  svg.appendChild(axisG);
+
+  /* dots group (clipped to plot bounds) */
+  const dotsG  = makeSVG('g', { id:'dots-g', 'clip-path':'url(#plot-clip)' });
+  const labelsG = makeSVG('g', { id:'labels-g' });
+
+  const positions = computePositions(activeTab);
+
+  /* "Your Character" dashed trajectory lines */
+  const charPos = getCharPos();
+  const trailG = makeSVG('g', { id:'trail-g', opacity:'0.35' });
+
+  /* diagonal dashes */
+  const d1 = makeSVG('line', {
+    x1: PAD.l, y1: charPos.y,
+    x2: charPos.x, y2: PAD.t + plotH,
+    stroke:'#fff', 'stroke-width':'1',
+    'stroke-dasharray':'4 6'
+  });
+  const d2 = makeSVG('line', {
+    x1: charPos.x, y1: PAD.t,
+    x2: charPos.x + plotW * 0.3, y2: charPos.y,
+    stroke:'#fff', 'stroke-width':'1',
+    'stroke-dasharray':'4 6'
+  });
+  trailG.appendChild(d1);
+  trailG.appendChild(d2);
+  svg.appendChild(trailG);
+
+  positions.forEach((p, i) => {
+    const v = VILLAINS[i];
+    const female = FEMALE_NAMES.has(v.name);
+    const color  = female ? '#FF3399' : '#00E5FF';
+
+    /* gender icon label — hidden by default */
+    const gIcon = makeSVG('text', {
+      class:'vlabel vgender',
+      id:`icon-${i}`,
+      x: p.x + 10, y: p.y + 4,
+      style:`fill:${color}; font-size:9px;`
+    });
+    gIcon.textContent = female ? '♀' : '♂';
+    labelsG.appendChild(gIcon);
+
+    /* name label — hidden by default */
+    const lbl = makeSVG('text', {
+      class:'vlabel',
+      id:`lbl-${i}`,
+      x: p.x + 18, y: p.y + 4,
+      style:'font-size:10px;'
+    });
+    lbl.textContent = v.name;
+    labelsG.appendChild(lbl);
+
+    /* dot */
+    const circle = makeSVG('circle', {
+      class:'vdot',
+      id:`dot-${i}`,
+      cx: p.x, cy: p.y,
+      r: 7,
+      fill: color,
+      stroke: female ? '#fff' : 'none',
+      'stroke-width': female ? '1.5' : '0'
+    });
+    circle.addEventListener('mouseenter', e => {
+      gIcon.style.opacity = '1';
+      lbl.style.opacity   = '1';
+      showTip(e, v, p);
+    });
+    circle.addEventListener('mouseleave', () => {
+      gIcon.style.opacity = '0';
+      lbl.style.opacity   = '0';
+      hideTip();
+    });
+    dotsG.appendChild(circle);
+  });
+
+  /* "Your Character" dot */
+  const charCircle = makeSVG('circle', {
+    id:'char-dot',
+    cx: charPos.x, cy: charPos.y,
+    r: 9,
+    fill:'#fff',
+    filter:'url(#glow)',
+    style:'cursor:default;'
+  });
+  dotsG.appendChild(charCircle);
+
+  /* "Your Character" label — always visible */
+  const charLbl = makeSVG('text', {
+    id:'char-lbl',
+    class:'vlabel always-on',
+    x: charPos.x + 13, y: charPos.y + 4,
+    style:'font-weight:600; font-size:11px;'
+  });
+  charLbl.textContent = document.getElementById('char-name').value || 'Your Character';
+  labelsG.appendChild(charLbl);
+
+  svg.appendChild(dotsG);
+  svg.appendChild(labelsG);
+}
+
+function getCharPos() {
+  const ax = AXES[activeTab];
+  const xVal = charState.anon + 1;
+  const wVal = charState.wealth + 1;
+  const sVal = charState.social + 1;
+  const kVal = 5;
+
+  let rawX, rawY;
+  if (ax === AXES.anonymity) { rawX = xVal; rawY = sVal; }
+  else if (ax === AXES.wealth) { rawX = wVal; rawY = sVal; }
+  else if (ax === AXES.social) { rawX = sVal; rawY = kVal; }
+  else { rawX = wVal; rawY = kVal; }
+
+  return toScreen(rawX, rawY, ax);
+}
+
+
+function makeSVG(tag, attrs = {}) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+/* smooth re-position of dots when tab changes */
+function updatePositions() {
+  const positions = computePositions(activeTab);
+  const ax = AXES[activeTab];
+  const plotW = W - PAD.l - PAD.r;
+  const plotH = H - PAD.t - PAD.b;
+
+  /* rebuild axis labels inline (simpler than animating them) */
+  buildSVG();
+}
+
+function showTip(e, v, p) {
+  const female = FEMALE_NAMES.has(v.name);
+  tipEl.innerHTML = `
+    <strong>${v.name}</strong><br>
+    Anonymity: ${v.anon}<br>
+    Wealth: ${v.wealth}<br>
+    Status: ${v.status}<br>
+    Body Count: ${v.kills}
+  `;
+  tipEl.style.display = 'block';
+  positionTip(e);
+  tipEl.addEventListener('mousemove', positionTip);
+}
+
+function positionTip(e) {
+  const rect = wrap.getBoundingClientRect();
+  let tx = e.clientX - rect.left + 14;
+  let ty = e.clientY - rect.top  - 10;
+  if (tx + 180 > W) tx -= 195;
+  if (ty + 120 > H) ty -= 125;
+  tipEl.style.left = tx + 'px';
+  tipEl.style.top  = ty + 'px';
+}
+
+function hideTip() {
+  tipEl.style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════════
+   UI CONTROLS
+══════════════════════════════════════════════════════════ */
+/* tabs */
+document.getElementById('tabs-row').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  activeTab = btn.dataset.tab;
+  buildSVG();
+});
+
+/* cerebral/physical toggle */
+function setTog(which) {
+  document.getElementById('tog-c').classList.toggle('on', which === 'c');
+  document.getElementById('tog-p').classList.toggle('on', which === 'p');
+}
+
+/* sliders */
+function onSlider(type, val) {
+  if (type === 'anon') {
+    charState.anon = val;
+    updateTickHighlight('tk-anon', val);
+  } else if (type === 'wealth') {
+    charState.wealth = val;
+    updateTickHighlight('tk-wealth', val);
+  } else if (type === 'social') {
+    charState.social = val;
+    updateTickHighlight('tk-social', val);
+  }
+  buildSVG(); /* redraw chart with new "Your Character" position */
+}
+
+function updateTickHighlight(ticksId, val) {
+  const ticks = document.querySelectorAll(`#${ticksId} .tl`);
+  ticks.forEach((t, i) => {
+    t.classList.toggle('hi', i === val);
+  });
+}
+
+/* char name update */
+document.getElementById('char-name').addEventListener('input', () => {
+  const lbl = document.getElementById('char-lbl');
+  if (lbl) lbl.textContent = document.getElementById('char-name').value || 'Your Character';
+});
+
+/* ══════════════════════════════════════════════════════════
+   INIT + RESIZE
+══════════════════════════════════════════════════════════ */
+const ro = new ResizeObserver(() => {
+  W = wrap.clientWidth;
+  H = wrap.clientHeight;
+  if (W > 0 && H > 0) buildSVG();
+});
+ro.observe(wrap);
+
+window.addEventListener('load', () => {
+  W = wrap.clientWidth;
+  H = wrap.clientHeight;
+  buildSVG();
+});
+</script>
+</body>
+</html>
