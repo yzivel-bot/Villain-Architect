@@ -57,7 +57,7 @@ html, body {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -162,7 +162,7 @@ html, body {
 .g-dot-wrap { position: relative; }
 .g-tip {
   position: absolute;
-  bottom: 28px;
+  top: 28px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.9);
@@ -394,19 +394,19 @@ circle.vdot:hover { opacity: 0.75; }
 
 /* reset button beside tab row */
 .reset-btn {
+  width: 28px;
   height: 28px;
-  padding: 0 14px;
+  padding: 0;
   border: 1px solid #383838;
-  border-radius: 28px;
+  border-radius: 50%;
   background: transparent;
   color: #555;
-  font-family: 'Red Hat Display', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: border-color 0.2s, color 0.2s;
-  letter-spacing: 0.5px;
 }
 .reset-btn:hover { border-color: #666; color: #888; }
 
@@ -610,7 +610,12 @@ circle.vdot:hover { opacity: 0.75; }
     <button class="tab-btn" data-dim="wealth">Estimated Wealth</button>
     <button class="tab-btn" data-dim="social">Social Status</button>
     <button class="tab-btn" data-dim="bodycount">Body Count</button>
-    <button class="reset-btn" id="reset-btn">Reset</button>
+    <button class="reset-btn" id="reset-btn" title="Reset axes">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M2 6.5a4.5 4.5 0 1 1 1.35 3.18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M2 10V6.5H5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
   <div class="scatter-wrap" id="scatter-wrap">
     <svg id="scatter-svg"></svg>
@@ -787,9 +792,10 @@ const wrap  = document.getElementById('scatter-wrap');
 const tipEl = document.getElementById('tooltip');
 
 /* selection state: first click = X axis, second click = Y axis */
-let selectedDims = []; /* array of 0–2 dim keys */
+let selectedDims  = []; /* array of 0–2 dim keys */
 let charDotColor  = '#fff';
 let charDotStroke = 'none';
+let isDragging    = false;
 let W = 0, H = 0;
 const PAD = { t:55, b:55, l:70, r:30 };
 const charState   = { anon:2, wealth:3, social:0 };
@@ -1068,11 +1074,16 @@ function buildSVG() {
     dotsG.appendChild(circle);
   });
 
-  /* Your Character dot */
+  /* Your Character dot — draggable */
   const charCircle = makeSVG('circle', {
     id:'char-dot', cx:charPos.x, cy:charPos.y, r:9,
     fill:charDotColor, stroke:charDotStroke, 'stroke-width':'2',
-    filter:'url(#glow)', style:'cursor:default;'
+    filter:'url(#glow)', style:'cursor:grab;'
+  });
+  charCircle.addEventListener('mousedown', e => {
+    isDragging = true;
+    e.preventDefault();
+    charCircle.style.cursor = 'grabbing';
   });
   dotsG.appendChild(charCircle);
 
@@ -1092,6 +1103,22 @@ function getCharPos(xDim, yDim) {
   return toScreen(xDim.charVal(), yDim.charVal(), xDim, yDim);
 }
 
+
+/* convert chart-relative screen coords back to charState slider values */
+function setCharStateFromDim(dimKey, rawVal) {
+  if      (dimKey === 'anonymity') charState.anon    = Math.max(0, Math.min(4, rawVal - 1));
+  else if (dimKey === 'wealth')    charState.wealth  = Math.max(0, Math.min(4, rawVal - 1));
+  else if (dimKey === 'social')    charState.social  = Math.max(0, Math.min(3, rawVal - 1));
+}
+
+function updateSlidersFromState() {
+  document.getElementById('sl-anon').value    = charState.anon;
+  document.getElementById('sl-wealth').value  = charState.wealth;
+  document.getElementById('sl-social').value  = charState.social;
+  updateTickHighlight('tk-anon',   charState.anon);
+  updateTickHighlight('tk-wealth', charState.wealth);
+  updateTickHighlight('tk-social', charState.social);
+}
 
 /* split two-word category names into two SVG tspan lines */
 function setLabelContent(textEl, cat, x) {
@@ -1277,6 +1304,41 @@ window.addEventListener('load', () => {
   W = wrap.clientWidth;
   H = wrap.clientHeight;
   buildSVG();
+});
+
+/* ── Draggable "Your Character" dot ── */
+svg.addEventListener('mousemove', e => {
+  if (!isDragging || selectedDims.length < 2) return;
+  const rect   = svg.getBoundingClientRect();
+  const plotW  = W - PAD.l - PAD.r;
+  const plotH  = H - PAD.t - PAD.b;
+  const px     = Math.max(PAD.l, Math.min(PAD.l + plotW, e.clientX - rect.left));
+  const py     = Math.max(PAD.t, Math.min(PAD.t + plotH, e.clientY - rect.top));
+
+  const [xKey, yKey] = selectedDims;
+  const xDim = DIMS[xKey], yDim = DIMS[yKey];
+
+  if (!xDim.isLog) {
+    setCharStateFromDim(xKey, ((px - PAD.l) / plotW) * (xDim.max - 1) + 1);
+  }
+  if (!yDim.isLog) {
+    setCharStateFromDim(yKey, ((PAD.t + plotH - py) / plotH) * (yDim.max - 1) + 1);
+  }
+
+  /* move dot + label live without full rebuild */
+  const dot = document.getElementById('char-dot');
+  if (dot) { dot.setAttribute('cx', px); dot.setAttribute('cy', py); }
+  const lbl = document.getElementById('char-lbl');
+  if (lbl) { lbl.setAttribute('x', px + 13); lbl.setAttribute('y', py + 4); }
+
+  updateSlidersFromState();
+});
+
+window.addEventListener('mouseup', () => {
+  if (isDragging) {
+    isDragging = false;
+    buildSVG(); /* full redraw snaps everything into place */
+  }
 });
 </script>
 </body>
