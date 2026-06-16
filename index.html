@@ -74,17 +74,43 @@ html, body {
   flex-shrink: 0;
 }
 
-.project-field input {
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+.edit-btn:hover { color: #aaa; }
+
+.editable-inp {
   width: 100%;
-  background: #535353;
+  background: transparent;
   border: none;
   border-radius: 4px;
-  padding: 0 12px;
+  padding: 0 4px;
   height: 24px;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
   color: #fff;
   outline: none;
+  cursor: default;
+  box-sizing: border-box;
+}
+.editable-inp.editing {
+  background: #535353;
+  padding: 0 12px;
+  cursor: text;
 }
 
 .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
@@ -232,18 +258,6 @@ input[type=range].vslider::-webkit-slider-thumb {
 }
 .tl.hi { color: #fff; font-weight: 600; }
 
-.char-inp {
-  width: 100%;
-  background: #535353;
-  border: none;
-  border-radius: 4px;
-  height: 24px;
-  padding: 0 12px;
-  font-family: 'Red Hat Display', sans-serif;
-  font-size: 12px;
-  color: #fff;
-  outline: none;
-}
 
 /* ════════════ CENTER PANEL ════════════ */
 .center-panel {
@@ -482,8 +496,14 @@ circle.vdot:hover { opacity: 0.75; }
 <div class="left-panel">
   <div class="logo">Villain<br>Architect</div>
 
-  <div class="project-field">
-    <input type="text" value="Untitled Superhero Script">
+  <div class="ctrl-group">
+    <div class="field-header">
+      <span class="ctrl-label">Project Name</span>
+      <button class="edit-btn" onclick="toggleEdit('project-name')" title="Edit">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <input class="editable-inp" type="text" value="Untitled Superhero Script" readonly id="project-name">
   </div>
 
   <div class="ctrl-group">
@@ -573,8 +593,13 @@ circle.vdot:hover { opacity: 0.75; }
   </div>
 
   <div class="ctrl-group">
-    <span class="ctrl-label">Character Name</span>
-    <input class="char-inp" type="text" value="Untitled" id="char-name">
+    <div class="field-header">
+      <span class="ctrl-label">Character Name</span>
+      <button class="edit-btn" onclick="toggleEdit('char-name')" title="Edit">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <input class="editable-inp" type="text" value="Untitled" readonly id="char-name">
   </div>
 </div>
 
@@ -922,7 +947,7 @@ function buildSVG() {
     xDim.cats.forEach((cat, i) => {
       const x = PAD.l + (i / (xDim.cats.length - 1)) * plotW;
       const t = makeSVG('text', { x, y:PAD.t+plotH+20, class:'ax-text', 'text-anchor':'middle' });
-      t.textContent = cat;
+      setLabelContent(t, cat, x);
       axisG.appendChild(t);
     });
   } else if (xDim.isLog) {
@@ -944,7 +969,7 @@ function buildSVG() {
     yDim.cats.forEach((cat, i) => {
       const y = PAD.t + plotH - (i / (yDim.cats.length - 1)) * plotH;
       const t = makeSVG('text', { x:PAD.l-8, y:y+4, class:'ax-text', 'text-anchor':'end' });
-      t.textContent = cat;
+      setLabelContent(t, cat, PAD.l-8);
       axisG.appendChild(t);
     });
   } else if (yDim.isLog) {
@@ -1067,6 +1092,50 @@ function getCharPos(xDim, yDim) {
   return toScreen(xDim.charVal(), yDim.charVal(), xDim, yDim);
 }
 
+
+/* split two-word category names into two SVG tspan lines */
+function setLabelContent(textEl, cat, x) {
+  let lines = null;
+  if (cat.includes('/')) {
+    const idx = cat.indexOf('/') + 1;
+    lines = [cat.slice(0, idx), cat.slice(idx)];
+  } else if (cat.includes(' ')) {
+    const parts = cat.split(' ');
+    const mid = Math.ceil(parts.length / 2);
+    lines = [parts.slice(0, mid).join(' '), parts.slice(mid).join(' ')];
+  }
+  if (lines) {
+    const s1 = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+    s1.setAttribute('x', x); s1.setAttribute('dy', '-0.5em');
+    s1.textContent = lines[0];
+    const s2 = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+    s2.setAttribute('x', x); s2.setAttribute('dy', '1.1em');
+    s2.textContent = lines[1];
+    textEl.appendChild(s1);
+    textEl.appendChild(s2);
+  } else {
+    textEl.textContent = cat;
+  }
+}
+
+/* edit-in-place for readonly inputs */
+function toggleEdit(inputId) {
+  const inp = document.getElementById(inputId);
+  if (inp.hasAttribute('readonly')) {
+    inp.removeAttribute('readonly');
+    inp.classList.add('editing');
+    inp.focus();
+    inp.select();
+    inp.addEventListener('blur', () => {
+      inp.setAttribute('readonly', '');
+      inp.classList.remove('editing');
+    }, { once: true });
+  } else {
+    inp.setAttribute('readonly', '');
+    inp.classList.remove('editing');
+    inp.blur();
+  }
+}
 
 function makeSVG(tag, attrs = {}) {
   const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
