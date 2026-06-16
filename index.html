@@ -769,19 +769,22 @@ let W = 0, H = 0;
 const PAD = { t:55, b:55, l:70, r:30 };
 const charState   = { anon:2, wealth:3, social:0 };
 
+function logMax(dim) {
+  return Math.log1p(Math.max(...VILLAINS.map(v => dim.fn(v))));
+}
+
 function toScreen(xVal, yVal, xDim, yDim) {
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
 
-  const sx = PAD.l + ((xVal - 1) / (xDim.max - 1)) * plotW;
+  const sx = xDim.isLog
+    ? PAD.l + (Math.log1p(xVal) / logMax(xDim)) * plotW
+    : PAD.l + ((xVal - 1) / (xDim.max - 1)) * plotW;
 
-  let sy;
-  if (yDim.isLog) {
-    const logMax = Math.log1p(Math.max(...VILLAINS.map(v => yDim.fn(v))));
-    sy = PAD.t + plotH - (Math.log1p(yVal) / logMax) * plotH;
-  } else {
-    sy = PAD.t + plotH - ((yVal - 1) / (yDim.max - 1)) * plotH;
-  }
+  const sy = yDim.isLog
+    ? PAD.t + plotH - (Math.log1p(yVal) / logMax(yDim)) * plotH
+    : PAD.t + plotH - ((yVal - 1) / (yDim.max - 1)) * plotH;
+
   return { x: sx, y: sy };
 }
 
@@ -799,10 +802,11 @@ function computePositions(xDimKey, yDimKey) {
     return { x: pos.x, y: pos.y, xVal, yVal, name: v.name, female: FEMALE_NAMES.has(v.name) };
   });
 
-  const colW = plotW / (xDim.max - 1);
+  const colW = xDim.isLog ? plotW / 4 : plotW / (xDim.max - 1);
+  const rowH = yDim.isLog ? plotH / 4 : plotH / (yDim.max - 1);
 
-  if (!yDim.isLog) {
-    const rowH  = plotH / (yDim.max - 1);
+  if (!xDim.isLog && !yDim.isLog) {
+    /* both categorical — bin-grid */
     const cellW = Math.min(colW * 0.78, 90);
     const cellH = Math.min(rowH * 0.72, 26);
     const bins  = {};
@@ -819,7 +823,12 @@ function computePositions(xDimKey, yDimKey) {
         pts[idx].y += (Math.floor(j / cols) - (rows - 1) / 2) * cellH;
       });
     }
-  } else {
+  } else if (xDim.isLog && !yDim.isLog) {
+    /* body count on X, categorical Y — jitter Y */
+    const spread = rowH * 0.55;
+    pts.forEach(p => { p.y += (seededRand(p.name, 11) - 0.5) * spread; });
+  } else if (!xDim.isLog && yDim.isLog) {
+    /* categorical X, body count on Y — jitter X */
     const spread = colW * 0.55;
     pts.forEach(p => { p.x += (seededRand(p.name, 7) - 0.5) * spread; });
   }
@@ -905,6 +914,18 @@ function buildSVG() {
       const t = makeSVG('text', { x, y:PAD.t+plotH+20, class:'ax-text', 'text-anchor':'middle' });
       t.textContent = cat;
       axisG.appendChild(t);
+    });
+  } else if (xDim.isLog) {
+    const lbls = ['1','10','100','1K','10K','1M+'];
+    const vals = [1, 10, 100, 1000, 10000, 1000000];
+    const lm   = logMax(xDim);
+    lbls.forEach((lbl, i) => {
+      const x = PAD.l + (Math.log1p(vals[i]) / lm) * plotW;
+      if (x > PAD.l - 5 && x < PAD.l + plotW + 5) {
+        const t = makeSVG('text', { x, y:PAD.t+plotH+16, class:'ax-text', 'text-anchor':'middle' });
+        t.textContent = lbl;
+        axisG.appendChild(t);
+      }
     });
   }
 
