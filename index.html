@@ -64,6 +64,31 @@ html, body {
   scrollbar-color: #333 transparent;
 }
 
+.bot-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border-col);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--muted);
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  flex-shrink: 0;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.bot-toggle:hover { background: rgba(255,255,255,0.06); }
+.bot-toggle.open {
+  border-color: #874fff;
+  color: #874fff;
+}
+.bot-toggle.open svg { color: #874fff; }
+
 .logo {
   font-family: 'VillainFont', 'Bebas Neue', sans-serif;
   font-size: 47px;
@@ -123,27 +148,33 @@ html, body {
   color: #fff;
 }
 
-.genre-wrap {
-  display: inline-flex;
-  align-items: center;
+.genre-tabs {
+  display: flex;
+  flex-wrap: wrap;
   gap: 4px;
-  border: 1px solid #fff;
-  border-radius: 4px;
-  padding: 0 12px;
-  height: 24px;
-  cursor: pointer;
-  width: fit-content;
 }
 
-.genre-wrap select {
-  background: transparent;
-  border: none;
-  color: #fff;
+.genre-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--genre-color);
+  border-radius: 8px;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
-  outline: none;
-  -webkit-appearance: none;
+  font-weight: 600;
+  color: #fff;
+  background: transparent;
   cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.genre-tab.active {
+  background: var(--genre-color);
+  border-color: var(--genre-color);
 }
 
 .gender-row { display: flex; gap: 8px; align-items: center; }
@@ -489,14 +520,432 @@ circle.vdot:hover { opacity: 0.75; }
   cursor: pointer;
   flex-shrink: 0;
 }
+
+/* ════════════ ONBOARDING ════════════ */
+#onboarding {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  transition: opacity 0.4s ease;
+}
+#onboarding.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ob-title {
+  font-family: 'VillainFont', sans-serif;
+  font-size: 160px;
+  line-height: 110px;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  margin-top: 183px;
+  transform: translateY(-50%);
+  user-select: none;
+}
+
+.ob-bar {
+  position: absolute;
+  top: calc(50% + 64.5px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 640px;
+  height: 46px;
+  border: 1px solid #fff;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  cursor: text;
+}
+.ob-bar input[type="text"] {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  min-width: 0;
+}
+.ob-bar input[type="text"]::placeholder {
+  color: rgba(255,255,255,0.5);
+  font-weight: 600;
+}
+.ob-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: #fff;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.ob-icon:hover { opacity: 1; }
+#ob-file { display: none; }
+
+/* ════════════ CHAT SCREEN ════════════ */
+#chat-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 150;
+  display: flex;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#chat-screen.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cs-sidebar {
+  width: 219px;
+  flex-shrink: 0;
+  background: #1a1919;
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.cs-logo {
+  font-family: 'VillainFont', sans-serif;
+  font-size: 34px;
+  line-height: 26px;
+  color: #fff;
+  text-transform: uppercase;
+  margin-bottom: 64px;
+}
+
+.cs-top-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+}
+
+.cs-new-project {
+  background: #874fff;
+  border: none;
+  border-radius: 13px;
+  height: 24px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  cursor: pointer;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+.cs-new-project:hover { background: #7a44f0; }
+
+.cs-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cs-projects-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  padding: 0 12px;
+  display: block;
+}
+
+.cs-project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cs-project-item {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: 'Red Hat Display', sans-serif;
+}
+.cs-project-item.active { background: #535353; }
+.cs-project-item:hover:not(.active) { background: #2a2a2a; }
+
+.cs-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cs-profile {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #beb8b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 400;
+  color: #000;
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+/* ── main content ── */
+.cs-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: 56px;
+  padding-bottom: 20px;
+}
+
+.cs-messages {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #444 transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-end;
+  /* center the 921px column inside the main area */
+  padding: 0 max(24px, calc((100% - 921px) / 2));
+}
+
+.cs-prompt-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  align-self: flex-start;
+  width: 100%;
+}
+
+.cs-user-bubble {
+  background: #353535;
+  border-radius: 8px;
+  padding: 16px;
+  width: 502px;
+  max-width: 100%;
+  font-size: 14px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.55;
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+.cs-bar-wrap {
+  flex-shrink: 0;
+  padding: 12px max(24px, calc((100% - 921px) / 2)) 0;
+}
+
+.cs-bar {
+  background: #2d2c2b;
+  border: 1px solid #2f312f;
+  border-radius: 24px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.cs-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  min-width: 0;
+}
+.cs-bar input::placeholder { color: #95938f; font-weight: 600; }
+
+.cs-bar-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: #95938f;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+.cs-bar-icon:hover { opacity: 1; }
+#cs-file, #ob-file { display: none; }
+
+mark.kw {
+  background: transparent;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+mark.kw.lit {
+  background: #ec008c;
+  color: #fff;
+}
+
+.cs-bot-response {
+  align-self: flex-start;
+  width: 719px;
+  max-width: 100%;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.6;
+  font-family: 'Red Hat Display', sans-serif;
+  display: none;
+}
+.cs-bot-response p { margin: 0; }
+.cs-bot-response p + p { margin-top: 4px; }
+
+.cs-quick-replies {
+  display: none;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.cs-quick-reply {
+  border: 1px solid #ec008c;
+  border-radius: 28px;
+  height: 33px;
+  padding: 0 18px;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.cs-quick-reply:hover { background: rgba(236, 0, 140, 0.18); }
 </style>
 </head>
 <body>
+
+<!-- ══════════ ONBOARDING ══════════ -->
+<div id="onboarding">
+  <div class="ob-title">Villain<br>Architect</div>
+  <div class="ob-bar" onclick="document.getElementById('ob-text').focus()">
+    <label class="ob-icon" for="ob-file" title="Upload a document">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 2V16M2 9H16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </label>
+    <input type="file" id="ob-file" accept=".txt,.pdf,.doc,.docx,.csv,.fdx">
+    <input type="text" id="ob-text" placeholder="Tell me something about your movie or upload a scene">
+    <button class="ob-icon" id="ob-submit" title="Continue" style="background:none;border:none;padding:0;">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="6" y="2" width="6" height="9" rx="3" stroke="white" stroke-width="1.5"/>
+        <path d="M3 9.5C3 12.5 5.7 15 9 15C12.3 15 15 12.5 15 9.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="9" y1="15" x2="9" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ CHAT SCREEN ══════════ -->
+<div id="chat-screen">
+  <!-- sidebar -->
+  <div class="cs-sidebar">
+    <div class="cs-logo">Villain<br>Architect</div>
+    <div class="cs-top-nav">
+      <button class="cs-new-project" onclick="launchDashboard()">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+          <path d="M5 1V9M1 5H9" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        New Project
+      </button>
+      <div class="cs-projects">
+        <span class="cs-projects-header">My Projects</span>
+        <div class="cs-project-list">
+          <button class="cs-project-item active" id="cs-current-project">New Project</button>
+          <button class="cs-project-item">Untitled Sci-Fi Script</button>
+          <button class="cs-project-item">Gotham Noir Pitch</button>
+        </div>
+      </div>
+    </div>
+    <div class="cs-bottom">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="cursor:pointer;opacity:0.7">
+        <circle cx="10" cy="10" r="2.5" stroke="#95938f" stroke-width="1.3"/>
+        <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.2 4.2l1.4 1.4M14.4 14.4l1.4 1.4M4.2 15.8l1.4-1.4M14.4 5.6l1.4-1.4" stroke="#95938f" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <div class="cs-profile">Y</div>
+    </div>
+  </div>
+  <!-- main -->
+  <div class="cs-main">
+    <div class="cs-messages" id="cs-messages">
+      <p class="cs-prompt-label">Tell me something about your movie or upload a scene</p>
+      <div class="cs-user-bubble" id="cs-user-bubble"></div>
+      <div class="cs-bot-response" id="cs-bot-response"></div>
+      <div class="cs-quick-replies" id="cs-quick-replies"></div>
+    </div>
+    <div class="cs-bar-wrap">
+      <div class="cs-bar">
+        <label class="cs-bar-icon" for="cs-file" title="Attach">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 2V16M2 9H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </label>
+        <input type="file" id="cs-file" accept=".txt,.pdf,.doc,.docx,.csv,.fdx">
+        <input type="text" id="cs-input" placeholder="Tell me something">
+        <button class="cs-bar-icon" id="cs-send" title="Send">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="6" y="2" width="6" height="9" rx="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 9.5C3 12.5 5.7 15 9 15C12.3 15 15 12.5 15 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="9" y1="15" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="app">
 
 <!-- ══════════ LEFT PANEL ══════════ -->
 <div class="left-panel">
   <div class="logo">Villain<br>Architect</div>
+
+  <button class="bot-toggle" id="bot-toggle-btn" onclick="toggleChat()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0">
+      <rect x="1" y="1" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.3"/>
+      <path d="M4 13L5.5 10H8.5L10 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Bot
+  </button>
 
   <div class="ctrl-group">
     <div class="field-header">
@@ -510,18 +959,12 @@ circle.vdot:hover { opacity: 0.75; }
 
   <div class="ctrl-group">
     <span class="ctrl-label">Genre</span>
-    <div class="genre-wrap">
-      <select id="genre-sel">
-        <option>Horror</option>
-        <option>Thriller</option>
-        <option>Comedy</option>
-        <option>Drama</option>
-        <option>Crime</option>
-        <option>Action</option>
-      </select>
-      <svg width="11" height="7" viewBox="0 0 11 7" fill="none">
-        <path d="M1 1L5.5 6L10 1" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
-      </svg>
+    <div class="genre-tabs" id="genre-tabs">
+      <button class="genre-tab" style="--genre-color:#ec7624" data-genre="Horror">Horror</button>
+      <button class="genre-tab" style="--genre-color:#14bfe1" data-genre="Thriller">Thriller</button>
+      <button class="genre-tab" style="--genre-color:#43b749" data-genre="Comedy">Comedy</button>
+      <button class="genre-tab" style="--genre-color:#9e65e9" data-genre="Drama">Drama</button>
+      <button class="genre-tab" style="--genre-color:#ec008c" data-genre="Action">Action</button>
     </div>
   </div>
 
@@ -1259,6 +1702,14 @@ document.getElementById('tabs-row').addEventListener('click', e => {
   buildSVG();
 });
 
+document.getElementById('genre-tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.genre-tab');
+  if (!tab) return;
+  const wasActive = tab.classList.contains('active');
+  document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
+  if (!wasActive) tab.classList.add('active');
+});
+
 document.getElementById('reset-btn').addEventListener('click', () => {
   selectedDims = [];
   document.querySelectorAll('.tab-btn').forEach(b => {
@@ -1383,6 +1834,166 @@ window.addEventListener('mouseup', () => {
     buildSVG(); /* full redraw snaps everything into place */
   }
 });
+
+/* ══════════════════════════════════════════════════════════
+   ONBOARDING → CHAT → DASHBOARD
+══════════════════════════════════════════════════════════ */
+
+const DNA_KEYWORDS = [
+  'no idea who is behind',
+  'detective','superhero','villain','hero','mastermind','assassin',
+  'vigilante','spy','criminal','genius','soldier','mercenary',
+  'operative','hitman','terrorist','thief','anarchist','manipulator',
+  'revenge','greed','power','control','justice','fear',
+  'trauma','traumatized','betrayal','obsession',
+  'mystery','conspiracy','threat','attack','secrets','darkness',
+  'shadow','shadows','anonymous','ghost',
+  'calculating','brutal','chaotic','cunning','ruthless','intelligent'
+];
+
+const BOT_LINES = [
+  'Interesting start.',
+  'A detective-style superhero facing an anonymous threat inside a mystery setup. This is a powerful, high-stakes foundation.',
+  'Since the protagonist has no idea who is behind this, your villain is currently a ghost to the audience.',
+  'To help us map this threat against our core database, we need to establish their physical and tactical footprint.',
+  "How does this unseen antagonist orchestrate these personal attacks? Are they acting as a lone mastermind operating from the shadows, or do they deploy aggressive, direct physical violence against the hero's allies?"
+];
+
+function highlightKeywords(text) {
+  const sorted = [...DNA_KEYWORDS].sort((a, b) => b.length - a.length);
+  const escaped = sorted.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
+  return text.replace(regex, '<mark class="kw">$1</mark>');
+}
+
+function runBotAnimation(text) {
+  const bubble    = document.getElementById('cs-user-bubble');
+  const responseEl = document.getElementById('cs-bot-response');
+  const repliesEl  = document.getElementById('cs-quick-replies');
+
+  /* Step 1 — show plain text in bubble immediately */
+  bubble.textContent = text;
+
+  /* Step 2 — after short pause, inject marks (still invisible) then light them up one by one */
+  setTimeout(() => {
+    bubble.innerHTML = highlightKeywords(text);
+    const marks = bubble.querySelectorAll('mark.kw');
+    let t = 0;
+    marks.forEach(mark => {
+      setTimeout(() => mark.classList.add('lit'), t);
+      t += 320;
+    });
+
+    /* Step 3 — after all highlights done, fade in bot response lines */
+    const afterHighlights = t + 450;
+    responseEl.innerHTML = '';
+    responseEl.style.display = 'block';
+
+    BOT_LINES.forEach((line, i) => {
+      const p = document.createElement('p');
+      p.textContent = line;
+      p.style.cssText = 'opacity:0; transition:opacity 0.4s ease;';
+      responseEl.appendChild(p);
+      setTimeout(() => { p.style.opacity = '1'; }, afterHighlights + i * 220);
+    });
+
+    /* Step 4 — quick replies appear after last line */
+    const afterResponse = afterHighlights + BOT_LINES.length * 220 + 300;
+    setTimeout(() => {
+      repliesEl.innerHTML = `
+        <button class="cs-quick-reply">mastermind from the shadows</button>
+        <button class="cs-quick-reply">Direct physical violence</button>
+      `;
+      repliesEl.style.cssText = 'display:flex; opacity:0; transition:opacity 0.4s ease;';
+      setTimeout(() => { repliesEl.style.opacity = '1'; }, 40);
+      repliesEl.querySelectorAll('.cs-quick-reply').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('cs-input').value = btn.textContent;
+          document.getElementById('cs-input').focus();
+        });
+      });
+    }, afterResponse);
+
+  }, 600);
+}
+
+function launchChat(text) {
+  const ob = document.getElementById('onboarding');
+  const cs = document.getElementById('chat-screen');
+
+  if (!text) document.getElementById('cs-user-bubble').style.display = 'none';
+
+  ob.classList.add('hide');
+  ob.addEventListener('transitionend', () => {
+    ob.remove();
+    cs.classList.add('visible');
+    if (text) runBotAnimation(text);
+  }, { once: true });
+}
+
+function launchDashboard() {
+  const cs = document.getElementById('chat-screen');
+  if (!cs) return;
+  cs.classList.remove('visible');
+  document.getElementById('bot-toggle-btn').classList.remove('open');
+}
+
+function toggleChat() {
+  const cs = document.getElementById('chat-screen');
+  const btn = document.getElementById('bot-toggle-btn');
+  if (!cs) return;
+  const isOpen = cs.classList.contains('visible');
+  cs.classList.toggle('visible', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+document.getElementById('ob-text').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    launchChat(document.getElementById('ob-text').value.trim());
+  }
+});
+
+document.getElementById('ob-submit').addEventListener('click', () => {
+  launchChat(document.getElementById('ob-text').value.trim());
+});
+
+document.getElementById('ob-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('ob-text').value = file.name;
+  launchChat(file.name);
+});
+
+
+/* chat screen bar */
+document.getElementById('cs-input').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = e.target.value.trim();
+  if (!val) return;
+  const bubble = document.getElementById('cs-user-bubble');
+  bubble.style.display = '';
+  bubble.textContent = val;
+  e.target.value = '';
+});
+
+document.getElementById('cs-send').addEventListener('click', () => {
+  const inp = document.getElementById('cs-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  const bubble = document.getElementById('cs-user-bubble');
+  bubble.style.display = '';
+  bubble.textContent = val;
+  inp.value = '';
+});
+
+document.getElementById('cs-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('cs-input').value = file.name;
+});
+
 </script>
 </body>
 </html>
