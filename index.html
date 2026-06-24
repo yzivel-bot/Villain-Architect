@@ -158,17 +158,17 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 24px;
-  padding: 0 8px;
+  height: 28px;
+  padding: 0 12px;
   border: 1px solid var(--genre-color);
-  border-radius: 8px;
+  border-radius: 28px;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
   font-weight: 600;
   color: #fff;
   background: transparent;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.22s, color 0.22s;
   white-space: nowrap;
 }
 
@@ -187,8 +187,8 @@ html, body {
   transition: transform 0.15s;
 }
 .g-dot:hover { transform: scale(1.12); }
-.g-dot.pink  { background: #FF3399; }
-.g-dot.cyan  { background: #00E5FF; }
+.g-dot.pink  { background: #00E5FF; }  /* female button = cyan */
+.g-dot.cyan  { background: #FF3399; }  /* male button = pink */
 .g-dot.green { background: #43B749; }
 
 /* gender tooltip wrapper */
@@ -215,23 +215,31 @@ html, body {
 /* active gender selection ring */
 .g-dot.selected { box-shadow: 0 0 0 2px #fff; }
 
-.toggle-row { display: flex; height: 24px; }
+.toggle-row {
+  display: flex;
+  background: #1c1c1e;
+  border-radius: 20px;
+  padding: 2px;
+  gap: 2px;
+  height: auto;
+}
 
 .tog {
   flex: 1;
   height: 24px;
-  border: 1px solid #fff;
+  border: none;
+  border-radius: 18px;
   background: transparent;
-  color: #fff;
+  color: #888;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
 }
-.tog:first-child { border-radius: 4px 0 0 4px; }
-.tog:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
-.tog.on { background: #fff; color: #000; }
+.tog.on { background: #fff; color: #000; font-weight: 600; }
+.tog:hover:not(.on) { color: #ccc; }
 
 /* ── Sliders ── */
 .sliders-sec { display: flex; flex-direction: column; gap: 24px; }
@@ -240,7 +248,7 @@ html, body {
 
 .sl-title {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--muted);
   margin-bottom: 8px;
@@ -282,8 +290,8 @@ input[type=range].vslider::-webkit-slider-thumb {
 }
 
 .tl {
-  font-size: 9px;
-  font-weight: 300;
+  font-size: 10px;
+  font-weight: 400;
   color: var(--muted);
   text-align: center;
   line-height: 1.25;
@@ -306,10 +314,11 @@ input[type=range].vslider::-webkit-slider-thumb {
   flex-shrink: 0;
   display: flex;
   gap: 20px;
-  padding: 16px 24px 14px;
+  padding: 14px 28px 12px;
+  align-items: center;
 }
 
-.tab-btn {
+.mode-btn {
   flex: 1;
   height: 28px;
   border: 1px solid var(--red);
@@ -317,13 +326,15 @@ input[type=range].vslider::-webkit-slider-thumb {
   background: transparent;
   color: #fff;
   font-family: 'Red Hat Display', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.25s;
+  transition: background 0.22s, color 0.22s;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
-.tab-btn.on { background: #E41B23; border-color: #E41B23; }
+.mode-btn:hover { background: rgba(228,27,35,0.15); }
+.mode-btn.active { background: #E41B23; border-color: #E41B23; }
 
 .scatter-wrap {
   flex: 1;
@@ -373,12 +384,17 @@ input[type=range].vslider::-webkit-slider-thumb {
 }
 
 circle.vdot {
-  transition: cx 0.65s cubic-bezier(0.4,0,0.2,1),
-              cy 0.65s cubic-bezier(0.4,0,0.2,1),
-              r  0.4s ease;
+  /* spring-like cubic-bezier with slight overshoot for elastic feel */
+  transition: cx 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+              cy 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+              r  0.3s ease;
   cursor: pointer;
 }
 circle.vdot:hover { opacity: 0.75; }
+
+/* hide all labels mid-flight so they don't lag behind the dots */
+#scatter-svg.transitioning .vlabel,
+#scatter-svg.transitioning .vlabel.always-on { opacity: 0 !important; transition: none !important; }
 
 .vlabel {
   font-family: 'Red Hat Display', sans-serif;
@@ -386,12 +402,13 @@ circle.vdot:hover { opacity: 0.75; }
   fill: #fff;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.18s ease,
-              x 0.65s cubic-bezier(0.4,0,0.2,1),
-              y 0.65s cubic-bezier(0.4,0,0.2,1);
+  transition: opacity 0.2s ease,
+              x 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+              y 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.vlabel.always-on { opacity: 1; }
+.vlabel.always-on { opacity: 1; transition: opacity 0.15s ease; }
+#scatter-svg.vil-hover .vlabel.always-on:not(#char-lbl) { opacity: 0; }
 
 .vgender {
   pointer-events: none;
@@ -425,136 +442,88 @@ circle.vdot:hover { opacity: 0.75; }
 
 /* ════════════ RIGHT PANEL ════════════ */
 .right-panel {
-  width: 322px;
+  width: 280px;
   flex-shrink: 0;
-  background: var(--panel-bg);
-  border-left: 1px solid var(--border-col);
+  background: #000;
+  border-left: 1px solid #656262;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  overflow: hidden;
+  gap: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+  font-family: 'Red Hat Display', sans-serif;
 }
 
-.rp-inner {
+.rp-headline {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.rp-body {
+  border-left: none;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
   flex: 1;
-  width: 100%;
-  min-height: 0;
-  align-items: flex-end;
 }
 
-.rp-title {
-  font-family: 'Red Hat Display', sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  line-height: normal;
+/* metric blocks */
+.rp-metric { display: flex; flex-direction: column; gap: 2px; }
+.rp-metric-label { font-size: 14px; font-weight: 400; color: #fff; }
+.rp-metric-value { font-size: 38px; font-weight: 700; color: #ed1c24; line-height: 1.05; }
+.rp-metric-value.small { font-size: 22px; }
+
+/* mind over power */
+.rp-mop-text { font-size: 12px; font-weight: 400; color: #fff; line-height: 1.5; margin-top: 4px; }
+
+/* charts */
+.rp-chart-label { font-size: 14px; font-weight: 400; color: #fff; margin-bottom: 6px; }
+.rp-radar-wrap  { background: transparent; }
+.rp-bars-wrap   { display: flex; flex-direction: column; gap: 5px; }
+.rp-hbar-row    { display: flex; align-items: center; gap: 8px; }
+.rp-hbar-lbl    { font-size: 10px; color: #666; width: 62px; flex-shrink: 0; text-align: right; }
+.rp-hbar-track  { flex: 1; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+.rp-hbar-fill   { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.rp-hbar-count  { font-size: 10px; color: #888; width: 36px; flex-shrink: 0; text-align: left; }
+
+/* archetype */
+.rp-archetype-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.rp-archetype-icons { display: flex; gap: 6px; }
+.rp-archetype-icon {
+  width: 15px; height: 15px; border: 1px solid #555; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #888; cursor: pointer;
+}
+.rp-archetype-box {
+  border: 0.5px solid #fff;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 400;
   color: #fff;
-  width: 100%;
-  flex-shrink: 0;
-  text-transform: uppercase;
-  letter-spacing: 0;
+  line-height: 1.55;
+  margin-top: 6px;
 }
 
-/* reset button beside tab row */
+/* reset button (kept for center panel) */
 .reset-btn {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid #383838;
-  border-radius: 50%;
-  background: transparent;
-  color: #555;
-  cursor: pointer;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 28px; height: 28px; padding: 0;
+  border: 1px solid #383838; border-radius: 50%;
+  background: transparent; color: #555;
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
   transition: border-color 0.2s, color 0.2s;
 }
 .reset-btn:hover { border-color: #666; color: #888; }
-
-.rp-subtitle {
-  font-size: 12px;
-  font-weight: 400;
-  color: #fff;
-  width: 100%;
-  flex-shrink: 0;
-  line-height: 1.4;
-}
-
-.script-box {
-  background: #353535;
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 12px;
-  font-weight: 400;
-  color: #fff;
-  line-height: 1.6;
-  flex-shrink: 0;
-  overflow-y: auto;
-  width: 100%;
-  max-height: 310px;
-  scrollbar-width: thin;
-  scrollbar-color: #555 transparent;
-  position: relative;
-}
-.script-box p + p { margin-top: 6px; }
-
-.hl {
-  background: var(--purple);
-  border-radius: 3px;
-  padding: 1px 3px;
-}
-
-.ai-text {
-  font-size: 12px;
-  font-weight: 400;
-  color: #fff;
-  line-height: 1.65;
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-  width: 100%;
-  scrollbar-width: thin;
-  scrollbar-color: #444 transparent;
-}
-.ai-text p + p { margin-top: 6px; }
-
-.chat-bar {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #2d2c2b;
-  border: 1px solid #2f312f;
-  border-radius: 24px;
-  padding: 0 12px;
-  height: 32px;
-  width: 100%;
-}
-.chat-bar input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: 'Red Hat Display', sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  color: #95938f;
-}
-.chat-bar input::placeholder { color: #95938f; }
-.bar-icon {
-  color: #95938f;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
 
 /* ════════════ ONBOARDING ════════════ */
 #onboarding {
@@ -587,7 +556,7 @@ circle.vdot:hover { opacity: 0.75; }
 
 .ob-bar {
   position: absolute;
-  top: calc(50% + 64.5px);
+  top: calc(50% + 20px);
   left: 50%;
   transform: translate(-50%, -50%);
   width: 640px;
@@ -899,7 +868,7 @@ mark.kw.lit {
       </svg>
     </label>
     <input type="file" id="ob-file" accept=".txt,.pdf,.doc,.docx,.csv,.fdx">
-    <input type="text" id="ob-text" placeholder="Tell me something about your movie or upload a scene">
+    <input type="text" id="ob-text" placeholder="Tell me something about your movie or upload a scene" onkeydown="if(event.key==='Enter'){event.preventDefault();launchChat(this.value.trim());}">
     <button class="ob-icon" id="ob-submit" title="Continue" style="background:none;border:none;padding:0;">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <rect x="6" y="2" width="6" height="9" rx="3" stroke="white" stroke-width="1.5"/>
@@ -1071,21 +1040,6 @@ mark.kw.lit {
       </div>
     </div>
 
-    <div class="sl-item">
-      <span class="sl-title" id="lbl-kills">Body Count</span>
-      <div class="sl-wrap">
-        <input type="range" class="vslider" id="sl-kills" min="0" max="5" step="any" value="2"
-               oninput="onSlider('kills',+this.value)">
-      </div>
-      <div class="sl-ticks" id="tk-kills">
-        <span class="tl">1</span>
-        <span class="tl">10</span>
-        <span class="tl hi">100</span>
-        <span class="tl">1K</span>
-        <span class="tl">10K</span>
-        <span class="tl">1M+</span>
-      </div>
-    </div>
   </div>
 
   <div class="ctrl-group">
@@ -1102,16 +1056,9 @@ mark.kw.lit {
 <!-- ══════════ CENTER PANEL ══════════ -->
 <div class="center-panel">
   <div class="tabs-row" id="tabs-row">
-    <button class="tab-btn" data-dim="anonymity">Anonymity</button>
-    <button class="tab-btn" data-dim="wealth">Estimated Wealth</button>
-    <button class="tab-btn" data-dim="social">Social Status</button>
-    <button class="tab-btn" data-dim="bodycount">Body Count</button>
-    <button class="reset-btn" id="reset-btn" title="Reset axes">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18.36 5.64A9 9 0 1 1 5.64 5.64"/>
-        <path d="M8.5 2.5L5.64 5.64L8.5 8.78"/>
-      </svg>
-    </button>
+    <button class="mode-btn" id="mode-gender"  data-mode="gender">Gender</button>
+    <button class="mode-btn" id="mode-mindset" data-mode="mindset">Mindset</button>
+    <button class="mode-btn active" id="mode-matrix" data-mode="matrix">Architect Matrix</button>
   </div>
   <div class="scatter-wrap" id="scatter-wrap">
     <svg id="scatter-svg"></svg>
@@ -1122,32 +1069,57 @@ mark.kw.lit {
 
 <!-- ══════════ RIGHT PANEL ══════════ -->
 <div class="right-panel">
-  <div class="rp-inner">
-    <div class="rp-title">ARCHITECT ADVISOR</div>
-    <div class="rp-subtitle">Tell me something about your movie or upload a scene</div>
+  <div class="rp-headline">CHARACTER DNA</div>
 
-    <div class="script-box">
-      <p>The film follows a street-level, <span class="hl">detective</span>-style <span class="hl">superhero</span> operating in a&nbsp;crime-ridden city. He is deeply traumatized by a massive chemical plant disaster from years ago. That night, he was forced to make an impossible, split-second choice: save a bus full of children, or a group of factory workers. He chose the children, and the guilt of leaving those workers behind has haunted him ever since.</p>
-      <p>The story kicks off when a series of calculated, personal attacks starts tearing his life apart. His allies are targeted and his secrets are exposed. He has <span class="hl">no idea who is behind this</span> orchestration or why they're digging into his past. It's a dark, tragic <span class="hl">mystery</span> where the hero is forced to investigate his own history, entirely unaware that the threat chasing him is a direct, living consequence of the choice he made that night.</p>
+  <div class="rp-body">
+
+    <!-- Survival Forecast -->
+    <div class="rp-metric">
+      <span class="rp-metric-label">Survival Forecast</span>
+      <span class="rp-metric-value" id="rp-survival">58%</span>
     </div>
 
-    <div class="ai-text">
-      <p>Interesting start.</p>
-      <p>A detective-style superhero facing an anonymous threat inside a mystery setup. This is a powerful, high-stakes foundation.</p>
-      <p>Since the protagonist has no idea who is behind this, your villain is currently a ghost to the audience.</p>
-      <p>To help us map this threat against our core database, we need to establish their physical and tactical footprint.</p>
-      <p>How does this unseen antagonist orchestrate these personal attacks? Are they acting as a lone mastermind operating from the shadows, or do they deploy aggressive, direct physical violence against the hero's allies?</p>
+    <!-- Brutality -->
+    <div class="rp-metric">
+      <span class="rp-metric-label">Brutality</span>
+      <span class="rp-metric-value small" id="rp-brutality">High</span>
     </div>
-  </div>
 
-  <div class="chat-bar">
-    <span class="bar-icon">
-      <img src="https://www.figma.com/api/mcp/asset/86c73091-6c1a-489e-9c55-261bb3b9b1eb" width="12" height="12" alt="">
-    </span>
-    <input type="text" placeholder="Tell me something">
-    <span class="bar-icon">
-      <img src="https://www.figma.com/api/mcp/asset/528c02c7-0557-4109-b7ce-cb859192058a" width="14" height="14" alt="">
-    </span>
+    <!-- Mind over Power donut -->
+    <div>
+      <div class="rp-metric-label">Mind over Power</div>
+      <div class="rp-mop-text" id="rp-mop-text">Loading...</div>
+      <div style="display:flex;justify-content:center;margin-top:10px;">
+        <svg id="rp-donut" width="130" height="130" viewBox="0 0 130 130"></svg>
+      </div>
+    </div>
+
+    <!-- Psychological Fingerprint radar -->
+    <div>
+      <div class="rp-chart-label">Psychological Fingerprint</div>
+      <div class="rp-radar-wrap">
+        <svg id="rp-radar" width="220" height="160" viewBox="0 0 220 160"></svg>
+      </div>
+    </div>
+
+    <!-- Predicted Body Count bars -->
+    <div>
+      <div class="rp-chart-label">Predicted Body Count</div>
+      <svg id="rp-bars-html" width="220" height="150" viewBox="0 0 220 150" style="display:block;overflow:visible"></svg>
+    </div>
+
+    <!-- Detected Archetype -->
+    <div>
+      <div class="rp-archetype-hdr">
+        <span class="rp-metric-label">Detected Archetype</span>
+        <div class="rp-archetype-icons">
+          <div class="rp-archetype-icon">⧉</div>
+          <div class="rp-archetype-icon">↓</div>
+        </div>
+      </div>
+      <div class="rp-archetype-box" id="rp-archetype">—</div>
+    </div>
+
   </div>
 </div>
 
@@ -1167,7 +1139,7 @@ const ALIEN_NAMES  = new Set(['Thanos','Xenomorph']);
 const PINNED_NAMES = new Set([
   'Hannibal Lecter','Darth Vader','The Joker','Norman Bates',
   'Lord Voldemort','Thanos','Scar','Cruella de Vil','Miranda Priestly',
-  'Palpatine','Freddy Krueger','Regina George','Pennywise (1990)',
+  'Freddy Krueger','Regina George','Pennywise',
   'Dolores Umbridge','Gollum','Maleficent','Captain Hook'
 ]);
 
@@ -1206,7 +1178,7 @@ const VILLAINS = [
   { name:'Bane',              anon:'Half Masked',  kills:'300',  wealth:'Middle Class', status:'Outcast',  movie:'Dark Knight Rises',       genre:'Superhero',               mindset:'Physical', survives:'No'  },
   { name:'Regina George',     anon:'Visible',      kills:'0',    wealth:'Wealthy',      status:'Elite',    movie:'Mean Girls',              genre:'Comedy',                  mindset:'Cerebral', survives:'Yes' },
   { name:'Commodus',          anon:'Visible',      kills:'5+',   wealth:'Infinite',     status:'Ruler',    movie:'Gladiator',               genre:'Action',                  mindset:'Cerebral', survives:'No'  },
-  { name:'Pennywise (1990)',   anon:'Face Paint',   kills:'5500', wealth:'None/Poor',    status:'Outcast',  movie:'IT',                      genre:'Horror',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Pennywise',   anon:'Face Paint',   kills:'5500', wealth:'None/Poor',    status:'Outcast',  movie:'IT',                      genre:'Horror',                  mindset:'Cerebral', survives:'No'  },
   { name:'Dolores Umbridge',  anon:'Visible',      kills:'0',    wealth:'Middle Class', status:'Elite',    movie:'Harry Potter',            genre:'Fantasy',                 mindset:'Cerebral', survives:'Yes' },
   { name:'Magneto',           anon:'Half Masked',  kills:'4000', wealth:'Wealthy',      status:'Outcast',  movie:'X-Men',                   genre:'Superhero',               mindset:'Cerebral', survives:'Yes' },
   { name:'Loki',              anon:'Half Masked',  kills:'1200', wealth:'Infinite',     status:'Ruler',    movie:'The Avengers',            genre:'Superhero',               mindset:'Cerebral', survives:'Yes' },
@@ -1236,7 +1208,10 @@ const BODY_KEYWORDS = {
 
 function bodyNum(s) {
   if (BODY_KEYWORDS[s]) return BODY_KEYWORDS[s];
-  const n = parseFloat(String(s).replace('+','').replace('s',''));
+  const clean = String(s).toLowerCase().replace('+', '').replace('s', '');
+  if (clean.endsWith('m')) return parseFloat(clean) * 1e6;
+  if (clean.endsWith('k')) return parseFloat(clean) * 1e3;
+  const n = parseFloat(clean);
   return isNaN(n) ? 5 : n + 0.1;
 }
 
@@ -1294,303 +1269,537 @@ const svg   = document.getElementById('scatter-svg');
 const wrap  = document.getElementById('scatter-wrap');
 const tipEl = document.getElementById('tooltip');
 
-/* selection state: first click = X axis, second click = Y axis */
-let selectedDims  = []; /* array of 0–2 dim keys */
+let currentMode    = 'matrix'; /* 'gender' | 'mindset' | 'matrix' */
+let lastPositions  = null;     /* [{ x,y }] for smooth transition animation */
+let hasFirstRender = false;    /* true after first buildSVG — enables spring transitions */
+let lastCharPos   = null;
 let charDotColor  = '#fff';
 let charDotStroke = 'none';
 let isDragging    = false;
+let charDotPos    = null; /* free-drag override — {x,y} pixels, null = use calculated */
 let W = 0, H = 0;
 const PAD = { t:55, b:55, l:70, r:30 };
 const charState   = { anon:2, wealth:3, social:0, kills:2 };
-const KILL_VALS   = [1, 10, 100, 1000, 10000, 1000000];
+const KILL_VALS      = [1, 10, 100, 1000, 10000, 1000000];
+const LETHALITY_MAX  = Math.log1p(Math.max(...VILLAINS.map(v => bodyNum(v.kills))));
 
-function logMax(dim) {
-  return Math.log1p(Math.max(...VILLAINS.map(v => dim.fn(v))));
+/* ── Mindset scoring engine (Y-axis) ── */
+/* Villain Architecture Index — exact formula per spec */
+function calculateArchitectureIndex(status, wealth, anonymity) {
+  let score = 50;
+  if (status === 'Ruler')       score += 25;
+  else if (status === 'Elite')  score += 15;
+  else if (status === 'Outcast') score -= 20;
+  if (wealth === 'Infinite')          score += 15;
+  else if (wealth === 'Wealthy')      score += 10;
+  else if (wealth === 'Middle Class') score += 5;
+  else if (wealth === 'Poor' || wealth === 'None/Poor') score -= 10;
+  if (anonymity === 'Visible')            score += 10;
+  else if (anonymity === 'Face Paint')    score += 5;
+  else if (anonymity === 'Half Masked')   score -= 5;
+  else if (anonymity === 'Fully Masked' || anonymity === 'Alien') score -= 15;
+  return Math.max(0, Math.min(100, score));
 }
 
-function toScreen(xVal, yVal, xDim, yDim) {
-  const plotW = W - PAD.l - PAD.r;
-  const plotH = H - PAD.t - PAD.b;
-
-  const sx = xDim.isLog
-    ? PAD.l + (Math.log1p(xVal) / logMax(xDim)) * plotW
-    : PAD.l + ((xVal - 1) / (xDim.max - 1)) * plotW;
-
-  const sy = yDim.isLog
-    ? PAD.t + plotH - (Math.log1p(yVal) / logMax(yDim)) * plotH
-    : PAD.t + plotH - ((yVal - 1) / (yDim.max - 1)) * plotH;
-
-  return { x: sx, y: sy };
+function computeMindsetScore(v) {
+  return calculateArchitectureIndex(v.status, v.wealth, v.anon);
 }
 
-function computePositions(xDimKey, yDimKey) {
-  const xDim  = DIMS[xDimKey];
-  const yDim  = DIMS[yDimKey];
-  const plotW = W - PAD.l - PAD.r;
-  const plotH = H - PAD.t - PAD.b;
-  const DOT   = 9;
+function charMindsetScore() {
+  const statusMap = ['Outcast','Ordinary','Elite','Ruler'];
+  const wealthMap = ['None/Poor','Working','Middle Class','Wealthy','Infinite'];
+  const anonMap   = ['Visible','Face Paint','Half Masked','Fully Masked','Alien'];
+  return calculateArchitectureIndex(
+    statusMap[Math.round(charState.social)],
+    wealthMap[Math.round(charState.wealth)],
+    anonMap[Math.round(charState.anon)]
+  );
+}
 
-  const pts = VILLAINS.map(v => {
-    const xVal = xDim.fn(v);
-    const yVal = yDim.fn(v);
-    const pos  = toScreen(xVal, yVal, xDim, yDim);
-    return { x: pos.x, y: pos.y, xVal, yVal, name: v.name, female: FEMALE_NAMES.has(v.name) };
+/* ── Position compute helpers ── */
+function distributeGrid(indices, x0, y0, w, h, positions) {
+  const n = indices.length;
+  if (!n) return;
+  const cols = Math.max(1, Math.ceil(Math.sqrt(n * (w / Math.max(h, 1)))));
+  const rows = Math.ceil(n / cols);
+  const cellW = w / cols;
+  const cellH = h / rows;
+  indices.forEach((i, j) => {
+    const col = j % cols;
+    const row = Math.floor(j / cols);
+    const jX = (seededRand(VILLAINS[i].name, 29) - 0.5) * cellW * 0.22;
+    const jY = (seededRand(VILLAINS[i].name, 31) - 0.5) * cellH * 0.22;
+    positions[i] = {
+      x: Math.max(x0 + 12, Math.min(x0 + w - 12, x0 + (col + 0.5) * cellW + jX)),
+      y: Math.max(y0 + 8,  Math.min(y0 + h - 8,  y0 + (row + 0.5) * cellH + jY))
+    };
   });
+}
 
-  const colW = xDim.isLog ? plotW / 4 : plotW / (xDim.max - 1);
-  const rowH = yDim.isLog ? plotH / 4 : plotH / (yDim.max - 1);
+/* stored layout so getCharPos can append white dot at end of correct column */
+let gLayout = { colX: [], step: 0, dotStart: 0, counts: [0,0,0,0] };
 
-  const xMin = PAD.l + DOT, xMax = PAD.l + plotW - DOT;
-  const yMin = PAD.t + DOT, yMax = PAD.t + plotH - DOT;
+function computeGenderPositions() {
+  const females = VILLAINS.map((_,i)=>i).filter(i =>  FEMALE_NAMES.has(VILLAINS[i].name));
+  const aliens  = VILLAINS.map((_,i)=>i).filter(i =>  ALIEN_NAMES.has(VILLAINS[i].name));
+  const males   = VILLAINS.map((_,i)=>i).filter(i => !FEMALE_NAMES.has(VILLAINS[i].name) && !ALIEN_NAMES.has(VILLAINS[i].name));
+  const positions = new Array(VILLAINS.length);
 
-  if (!xDim.isLog && !yDim.isLog) {
-    /* both categorical — bin-grid, then shift each bin inward to stay in bounds */
-    const cellW = Math.min(colW * 0.72, 70);
-    const cellH = Math.min(rowH * 0.65, 22);
-    const bins  = {};
-    pts.forEach((p, i) => {
-      const key = `${p.xVal}|${p.yVal}`;
-      (bins[key] = bins[key] || []).push(i);
+  /* Roy Batty rule — headers at same Y, dots one row below */
+  const HEADER_Y  = PAD.t + 18;
+  const DOT_START = HEADER_Y + 28;
+
+  /* Universal step derived from densest column (male half) */
+  const half   = Math.ceil(males.length / 2);
+  const denseN = Math.max(half, males.length - half);
+  const step   = (H - PAD.b - 10 - DOT_START) / denseN * 0.88;
+
+  /* Centered 4-column layout — slightly reduced margin for visual balance */
+  const MARGIN = 24;
+  const colW   = (W - 2 * MARGIN) / 4;
+  const colX   = [0,1,2,3].map(c => MARGIN + (c + 0.5) * colW);
+
+  function placeCol(indices, cx) {
+    indices.forEach((i, j) => {
+      positions[i] = { x: cx, y: DOT_START + j * step };
     });
-    for (const indices of Object.values(bins)) {
-      const n    = indices.length;
-      const cols = Math.ceil(Math.sqrt(n * 1.5));
-      const rows = Math.ceil(n / cols);
-      indices.forEach((idx, j) => {
-        pts[idx].x += ((j % cols) - (cols - 1) / 2) * cellW;
-        pts[idx].y += (Math.floor(j / cols) - (rows - 1) / 2) * cellH;
-      });
-      /* shift the whole bin so no dot goes outside bounds */
-      const bxMin = Math.min(...indices.map(i => pts[i].x));
-      const bxMax = Math.max(...indices.map(i => pts[i].x));
-      const byMin = Math.min(...indices.map(i => pts[i].y));
-      const byMax = Math.max(...indices.map(i => pts[i].y));
-      const dx = bxMin < xMin ? xMin - bxMin : bxMax > xMax ? xMax - bxMax : 0;
-      const dy = byMin < yMin ? yMin - byMin : byMax > yMax ? yMax - byMax : 0;
-      indices.forEach(idx => { pts[idx].x += dx; pts[idx].y += dy; });
-    }
-  } else if (xDim.isLog && !yDim.isLog) {
-    /* body count on X, categorical Y — jitter Y */
-    const spread = rowH * 0.55;
-    pts.forEach(p => { p.y += (seededRand(p.name, 11) - 0.5) * spread; });
-  } else if (!xDim.isLog && yDim.isLog) {
-    /* categorical X, body count on Y — jitter X */
-    const spread = colW * 0.55;
-    pts.forEach(p => { p.x += (seededRand(p.name, 7) - 0.5) * spread; });
   }
 
-  /* final safety clamp */
-  pts.forEach(p => {
-    p.x = Math.max(xMin, Math.min(xMax, p.x));
-    p.y = Math.max(yMin, Math.min(yMax, p.y));
+  /* ORDER: Male1 (0) | Male2 (1) | Female (2) | Alien (3) */
+  const m1 = males.slice(0, half), m2 = males.slice(half);
+  placeCol(m1,      colX[0]);
+  placeCol(m2,      colX[1]);
+  placeCol(females, colX[2]);
+  placeCol(aliens,  colX[3]);
+
+  /* save layout for white-dot placement */
+  gLayout = {
+    colX, step, dotStart: DOT_START,
+    counts: [m1.length, m2.length, females.length, aliens.length]
+  };
+
+  return positions;
+}
+
+function computeMindsetPositions() {
+  /* Physical (0–50) → left half · Cerebral (51–100) → right half */
+  const cerebral = VILLAINS.map((_,i)=>i).filter(i => computeMindsetScore(VILLAINS[i]) > 50);
+  const physical = VILLAINS.map((_,i)=>i).filter(i => computeMindsetScore(VILLAINS[i]) <= 50);
+  const positions = new Array(VILLAINS.length);
+  const cY = H / 2; /* vertical centre of the full canvas */
+
+  packCloud(cerebral, W * 0.25, cY, positions);
+  packCloud(physical, W * 0.75, cY, positions);
+  /* Push Darth Vader & Hannibal away from centre so white dot is unobstructed */
+  ['Darth Vader','Hannibal Lecter'].forEach(name => {
+    const i = VILLAINS.findIndex(v => v.name === name);
+    if (i >= 0 && positions[i]) {
+      positions[i].x += (seededRand(name, 77) - 0.3) * 55;
+      positions[i].y += (seededRand(name, 79) - 0.3) * 45 + 28;
+    }
   });
-  return pts;
+
+  return positions;
+}
+
+function packCloud(indices, cx, cy, positions) {
+  const R = 7;
+  /* golden-angle spiral — wider radius to reduce label collisions */
+  indices.forEach((i, j) => {
+    const angle  = j * 2.399;
+    const radius = Math.sqrt(j) * (R * 6.5); /* wider initial spread */
+    positions[i] = {
+      x: cx + Math.cos(angle) * radius,
+      y: cy + Math.sin(angle) * radius
+    };
+  });
+  /* force-directed separation with larger min-dist to account for text labels */
+  for (let iter = 0; iter < 55; iter++) {
+    for (let a = 0; a < indices.length; a++) {
+      for (let b = a + 1; b < indices.length; b++) {
+        const pa = positions[indices[a]], pb = positions[indices[b]];
+        const dx = pb.x - pa.x, dy = pb.y - pa.y;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+        const minDist = R * 4.5; /* bigger separation = room for text labels */
+        if (dist < minDist) {
+          const push = (minDist - dist) / 2;
+          const nx = (dx / dist) * push, ny = (dy / dist) * push;
+          pa.x -= nx; pa.y -= ny;
+          pb.x += nx; pb.y += ny;
+        }
+      }
+    }
+  }
+  /* gentle spring back — looser pull keeps the cloud wide */
+  const spring = 0.06;
+  indices.forEach(i => {
+    positions[i].x += (cx - positions[i].x) * spring;
+    positions[i].y += (cy - positions[i].y) * spring;
+  });
+}
+
+function computeMatrixPositions() {
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+  const DOT = 7;
+  const MIN_DIST = DOT * 2 + 8; /* wider gap so text labels clear each other */
+  const xMin = PAD.l + DOT + 5, xMax = PAD.l + plotW - DOT - 80; /* right margin for labels */
+  const yMin = PAD.t + DOT, yMax = PAD.t + plotH - DOT;
+
+  /* Step 1 — place each dot at its data-driven position + wider seeded jitter */
+  const pts = VILLAINS.map(v => {
+    const jX = (seededRand(v.name, 17) - 0.5) * 22;
+    const jY = (seededRand(v.name, 19) - 0.5) * 22;
+    const sx = PAD.l + (computeMindsetScore(v) / 100) * plotW + jX;
+    const sy = PAD.t + plotH - (Math.log1p(bodyNum(v.kills)) / LETHALITY_MAX) * plotH + jY;
+    const x = Math.max(xMin, Math.min(xMax, sx));
+    const y = Math.max(yMin, Math.min(yMax, sy));
+    return { x, y, ox: x, oy: y }; /* ox/oy = original anchor */
+  });
+
+  /* Step 2 — force-directed separation, clamped every iteration */
+  for (let iter = 0; iter < 120; iter++) {
+    for (let a = 0; a < pts.length; a++) {
+      for (let b = a + 1; b < pts.length; b++) {
+        const dx = pts[b].x - pts[a].x;
+        const dy = pts[b].y - pts[a].y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 0.01;
+        if (dist < MIN_DIST) {
+          const push = (MIN_DIST - dist) / 2;
+          const nx = (dx / dist) * push;
+          const ny = (dy / dist) * push;
+          pts[a].x -= nx; pts[a].y -= ny;
+          pts[b].x += nx; pts[b].y += ny;
+        }
+      }
+    }
+    /* spring back + clamp every iteration — prevents off-screen drift */
+    const spring = 0.06;
+    pts.forEach(p => {
+      p.x += (p.ox - p.x) * spring;
+      p.y += (p.oy - p.y) * spring;
+      p.x = Math.max(xMin, Math.min(xMax, p.x));
+      p.y = Math.max(yMin, Math.min(yMax, p.y));
+    });
+  }
+
+  /* Step 3 — final clamp */
+  return pts.map(p => ({
+    x: Math.max(xMin, Math.min(xMax, p.x)),
+    y: Math.max(yMin, Math.min(yMax, p.y))
+  }));
+}
+
+/* ══════════════════════════════════════════════════════════
+   PERSISTENT DOT LAYERS — created once, never destroyed
+══════════════════════════════════════════════════════════ */
+let svgDefs   = null;
+let svgAxisG  = null;
+let svgDotsG  = null;
+let svgLabelsG = null;
+const dotEls  = [];   /* dotEls[i] = { circle, label } */
+let charDotEl    = null;
+let charLabelEl  = null;
+let buildTimer   = null;
+
+function initSVGLayers() {
+  if (svgDotsG) return; /* already exists */
+
+  svgDotsG   = makeSVG('g', { id:'dots-layer' });
+  svgLabelsG = makeSVG('g', { id:'labels-layer' });
+
+  /* z-order: male → female → alien (aliens on top) */
+  const zOrder = [
+    ...VILLAINS.map((_,i)=>i).filter(i => !FEMALE_NAMES.has(VILLAINS[i].name) && !ALIEN_NAMES.has(VILLAINS[i].name)),
+    ...VILLAINS.map((_,i)=>i).filter(i =>  FEMALE_NAMES.has(VILLAINS[i].name)),
+    ...VILLAINS.map((_,i)=>i).filter(i =>  ALIEN_NAMES.has(VILLAINS[i].name)),
+  ];
+
+  zOrder.forEach(i => {
+    const v      = VILLAINS[i];
+    const female = FEMALE_NAMES.has(v.name);
+    const alien  = ALIEN_NAMES.has(v.name);
+    const color  = alien ? '#43B749' : female ? '#00E5FF' : '#FF3399'; /* female=cyan, male=pink */
+
+    const lbl = makeSVG('text', {
+      class: PINNED_NAMES.has(v.name) ? 'vlabel always-on' : 'vlabel',
+      id: `lbl-${i}`, x: -300, y: -300, style: 'font-size:10px;'
+    });
+    lbl.textContent = v.name;
+    /* stagger: 2 ms per villain index */
+    lbl.style.transitionDelay = `${i * 0.002}s`;
+    svgLabelsG.appendChild(lbl);
+
+    const circle = makeSVG('circle', {
+      class: 'vdot', id: `dot-${i}`,
+      cx: -300, cy: -300, r: 7,
+      fill: color, stroke: 'none', 'stroke-width': '0'
+    });
+    circle.style.transitionDelay = `${i * 0.002}s`;
+    circle.addEventListener('mouseenter', e => {
+      svg.classList.add('vil-hover');
+      showTip(e, v, { x: +circle.getAttribute('cx'), y: +circle.getAttribute('cy') });
+    });
+    circle.addEventListener('mouseleave', () => { svg.classList.remove('vil-hover'); hideTip(); });
+    svgDotsG.appendChild(circle);
+
+    dotEls[i] = { circle, label: lbl };
+  });
+
+  /* Your Character dot — always present, no stagger */
+  charDotEl = makeSVG('circle', {
+    id: 'char-dot', cx: -300, cy: -300, r: 9,
+    fill: charDotColor, stroke: charDotStroke, 'stroke-width': '2',
+    filter: 'url(#glow)', style: 'cursor:grab; transition:cx 0.45s cubic-bezier(0.34,1.56,0.64,1),cy 0.45s cubic-bezier(0.34,1.56,0.64,1);'
+  });
+  charDotEl.addEventListener('mousedown', e => {
+    isDragging = true; e.preventDefault(); charDotEl.style.cursor = 'grabbing';
+  });
+  svgDotsG.appendChild(charDotEl);
+
+  charLabelEl = makeSVG('text', {
+    id: 'char-lbl', class: 'vlabel always-on',
+    x: -300, y: -300, style: 'font-weight:600; font-size:11px; transition:x 0.45s cubic-bezier(0.34,1.56,0.64,1),y 0.45s cubic-bezier(0.34,1.56,0.64,1);'
+  });
+  svgLabelsG.appendChild(charLabelEl);
+
+  svg.appendChild(svgDotsG);
+  svg.appendChild(svgLabelsG);
 }
 
 /* ── draw / update ── */
 function buildSVG() {
   W = wrap.clientWidth;
   H = wrap.clientHeight;
+  if (!W || !H) return;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  document.getElementById('villain-list').classList.add('hidden');
 
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
 
-  svg.innerHTML = '';
-
-  /* defs always needed */
-  const defs = makeSVG('defs');
+  /* ── Rebuild defs (size-dependent clipPath + glow) ── */
+  if (svgDefs) svgDefs.remove();
+  svgDefs = makeSVG('defs');
   const clip = makeSVG('clipPath', { id:'plot-clip' });
-  clip.appendChild(makeSVG('rect', { x:PAD.l, y:PAD.t, width:plotW, height:plotH }));
-  defs.appendChild(clip);
+  clip.appendChild(makeSVG('rect', { x:0, y:0, width:W, height:H }));
+  svgDefs.appendChild(clip);
   const filt = makeSVG('filter', { id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%' });
   const fgBlur = makeSVG('feGaussianBlur', { stdDeviation:'3', result:'blur' });
   const fgMerge = makeSVG('feMerge');
   fgMerge.appendChild(makeSVG('feMergeNode', { in:'blur' }));
   fgMerge.appendChild(makeSVG('feMergeNode', { in:'SourceGraphic' }));
   filt.appendChild(fgBlur); filt.appendChild(fgMerge);
-  defs.appendChild(filt);
-  svg.appendChild(defs);
+  svgDefs.appendChild(filt);
+  /* ── Rebuild axis layer only ── */
+  if (svgAxisG) svgAxisG.remove();
+  svgAxisG = makeSVG('g', { id:'axis-layer' });
+  const axisG = svgAxisG;
+  const mkRegionLabel = (text, x, y, color) => {
+    const fs = '15px'; /* all region labels same size */
+    const t = makeSVG('text', { x, y, 'text-anchor':'middle', style:`fill:${color}; font-weight:700; font-size:${fs}; letter-spacing:2px; font-family:'Red Hat Display',sans-serif; pointer-events:none;` });
+    t.textContent = text;
+    axisG.appendChild(t);
+  };
 
-  /* ── Empty state: fewer than 2 dimensions selected ── */
-  if (selectedDims.length < 2) {
-    document.getElementById('villain-list').classList.remove('hidden');
-    buildVillainList();
-    return;
-  }
-  document.getElementById('villain-list').classList.add('hidden');
-
-  /* ── Chart state: exactly 2 dims ── */
-  const [xKey, yKey] = selectedDims;
-  const xDim = DIMS[xKey];
-  const yDim = DIMS[yKey];
-
-  /* axis lines + grid */
-  const axisG = makeSVG('g');
-  if (!yDim.isLog && yDim.cats) {
-    yDim.cats.forEach((_, i) => {
-      const y = PAD.t + plotH - (i / (yDim.cats.length - 1)) * plotH;
-      axisG.appendChild(makeSVG('line', {
-        x1:PAD.l, y1:y, x2:PAD.l+plotW, y2:y,
-        stroke:'#1c1c1c', 'stroke-width':'1'
-      }));
+  if (currentMode === 'matrix') {
+    /* Vertical grid lines at Architecture Index 25, 50, 75 */
+    [25,50,75].forEach(val => {
+      const x = PAD.l + (val/100)*plotW;
+      axisG.appendChild(makeSVG('line', { x1:x, y1:PAD.t, x2:x, y2:PAD.t+plotH, stroke:'#1c1c1c', 'stroke-width':'1' }));
     });
-  }
-  axisG.appendChild(makeSVG('line', {
-    x1:PAD.l, y1:PAD.t+plotH, x2:PAD.l+plotW, y2:PAD.t+plotH,
-    stroke:'#2a2a2a', 'stroke-width':'1'
-  }));
-  axisG.appendChild(makeSVG('line', {
-    x1:PAD.l, y1:PAD.t, x2:PAD.l, y2:PAD.t+plotH,
-    stroke:'#2a2a2a', 'stroke-width':'1'
-  }));
-
-  /* X labels */
-  if (xDim.cats) {
-    xDim.cats.forEach((cat, i) => {
-      const x = PAD.l + (i / (xDim.cats.length - 1)) * plotW;
-      const t = makeSVG('text', { x, y:PAD.t+plotH+20, class:'ax-text', 'text-anchor':'middle' });
-      setLabelContent(t, cat, x);
-      axisG.appendChild(t);
+    /* Baselines */
+    axisG.appendChild(makeSVG('line', { x1:PAD.l, y1:PAD.t+plotH, x2:PAD.l+plotW, y2:PAD.t+plotH, stroke:'#2a2a2a', 'stroke-width':'1' }));
+    axisG.appendChild(makeSVG('line', { x1:PAD.l, y1:PAD.t, x2:PAD.l, y2:PAD.t+plotH, stroke:'#2a2a2a', 'stroke-width':'1' }));
+    /* X labels — Architecture Index 0→100 */
+    [0,25,50,75,100].forEach(val => {
+      const x = PAD.l + (val/100)*plotW;
+      const t = makeSVG('text', { x, y:PAD.t+plotH+16, class:'ax-text', 'text-anchor':'middle' });
+      t.textContent = val; axisG.appendChild(t);
     });
-  } else if (xDim.isLog) {
-    const lbls = ['1','10','100','1K','10K','1M+'];
-    const vals = [1, 10, 100, 1000, 10000, 1000000];
-    const lm   = logMax(xDim);
-    lbls.forEach((lbl, i) => {
-      const x = PAD.l + (Math.log1p(vals[i]) / lm) * plotW;
-      if (x > PAD.l - 5 && x < PAD.l + plotW + 5) {
-        const t = makeSVG('text', { x, y:PAD.t+plotH+16, class:'ax-text', 'text-anchor':'middle' });
-        t.textContent = lbl;
-        axisG.appendChild(t);
+    /* X endpoint sub-labels */
+    [['Low Tier',0],['High Tier',100]].forEach(([lbl,val]) => {
+      const t = makeSVG('text', { x:PAD.l+(val/100)*plotW, y:PAD.t+plotH+28, class:'ax-text', 'text-anchor': val===0?'start':'end', style:'fill:#333; font-style:italic; font-size:9px;' });
+      t.textContent = lbl; axisG.appendChild(t);
+    });
+    /* Y labels — body count log scale */
+    const yLbls = ['1','10','100','1K','10K','1M+'], yVals = [1,10,100,1000,10000,1000000];
+    yLbls.forEach((lbl,i) => {
+      const y = PAD.t + plotH - (Math.log1p(yVals[i]) / LETHALITY_MAX) * plotH;
+      if (y >= PAD.t-5 && y <= PAD.t+plotH+5) {
+        const t = makeSVG('text', { x:PAD.l-8, y:y+4, class:'ax-text', 'text-anchor':'end' });
+        t.textContent = lbl; axisG.appendChild(t);
       }
     });
-  }
+    /* Axis titles */
+    const xT = makeSVG('text', { x:PAD.l+plotW/2, y:H-8, class:'ax-text', 'text-anchor':'middle', style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;' });
+    xT.textContent = 'VILLAIN ARCHITECTURE INDEX (0 - 100)'; axisG.appendChild(xT);
+    const yT = makeSVG('text', { x:14, y:PAD.t+plotH/2, class:'ax-text', 'text-anchor':'middle', style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;', transform:`rotate(-90,14,${PAD.t+plotH/2})` });
+    yT.textContent = 'PREDICTED LETHALITY / BODY COUNT'; axisG.appendChild(yT);
 
-  /* Y labels */
-  if (!yDim.isLog && yDim.cats) {
-    yDim.cats.forEach((cat, i) => {
-      const y = PAD.t + plotH - (i / (yDim.cats.length - 1)) * plotH;
-      const t = makeSVG('text', { x:PAD.l-8, y:y+4, class:'ax-text', 'text-anchor':'end' });
-      setLabelContent(t, cat, PAD.l-8);
-      axisG.appendChild(t);
-    });
-  } else if (yDim.isLog) {
-    const labels = ['1','10','100','1K','10K','1M+'];
-    const vals   = [1, 10, 100, 1000, 10000, 1000000];
-    const logMax = Math.log1p(Math.max(...VILLAINS.map(v => yDim.fn(v))));
-    labels.forEach((lbl, i) => {
-      const y = PAD.t + plotH - (Math.log1p(vals[i]) / logMax) * plotH;
-      if (y > PAD.t-5 && y < PAD.t+plotH+5) {
-        const t = makeSVG('text', { x:PAD.l-6, y:y+4, class:'ax-text', 'text-anchor':'end' });
-        t.textContent = lbl;
-        axisG.appendChild(t);
+  } else if (currentMode === 'mindset') {
+    /* no divider lines — clean two-cloud layout */
+    mkRegionLabel('CEREBRAL / STRATEGIC',  W * 0.25, PAD.t + 22, '#777');
+    mkRegionLabel('PHYSICAL / BRUTE FORCE', W * 0.75, PAD.t + 22, '#777');
+
+  } else { /* gender — 4 columns, centered with equal margins */
+    const gM = 24, gColW = (W - 2 * gM) / 4;
+    const gX = [0,1,2,3].map(c => gM + (c + 0.5) * gColW);
+    /* headers — all on the same Y line, no divider lines */
+    mkRegionLabel('MALE',   gX[0], PAD.t + 18, '#FF3399');
+    mkRegionLabel('FEMALE', gX[2], PAD.t + 18, '#00E5FF');
+    mkRegionLabel('ALIEN',  gX[3], PAD.t + 18, '#43B749');
+  }
+  /* Insert axis layer before dots (dots on top of axes) */
+  if (svgDotsG) svg.insertBefore(svgAxisG, svgDotsG);
+  else          svg.appendChild(svgAxisG);
+
+  /* ── Initialize persistent dot/label layers (no-op after first call) ── */
+  initSVGLayers();
+
+  /* ── Update char dot appearance ── */
+  /* char dot visible in ALL modes */
+  charDotEl.setAttribute('fill',   charDotColor);
+  charDotEl.setAttribute('stroke', charDotStroke);
+  charDotEl.style.display   = '';
+  charLabelEl.style.display = '';
+  charLabelEl.textContent = document.getElementById('char-name').value || 'Your Character';
+
+  /* ── Update label visibility classes for current mode ── */
+  const showAll = currentMode === 'gender';
+  VILLAINS.forEach((v, i) => {
+    if (!dotEls[i]) return;
+    dotEls[i].label.setAttribute('class',
+      (showAll || PINNED_NAMES.has(v.name)) ? 'vlabel always-on' : 'vlabel'
+    );
+  });
+
+  /* ── Compute target positions ── */
+  const newPos  = currentMode === 'gender'  ? computeGenderPositions()
+                : currentMode === 'mindset' ? computeMindsetPositions()
+                :                             computeMatrixPositions();
+  const charPos = getCharPos();
+
+  /* ── Animate dots to new positions ── */
+  svg.classList.add('transitioning');
+
+  requestAnimationFrame(() => {
+    if (!hasFirstRender) {
+      /* Very first render: snap dots to position with no off-screen fly-in */
+      VILLAINS.forEach((_, i) => {
+        if (!dotEls[i] || !newPos[i]) return;
+        dotEls[i].circle.style.transition = 'none';
+        dotEls[i].circle.setAttribute('cx', newPos[i].x);
+        dotEls[i].circle.setAttribute('cy', newPos[i].y);
+        dotEls[i].label.setAttribute('x', newPos[i].x + 9);
+        dotEls[i].label.setAttribute('y', newPos[i].y + 4);
+      });
+      if (charPos) {
+        charDotEl.style.transition = 'none';
+        charDotEl.setAttribute('cx', charPos.x);
+        charDotEl.setAttribute('cy', charPos.y);
+        /* also position the label immediately so it shows on first open */
+        if (charLabelEl) {
+          charLabelEl.style.transition = 'none';
+          charLabelEl.setAttribute('x', charPos.x + 13);
+          charLabelEl.setAttribute('y', charPos.y + 4);
+          charLabelEl.textContent = document.getElementById('char-name').value || 'Your Character';
+        }
       }
-    });
+      /* Re-enable spring transitions for all subsequent mode switches */
+      requestAnimationFrame(() => {
+        VILLAINS.forEach((_, i) => { if (dotEls[i]) dotEls[i].circle.style.transition = ''; });
+        if (charDotEl) charDotEl.style.transition = '';
+        if (charLabelEl) charLabelEl.style.transition = '';
+        hasFirstRender = true;
+      });
+    } else {
+      /* Mode switch: spring-animate all dots from their current positions */
+      newPos.forEach((pos, i) => {
+        if (!dotEls[i]) return;
+        dotEls[i].circle.setAttribute('cx', pos.x);
+        dotEls[i].circle.setAttribute('cy', pos.y);
+        dotEls[i].label.setAttribute('x',   pos.x + 9);
+        dotEls[i].label.setAttribute('y',   pos.y + 4);
+      });
+      if (charPos) {
+        charDotEl.setAttribute('cx',     charPos.x);
+        charDotEl.setAttribute('cy',     charPos.y);
+        charLabelEl.setAttribute('x',    charPos.x + 13);
+        charLabelEl.setAttribute('y',    charPos.y + 4);
+      }
+      /* After spring settles, nudge pinned labels apart to prevent overlap */
+      if (currentMode === 'matrix' || currentMode === 'mindset') {
+        setTimeout(() => {
+          const pinned = VILLAINS
+            .map((v, i) => ({ i, v, pos: newPos[i] }))
+            .filter(d => PINNED_NAMES.has(d.v.name) && d.pos);
+          pinned.sort((a, b) => a.pos.y - b.pos.y || a.pos.x - b.pos.x);
+          const MIN_Y = 13;
+          for (let k = 1; k < pinned.length; k++) {
+            const prev = pinned[k-1], curr = pinned[k];
+            if (Math.abs(curr.pos.x - prev.pos.x) < 90 &&
+                curr.pos.y - prev.pos.y < MIN_Y) {
+              curr.pos.y = prev.pos.y + MIN_Y;
+              if (dotEls[curr.i]) {
+                dotEls[curr.i].label.setAttribute('x', curr.pos.x + 9);
+                dotEls[curr.i].label.setAttribute('y', curr.pos.y + 4);
+              }
+            }
+          }
+        }, 420); /* after spring animation completes */
+      }
+    }
+  });
+
+  /* Remove transitioning class after all springs settle
+     (max stagger 100ms + spring duration ~600ms) */
+  clearTimeout(buildTimer);
+  buildTimer = setTimeout(() => svg.classList.remove('transitioning'), 380);
+
+  lastPositions = newPos;
+  lastCharPos   = charPos;
+}
+
+function getCharPos() {
+  if (charDotPos) return charDotPos; /* free-drag (matrix only) */
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b, DOT = 9;
+
+  if (currentMode === 'mindset') {
+    /* Dot at cluster centre; Darth Vader & Hannibal are pushed by force-sep in packCloud */
+    const isCerebral = document.getElementById('tog-c').classList.contains('on');
+    return {
+      x: isCerebral ? W * 0.25 : W * 0.75,
+      y: H / 2
+    };
   }
 
-  /* axis titles */
-  const xTitle = makeSVG('text', {
-    x: PAD.l+plotW/2, y: H-8, class:'ax-text', 'text-anchor':'middle',
-    style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;'
-  });
-  xTitle.textContent = xDim.label;
-  axisG.appendChild(xTitle);
+  if (currentMode === 'gender') {
+    /* Place white dot at the end of the selected gender column */
+    const { colX, step, dotStart, counts } = gLayout;
+    if (!colX.length) return { x: W - 60, y: H - 32 }; /* layout not yet computed */
 
-  const yTitle = makeSVG('text', {
-    x:14, y:PAD.t+plotH/2, class:'ax-text', 'text-anchor':'middle',
-    style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;',
-    transform:`rotate(-90, 14, ${PAD.t+plotH/2})`
-  });
-  yTitle.textContent = yDim.label;
-  axisG.appendChild(yTitle);
-  svg.appendChild(axisG);
+    function colEnd(colIdx) {
+      /* one step below the last villain dot in that column */
+      return { x: colX[colIdx], y: dotStart + counts[colIdx] * step };
+    }
 
-  /* dots + labels */
-  const dotsG   = makeSVG('g', { 'clip-path':'url(#plot-clip)' });
-  const labelsG = makeSVG('g');
-  const positions = computePositions(xKey, yKey);
+    if (charDotColor === '#00E5FF') return colEnd(2); /* female col — cyan */
+    if (charDotColor === '#43B749') return colEnd(3); /* alien col */
+    if (charDotColor === '#FF3399') {                 /* male — pink */
+      /* male: pick the shorter of the two male columns so it looks balanced */
+      const colIdx = counts[0] <= counts[1] ? 0 : 1;
+      return colEnd(colIdx);
+    }
+    /* genderless (white): upper-left corner, clearly separate from columns */
+    return { x: 50, y: 80 };
+  }
 
-  const charPos = getCharPos(xDim, yDim);
-
-  /* render male → female → alien so alien dots are always on top in SVG z-order */
-  const zOrder = [
-    ...positions.map((p,i) => i).filter(i => !FEMALE_NAMES.has(VILLAINS[i].name) && !ALIEN_NAMES.has(VILLAINS[i].name)),
-    ...positions.map((p,i) => i).filter(i =>  FEMALE_NAMES.has(VILLAINS[i].name)),
-    ...positions.map((p,i) => i).filter(i =>  ALIEN_NAMES.has(VILLAINS[i].name)),
-  ];
-
-  zOrder.forEach(i => {
-    const p      = positions[i];
-    const v      = VILLAINS[i];
-    const female = FEMALE_NAMES.has(v.name);
-    const alien  = ALIEN_NAMES.has(v.name);
-    const color  = alien ? '#43B749' : female ? '#FF3399' : '#00E5FF';
-
-    const pinned = PINNED_NAMES.has(v.name);
-
-    const gIcon = makeSVG('text', {
-      class: pinned ? 'vlabel vgender always-on' : 'vlabel vgender',
-      id:`icon-${i}`,
-      x:p.x+10, y:p.y+4,
-      style:`fill:${color}; font-size:9px;`
-    });
-    gIcon.textContent = '';
-    labelsG.appendChild(gIcon);
-
-    const lbl = makeSVG('text', {
-      class: pinned ? 'vlabel always-on' : 'vlabel',
-      id:`lbl-${i}`,
-      x: p.x + 9, y:p.y+4, style:'font-size:10px;'
-    });
-    lbl.textContent = v.name;
-    labelsG.appendChild(lbl);
-
-    const circle = makeSVG('circle', {
-      class:'vdot', id:`dot-${i}`,
-      cx:p.x, cy:p.y, r:7,
-      fill:color, stroke:'none', 'stroke-width':'0'
-    });
-    circle.addEventListener('mouseenter', e => { showTip(e, v, p); });
-    circle.addEventListener('mouseleave', () => { hideTip(); });
-    dotsG.appendChild(circle);
-  });
-
-  /* Your Character dot — draggable */
-  const charCircle = makeSVG('circle', {
-    id:'char-dot', cx:charPos.x, cy:charPos.y, r:9,
-    fill:charDotColor, stroke:charDotStroke, 'stroke-width':'2',
-    filter:'url(#glow)', style:'cursor:grab;'
-  });
-  charCircle.addEventListener('mousedown', e => {
-    isDragging = true;
-    e.preventDefault();
-    charCircle.style.cursor = 'grabbing';
-  });
-  dotsG.appendChild(charCircle);
-
-  const charLbl = makeSVG('text', {
-    id:'char-lbl', class:'vlabel always-on',
-    x:charPos.x+13, y:charPos.y+4,
-    style:'font-weight:600; font-size:11px;'
-  });
-  charLbl.textContent = document.getElementById('char-name').value || 'Your Character';
-  labelsG.appendChild(charLbl);
-
-  svg.appendChild(dotsG);
-  svg.appendChild(labelsG);
-}
-
-function getCharPos(xDim, yDim) {
-  return toScreen(xDim.charVal(), yDim.charVal(), xDim, yDim);
-}
-
-
-/* convert chart-relative screen coords back to charState slider values */
-function setCharStateFromDim(dimKey, rawVal) {
-  if      (dimKey === 'anonymity') charState.anon    = Math.max(0, Math.min(4, rawVal - 1));
-  else if (dimKey === 'wealth')    charState.wealth  = Math.max(0, Math.min(4, rawVal - 1));
-  else if (dimKey === 'social')    charState.social  = Math.max(0, Math.min(3, rawVal - 1));
+  /* matrix */
+  const killVal = KILL_VALS[Math.max(0, Math.min(5, Math.round(charState.kills)))];
+  return {
+    x: Math.max(PAD.l+DOT, Math.min(PAD.l+plotW-DOT, PAD.l + (charMindsetScore()/100)*plotW)),
+    y: Math.max(PAD.t+DOT, Math.min(PAD.t+plotH-DOT, PAD.t + plotH - (Math.log1p(killVal)/LETHALITY_MAX)*plotH))
+  };
 }
 
 function updateSlidersFromState() {
@@ -1683,8 +1892,8 @@ function buildVillainList() {
   const half  = Math.ceil(males.length / 2);
   const maleWrap = document.createElement('div');
   maleWrap.style.cssText = 'display:flex; gap:4px; flex:2;';
-  const col1 = makeCol('Male', '#00E5FF', males.slice(0, half));
-  const col2 = makeCol('Male', '#00E5FF', males.slice(half));
+  const col1 = makeCol('Male', '#FF3399', males.slice(0, half));
+  const col2 = makeCol('Male', '#FF3399', males.slice(half));
   /* remove the duplicate "Male" header from col2 */
   col2.querySelector('.vl-group-title').remove();
   /* invisible spacer — gives col2 one blank row so it aligns one row lower than col1 */
@@ -1697,7 +1906,7 @@ function buildVillainList() {
   el.appendChild(maleWrap);
 
   /* Female — 1 column */
-  el.appendChild(makeCol('Female', '#FF3399', [...FEMALE_NAMES]));
+  el.appendChild(makeCol('Female', '#00E5FF', [...FEMALE_NAMES]));
 
   /* Alien — 1 column */
   el.appendChild(makeCol('Alien', '#43B749', [...ALIEN_NAMES]));
@@ -1709,7 +1918,7 @@ function showTip(e, v, p) {
   const gender = alien ? 'Alien' : female ? 'Female' : 'Male';
   tipEl.innerHTML = `
     <strong>${v.name}</strong><br>
-    <span style="opacity:0.55;font-size:10px;">${v.movie}</span><br>
+    <span style="opacity:0.6;font-size:12px;">${v.movie}</span><br>
     Anonymity: ${v.anon}<br>
     Wealth: ${v.wealth}<br>
     Status: ${v.status}<br>
@@ -1740,27 +1949,14 @@ function hideTip() {
 /* ══════════════════════════════════════════════════════════
    UI CONTROLS
 ══════════════════════════════════════════════════════════ */
-/* tabs — first click = X axis, second click = Y axis; clicking selected = deselect */
+/* ── Mode buttons ── */
 document.getElementById('tabs-row').addEventListener('click', e => {
-  const btn = e.target.closest('.tab-btn');
+  const btn = e.target.closest('.mode-btn');
   if (!btn) return;
-  const dim = btn.dataset.dim;
-  const idx = selectedDims.indexOf(dim);
-  if (idx !== -1) {
-    /* deselect */
-    selectedDims.splice(idx, 1);
-  } else if (selectedDims.length < 2) {
-    selectedDims.push(dim);
-  } else {
-    /* both slots full — replace the oldest (first) */
-    selectedDims = [selectedDims[1], dim];
-  }
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    if (!b.dataset.label) b.dataset.label = b.textContent;
-    const pos = selectedDims.indexOf(b.dataset.dim);
-    b.classList.toggle('on', pos !== -1);
-    b.textContent = pos === 0 ? `${b.dataset.label} (X)` : pos === 1 ? `${b.dataset.label} (Y)` : b.dataset.label;
-  });
+  currentMode = btn.dataset.mode;
+  lastPositions = null;
+  charDotPos    = null; /* clear drag override on mode switch */
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
   buildSVG();
 });
 
@@ -1773,12 +1969,9 @@ document.getElementById('genre-tabs').addEventListener('click', e => {
 });
 
 document.getElementById('reset-btn').addEventListener('click', () => {
-  selectedDims = [];
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('on');
-    if (b.dataset.label) b.textContent = b.dataset.label;
-    /* also clear stored label so next interaction re-reads correctly */
-  });
+  charDotPos = null;
+  charState.anon = 2; charState.wealth = 3; charState.social = 0; charState.kills = 2;
+  updateSlidersFromState();
   buildSVG();
 });
 
@@ -1790,7 +1983,7 @@ function setGender(g) {
     charDotColor  = '#fff';
     charDotStroke = 'none';
   } else {
-    const colors = { female:'#FF3399', male:'#00E5FF', alien:'#43B749' };
+    const colors = { female:'#00E5FF', male:'#FF3399', alien:'#43B749' };
     document.querySelectorAll('.g-dot').forEach(el => el.classList.remove('selected'));
     btn.classList.add('selected');
     charDotColor  = colors[g];
@@ -1803,10 +1996,12 @@ function setGender(g) {
 function setTog(which) {
   document.getElementById('tog-c').classList.toggle('on', which === 'c');
   document.getElementById('tog-p').classList.toggle('on', which === 'p');
+  buildSVG(); /* move dot to cerebral/physical side in mindset mode */
 }
 
 /* sliders */
 function onSlider(type, val) {
+  charDotPos = null;
   if (type === 'anon') {
     charState.anon = val;
     updateTickHighlight('tk-anon', val);
@@ -1820,7 +2015,8 @@ function onSlider(type, val) {
     charState.kills = val;
     updateTickHighlight('tk-kills', val);
   }
-  buildSVG(); /* redraw chart with new "Your Character" position */
+  buildSVG();
+  updateRightPanel();
 }
 
 function updateTickHighlight(ticksId, val) {
@@ -1847,41 +2043,45 @@ const ro = new ResizeObserver(() => {
 ro.observe(wrap);
 
 window.addEventListener('load', () => {
-  W = wrap.clientWidth;
-  H = wrap.clientHeight;
-  buildSVG();
+  try {
+    W = wrap.clientWidth;
+    H = wrap.clientHeight;
+    buildSVG();
+  } catch(e) { console.warn('buildSVG on load failed:', e); }
 });
 
-/* ── Draggable "Your Character" dot ── */
-svg.addEventListener('mousemove', e => {
-  if (!isDragging || selectedDims.length < 2) return;
-  const rect   = svg.getBoundingClientRect();
-  const plotW  = W - PAD.l - PAD.r;
-  const plotH  = H - PAD.t - PAD.b;
-  const px     = Math.max(PAD.l, Math.min(PAD.l + plotW, e.clientX - rect.left));
-  const py     = Math.max(PAD.t, Math.min(PAD.t + plotH, e.clientY - rect.top));
+/* ── Draggable "Your Character" dot — Architect Matrix only ── */
+window.addEventListener('mousemove', e => {
+  if (!isDragging || currentMode !== 'matrix') return;
+  const rect  = svg.getBoundingClientRect();
+  const plotW = W - PAD.l - PAD.r;
+  const plotH = H - PAD.t - PAD.b;
+  const px    = Math.max(PAD.l, Math.min(PAD.l + plotW, e.clientX - rect.left));
+  const py    = Math.max(PAD.t, Math.min(PAD.t + plotH, e.clientY - rect.top));
 
-  const [xKey, yKey] = selectedDims;
-  const xDim = DIMS[xKey], yDim = DIMS[yKey];
+  /* Store exact pixel position — dot leads, sliders follow */
+  charDotPos = { x: px, y: currentMode === 'mindset' ? H / 2 : py };
 
-  if (!xDim.isLog) {
-    setCharStateFromDim(xKey, ((px - PAD.l) / plotW) * (xDim.max - 1) + 1);
-  } else {
-    const lm = logMax(xDim);
-    const logKill = Math.max(0, ((px - PAD.l) / plotW) * lm);
-    charState.kills = KILL_VALS.reduce((best, v, i) =>
-      Math.abs(Math.log1p(v) - logKill) < Math.abs(Math.log1p(KILL_VALS[best]) - logKill) ? i : best, 0);
+  /* X → Architecture Index → update social/wealth/anon sliders proportionally */
+  const t = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
+  charState.social = t * 3;          /* left=Outcast, right=Ruler */
+  charState.wealth = t * 4;          /* left=None/Poor, right=Infinite */
+  charState.anon   = (1 - t) * 3;   /* left=Visible, right=Fully Masked */
+
+  if (currentMode === 'mindset') {
+    /* mindset mode: horizontal drag only — no Y/kills update */
+    const dot = document.getElementById('char-dot');
+    if (dot) { dot.setAttribute('cx', px); dot.setAttribute('cy', H / 2); }
+    const lbl = document.getElementById('char-lbl');
+    if (lbl) { lbl.setAttribute('x', px + 13); lbl.setAttribute('y', H / 2 + 4); }
+    updateSlidersFromState();
+    return;
   }
-  if (!yDim.isLog) {
-    setCharStateFromDim(yKey, ((PAD.t + plotH - py) / plotH) * (yDim.max - 1) + 1);
-  } else {
-    const lm = logMax(yDim);
-    const logKill = Math.max(0, ((PAD.t + plotH - py) / plotH) * lm);
-    charState.kills = KILL_VALS.reduce((best, v, i) =>
-      Math.abs(Math.log1p(v) - logKill) < Math.abs(Math.log1p(KILL_VALS[best]) - logKill) ? i : best, 0);
-  }
 
-  /* move dot + label live without full rebuild */
+  /* Y → kills (top = max lethality, bottom = min) */
+  charState.kills = Math.max(0, Math.min(5, ((PAD.t + plotH - py) / plotH) * 5));
+
+  /* move dot + label live — no rebuild, no snap */
   const dot = document.getElementById('char-dot');
   if (dot) { dot.setAttribute('cx', px); dot.setAttribute('cy', py); }
   const lbl = document.getElementById('char-lbl');
@@ -1893,7 +2093,8 @@ svg.addEventListener('mousemove', e => {
 window.addEventListener('mouseup', () => {
   if (isDragging) {
     isDragging = false;
-    buildSVG(); /* full redraw snaps everything into place */
+    buildSVG();
+    updateRightPanel();
   }
 });
 
@@ -1979,41 +2180,81 @@ function runBotAnimation(text) {
   }, 600);
 }
 
-function launchChat(text) {
-  const ob = document.getElementById('onboarding');
+function showChatScreen() {
   const cs = document.getElementById('chat-screen');
-
-  if (!text) document.getElementById('cs-user-bubble').style.display = 'none';
-
-  ob.classList.add('hide');
-  ob.addEventListener('transitionend', () => {
-    ob.remove();
-    cs.classList.add('visible');
-    if (text) runBotAnimation(text);
-  }, { once: true });
+  if (!cs) return;
+  cs.style.display = 'flex';
+  /* force reflow so transition fires */
+  void cs.offsetWidth;
+  cs.classList.add('visible');
 }
 
-function launchDashboard() {
+function hideChatScreen() {
   const cs = document.getElementById('chat-screen');
   if (!cs) return;
   cs.classList.remove('visible');
-  document.getElementById('bot-toggle-btn').classList.remove('open');
+  /* hide after transition */
+  setTimeout(() => { if (!cs.classList.contains('visible')) cs.style.display = 'none'; }, 420);
+}
+
+function launchChat(text) {
+  const ob = document.getElementById('onboarding');
+  if (ob) ob.style.display = 'none';
+  if (!text) {
+    const b = document.getElementById('cs-user-bubble');
+    if (b) b.style.display = 'none';
+  }
+  /* ensure bubble is visible */
+  const bubble = document.getElementById('cs-user-bubble');
+  if (bubble) { bubble.style.display = ''; bubble.textContent = text || ''; }
+
+  showChatScreen();
+
+  if (text) {
+    /* delay so chat screen fully fades in before animation starts */
+    setTimeout(() => runBotAnimation(text), 450);
+  }
+}
+
+function launchDashboard() {
+  hideChatScreen();
+  const app = document.querySelector('.app');
+  if (app) app.style.display = 'flex';
+  const btn = document.getElementById('bot-toggle-btn');
+  if (btn) btn.classList.remove('open');
+  /* open matrix and populate right panel — wait one frame for layout */
+  currentMode = 'matrix';
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'matrix'));
+  requestAnimationFrame(() => {
+    try { W = wrap.clientWidth; H = wrap.clientHeight; if (W && H) buildSVG(); } catch(e) {}
+    setTimeout(updateRightPanel, 50);
+  });
 }
 
 function toggleChat() {
   const cs = document.getElementById('chat-screen');
-  const btn = document.getElementById('bot-toggle-btn');
   if (!cs) return;
-  const isOpen = cs.classList.contains('visible');
-  cs.classList.toggle('visible', !isOpen);
-  btn.classList.toggle('open', !isOpen);
+  const btn = document.getElementById('bot-toggle-btn');
+  if (cs.classList.contains('visible')) {
+    hideChatScreen();
+    if (btn) btn.classList.remove('open');
+  } else {
+    showChatScreen();
+    if (btn) btn.classList.add('open');
+  }
 }
 
+/* Catch Enter anywhere while onboarding is showing */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const ob = document.getElementById('onboarding');
+  if (!ob || ob.style.display === 'none') return;
+  e.preventDefault();
+  launchChat(document.getElementById('ob-text').value.trim());
+});
+
 document.getElementById('ob-text').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    launchChat(document.getElementById('ob-text').value.trim());
-  }
+  if (e.key === 'Enter') { e.preventDefault(); launchChat(e.target.value.trim()); }
 });
 
 document.getElementById('ob-submit').addEventListener('click', () => {
@@ -2033,21 +2274,12 @@ document.getElementById('cs-input').addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   e.preventDefault();
   const val = e.target.value.trim();
-  if (!val) return;
-  const bubble = document.getElementById('cs-user-bubble');
-  bubble.style.display = '';
-  bubble.textContent = val;
-  e.target.value = '';
+  if (val) { e.target.value = ''; }
+  launchDashboard();
 });
 
 document.getElementById('cs-send').addEventListener('click', () => {
-  const inp = document.getElementById('cs-input');
-  const val = inp.value.trim();
-  if (!val) return;
-  const bubble = document.getElementById('cs-user-bubble');
-  bubble.style.display = '';
-  bubble.textContent = val;
-  inp.value = '';
+  launchDashboard();
 });
 
 document.getElementById('cs-file').addEventListener('change', e => {
@@ -2055,6 +2287,164 @@ document.getElementById('cs-file').addEventListener('change', e => {
   if (!file) return;
   document.getElementById('cs-input').value = file.name;
 });
+
+/* ══════════════════════════════════════════════════════════
+   RIGHT PANEL — CHARACTER DNA LIVE ENGINE
+══════════════════════════════════════════════════════════ */
+
+function rpSvg(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs || {}).forEach(([k,v]) => el.setAttribute(k, String(v)));
+  return el;
+}
+function $id(id) { return document.getElementById(id); }
+
+function updateRightPanel() {
+  try {
+    const score    = charMindsetScore();
+    const anonIdx  = Math.min(4, Math.max(0, Math.round(charState.anon)));
+    const wealthIdx= Math.min(4, Math.max(0, Math.round(charState.wealth)));
+    const socialIdx= Math.min(3, Math.max(0, Math.round(charState.social)));
+    const killsIdx = Math.min(5, Math.max(0, Math.round(charState.kills)));
+
+    /* 1 — Survival Forecast */
+    const survival = Math.min(100, Math.max(0, Math.round(score * 0.65 + wealthIdx/4*25 + (4-anonIdx)/4*10)));
+    const s1 = $id('rp-survival'); if(s1) s1.textContent = survival + '%';
+
+    /* 2 — Brutality (driven by anonymity × lethality proxy) */
+    const bLabels = ['Minimal','Low','Medium','High','Extreme','Lethal'];
+    const bColors = ['#43b749','#43b749','#ff8c00','#ed1c24','#ed1c24','#ed1c24'];
+    const brutalIdx = Math.min(5, Math.round(anonIdx/4*2 + (1-score/100)*3));
+    const bEl = $id('rp-brutality');
+    if(bEl){ bEl.textContent = bLabels[brutalIdx]; bEl.style.color = bColors[brutalIdx]; }
+
+    /* 3 — Mind over Power text */
+    const cerN = VILLAINS.filter(v=>v.mindset==='Cerebral').length;
+    const phyN = VILLAINS.filter(v=>v.mindset==='Physical').length;
+    const mEl = $id('rp-mop-text');
+    if(mEl) mEl.textContent = score > 50
+      ? `Your villain leans cerebral — closer to the ${cerN} strategic villains. Survival odds improve with distance and control.`
+      : `Your villain leans physical — like the ${phyN} brute-force villains. Direct confrontation raises mortality risk.`;
+
+    /* 4 — Donut */
+    drawDonut(cerN, phyN);
+
+    /* 5 — Radar */
+    drawRadar({
+      CHAOS:     Math.max(0, killsIdx/5 * (1-socialIdx/3)),
+      EMPATHY:   Math.max(0, (1-anonIdx/4) * (1-killsIdx/5)),
+      INTELLECT: Math.max(0, score/100),
+      RESOLVE:   Math.max(0, socialIdx/3*0.5 + wealthIdx/4*0.5),
+      CHARISMA:  Math.max(0, (1-anonIdx/4) * (socialIdx/3)),
+      BRUTALITY: Math.max(0, killsIdx/5*0.7 + anonIdx/4*0.3),
+    });
+
+    /* 6 — Bars */
+    drawBars(anonIdx);
+
+    /* 7 — Archetype */
+    const archs=[
+      {min:80,t:"Absolute systemic power. Institutions bend to their will. The hero never faces them directly until the final act."},
+      {min:60,t:"Cold strategic architect. Three steps ahead — the hero never sees the threat until it's too late."},
+      {min:45,t:"Your character bridges the gap between high society and the underworld. Using partial anonymity to move undetected while exploiting their elite wealth, they orchestrate calculated, targeted strikes. High psychological control."},
+      {min:25,t:"A hybrid threat — capable of strategy and direct intervention. Unpredictable, adaptable, difficult to profile."},
+      {min:0, t:"Relies entirely on physical proximity and overwhelming violence. Presence is the weapon."},
+    ];
+    const arch = archs.find(a=>score>=a.min)||archs[archs.length-1];
+    const aEl = $id('rp-archetype'); if(aEl) aEl.textContent = arch.t;
+  } catch(err) { console.warn('updateRightPanel error:', err); }
+}
+
+function drawDonut(cerN, phyN) {
+  const el = $id('rp-donut'); if(!el) return;
+  el.innerHTML = '';
+  const cx=65, cy=65, R=52, ri=30, total=cerN+phyN;
+  if(!total) return;
+  const segs=[{n:cerN,c:'#8b0000'},{n:phyN,c:'#ed1c24'}];
+  let a0 = -Math.PI/2;
+  segs.forEach(s=>{
+    const sw=(s.n/total)*2*Math.PI;
+    const lg=sw>Math.PI?1:0;
+    const x1=cx+R*Math.cos(a0), y1=cy+R*Math.sin(a0);
+    const x2=cx+R*Math.cos(a0+sw), y2=cy+R*Math.sin(a0+sw);
+    const xi1=cx+ri*Math.cos(a0), yi1=cy+ri*Math.sin(a0);
+    const xi2=cx+ri*Math.cos(a0+sw), yi2=cy+ri*Math.sin(a0+sw);
+    el.appendChild(rpSvg('path',{fill:s.c,
+      d:`M${x1},${y1} A${R},${R},0,${lg},1,${x2},${y2} L${xi2},${yi2} A${ri},${ri},0,${lg},0,${xi1},${yi1} Z`}));
+    /* number label in segment */
+    const ma=a0+sw/2;
+    const lx=cx+(R+ri)/2*Math.cos(ma), ly=cy+(R+ri)/2*Math.sin(ma);
+    const t=rpSvg('text',{x:lx,y:ly+4,'text-anchor':'middle',fill:'#231f20','font-size':'14','font-weight':'700'});
+    t.textContent=s.n; el.appendChild(t);
+    a0+=sw;
+  });
+  el.appendChild(rpSvg('circle',{cx,cy,r:ri-1,fill:'#0b0b0c'}));
+}
+
+function drawRadar(vals) {
+  const el = $id('rp-radar'); if(!el) return;
+  el.innerHTML = '';
+  const cx=110, cy=80, R=55;
+  const axes=['CHAOS','EMPATHY','INTELLECT','RESOLVE','CHARISMA','BRUTALITY'];
+  const dataArr=[vals.CHAOS,vals.EMPATHY,vals.INTELLECT,vals.RESOLVE,vals.CHARISMA,vals.BRUTALITY];
+  const angs=axes.map((_,i)=>-Math.PI/2+(i/axes.length)*2*Math.PI);
+
+  [0.25,0.5,0.75,1].forEach(f=>{
+    const pts=angs.map(a=>`${cx+f*R*Math.cos(a)},${cy+f*R*Math.sin(a)}`).join(' ');
+    el.appendChild(rpSvg('polygon',{points:pts,fill:'none',stroke:'#333','stroke-width':'0.5'}));
+  });
+  angs.forEach(a=>el.appendChild(rpSvg('line',{x1:cx,y1:cy,x2:cx+R*Math.cos(a),y2:cy+R*Math.sin(a),stroke:'#333','stroke-width':'0.5'})));
+
+  const dpts=angs.map((a,i)=>`${cx+dataArr[i]*R*Math.cos(a)},${cy+dataArr[i]*R*Math.sin(a)}`).join(' ');
+  el.appendChild(rpSvg('polygon',{points:dpts,fill:'rgba(180,0,60,0.35)',stroke:'#ec008c','stroke-width':'1.5'}));
+
+  axes.forEach((name,i)=>{
+    const a=angs[i];
+    const lx=cx+(R+13)*Math.cos(a), ly=cy+(R+13)*Math.sin(a);
+    const anchor=Math.cos(a)>0.1?'start':Math.cos(a)<-0.1?'end':'middle';
+    const t=rpSvg('text',{x:lx,y:ly+3,'text-anchor':anchor,fill:'#888','font-size':'7.5','font-family':'Red Hat Display,sans-serif'});
+    t.textContent=name; el.appendChild(t);
+  });
+}
+
+function drawBars(selectedAnonIdx) {
+  const el = $id('rp-bars-html'); if(!el) return;
+  el.innerHTML = '';
+  const rows=[{l:'Visible',n:2,t:'2'},{l:'Face\nPaint',n:10,t:'10'},{l:'Half\nMask',n:60,t:'60'},{l:'Full\nMask',n:100,t:'100'},{l:'Alien',n:1e6,t:'trillion'}];
+  const maxH=90, base=108, maxLog=Math.log1p(1e6);
+  const bw=28, gap=14, totalW=rows.length*(bw+gap)-gap;
+  const sx=(220-totalW)/2;
+
+  rows.forEach((r,i)=>{
+    const h=Math.max(4,(Math.log1p(r.n)/maxLog)*maxH);
+    const x=sx+i*(bw+gap), y=base-h;
+    const active=i===selectedAnonIdx;
+    const fill=active?'#874fff':'#3a3a3a';
+
+    el.appendChild(rpSvg('rect',{x,y,width:bw,height:h,fill,rx:'2'}));
+
+    /* count above bar */
+    const ct=rpSvg('text',{x:x+bw/2,y:y-4,'text-anchor':'middle',fill:'#fff','font-size':'10','font-family':'Red Hat Display,sans-serif'});
+    ct.textContent=r.t==='trillion'&&!active?'trill':r.t; el.appendChild(ct);
+
+    /* label below baseline */
+    r.l.split('\n').forEach((part,pi)=>{
+      const lt=rpSvg('text',{x:x+bw/2,y:base+11+pi*10,'text-anchor':'middle',fill:'#666','font-size':'8','font-family':'Red Hat Display,sans-serif'});
+      lt.textContent=part; el.appendChild(lt);
+    });
+  });
+}
+
+/* hook into every state change */
+/* Update right panel on load and on a 1s interval while dashboard visible */
+window.addEventListener('load', () => {
+  setTimeout(updateRightPanel, 300);
+  setInterval(() => {
+    const app = document.querySelector('.app');
+    if (app && app.style.display !== 'none') updateRightPanel();
+  }, 1000);
+});
+
 
 </script>
 </body>
