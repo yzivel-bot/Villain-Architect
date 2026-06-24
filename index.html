@@ -2075,33 +2075,34 @@ window.addEventListener('mousemove', e => {
   const rect  = svg.getBoundingClientRect();
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
-  const px    = Math.max(PAD.l, Math.min(PAD.l + plotW, e.clientX - rect.left));
-  const py    = Math.max(PAD.t, Math.min(PAD.t + plotH, e.clientY - rect.top));
+  const DOT   = 9;
 
-  /* Store exact pixel position — dot leads, sliders follow */
-  charDotPos = { x: px, y: currentMode === 'mindset' ? H / 2 : py };
+  /* X = exact mouse position (free, unbounded within plot) */
+  const px = Math.max(PAD.l + DOT, Math.min(PAD.l + plotW - DOT, e.clientX - rect.left));
 
-  /* X = Architecture Index → drives social/wealth/anon
-     Y is now a CALCULATED OUTPUT (not a drag input) — recalculate from updated sliders */
-
-  /* X drag → proportionally update all 3 sliders */
+  /* X → Architecture Index (0→1) → reverse-calculate all 3 slider values */
   const t = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
-  charState.social = t * 3;          /* left=Outcast, right=Ruler */
-  charState.wealth = t * 4;          /* left=None/Poor, right=Infinite */
-  charState.anon   = (1 - t) * 3;   /* left=Visible, right=Fully Masked */
+  charState.social = t * 3;          /* right=Ruler(3),    left=Outcast(0)     */
+  charState.wealth = t * 4;          /* right=Infinite(4), left=None/Poor(0)   */
+  charState.anon   = (1 - t) * 3;   /* right=FullyMasked(3), left=Visible(0)  */
 
-  /* Y is recalculated from updated sliders — dot snaps to formula output */
-  charDotPos = null; /* clear override so getCharPos() uses formula */
-  const newCharPos = getCharPos();
-  charDotPos = { x: newCharPos.x, y: newCharPos.y }; /* lock to formula result */
+  /* Y = calculated lethality output from updated slider values */
+  const lethalityPct = charLethalityScore() / 100; /* 0.05–0.95 */
+  const py = Math.max(PAD.t + DOT, Math.min(PAD.t + plotH - DOT,
+    PAD.t + plotH - lethalityPct * plotH));
 
-  /* move dot + label live */
-  const dot = document.getElementById('char-dot');
-  if (dot) { dot.setAttribute('cx', newCharPos.x); dot.setAttribute('cy', newCharPos.y); }
-  const lbl = document.getElementById('char-lbl');
-  if (lbl) { lbl.setAttribute('x', newCharPos.x + 13); lbl.setAttribute('y', newCharPos.y + 4); }
+  /* Pin dot to { mouse_x, formula_y } */
+  charDotPos = { x: px, y: py };
 
+  /* Move dot + label live — no rebuild needed */
+  const dotEl = document.getElementById('char-dot');
+  if (dotEl) { dotEl.setAttribute('cx', px); dotEl.setAttribute('cy', py); }
+  const lblEl = document.getElementById('char-lbl');
+  if (lblEl) { lblEl.setAttribute('x', px + 13); lblEl.setAttribute('y', py + 4); }
+
+  /* Update sidebar sliders AND right-panel CHARACTER DNA in real-time */
   updateSlidersFromState();
+  updateRightPanel();
 });
 
 window.addEventListener('mouseup', () => {
