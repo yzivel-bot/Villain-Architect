@@ -187,8 +187,8 @@ html, body {
   transition: transform 0.15s;
 }
 .g-dot:hover { transform: scale(1.12); }
-.g-dot.pink  { background: #00E5FF; }  /* female button = cyan */
-.g-dot.cyan  { background: #FF3399; }  /* male button = pink */
+.g-dot.pink  { background: #FF3399; }  /* female = pink */
+.g-dot.cyan  { background: #00E5FF; }  /* male = blue */
 .g-dot.green { background: #43B749; }
 
 /* gender tooltip wrapper */
@@ -1305,6 +1305,27 @@ function computeMindsetScore(v) {
   return calculateArchitectureIndex(v.status, v.wealth, v.anon);
 }
 
+/* Predicted Body Count — calculated output from status + wealth (0-100 scale) */
+function calculateLethalityScore(status, wealth) {
+  let score = 10; /* base baseline */
+  if (status === 'Ruler')       score += 60;
+  else if (status === 'Elite')  score += 40;
+  else if (status === 'Outcast') score -= 5;
+  if (wealth === 'Infinite')    score += 30;
+  else if (wealth === 'Wealthy') score += 15;
+  else if (wealth === 'Poor' || wealth === 'None/Poor') score -= 5;
+  return Math.max(5, Math.min(95, score));
+}
+
+function charLethalityScore() {
+  const statusMap = ['Outcast','Ordinary','Elite','Ruler'];
+  const wealthMap = ['None/Poor','Working','Middle Class','Wealthy','Infinite'];
+  return calculateLethalityScore(
+    statusMap[Math.round(charState.social)],
+    wealthMap[Math.round(charState.wealth)]
+  );
+}
+
 function charMindsetScore() {
   const statusMap = ['Outcast','Ordinary','Elite','Ruler'];
   const wealthMap = ['None/Poor','Working','Middle Class','Wealthy','Infinite'];
@@ -1518,7 +1539,7 @@ function initSVGLayers() {
     const v      = VILLAINS[i];
     const female = FEMALE_NAMES.has(v.name);
     const alien  = ALIEN_NAMES.has(v.name);
-    const color  = alien ? '#43B749' : female ? '#00E5FF' : '#FF3399'; /* female=cyan, male=pink */
+    const color  = alien ? '#43B749' : female ? '#FF3399' : '#00E5FF'; /* female=pink, male=blue */
 
     const lbl = makeSVG('text', {
       class: PINNED_NAMES.has(v.name) ? 'vlabel always-on' : 'vlabel',
@@ -1645,8 +1666,8 @@ function buildSVG() {
     const gM = 24, gColW = (W - 2 * gM) / 4;
     const gX = [0,1,2,3].map(c => gM + (c + 0.5) * gColW);
     /* headers — all on the same Y line, no divider lines */
-    mkRegionLabel('MALE',   gX[0], PAD.t + 18, '#FF3399');
-    mkRegionLabel('FEMALE', gX[2], PAD.t + 18, '#00E5FF');
+    mkRegionLabel('MALE',   gX[0], PAD.t + 18, '#00E5FF');
+    mkRegionLabel('FEMALE', gX[2], PAD.t + 18, '#FF3399');
     mkRegionLabel('ALIEN',  gX[3], PAD.t + 18, '#43B749');
   }
   /* Insert axis layer before dots (dots on top of axes) */
@@ -1783,9 +1804,9 @@ function getCharPos() {
       return { x: colX[colIdx], y: dotStart + counts[colIdx] * step };
     }
 
-    if (charDotColor === '#00E5FF') return colEnd(2); /* female col — cyan */
+    if (charDotColor === '#FF3399') return colEnd(2); /* female col — pink */
     if (charDotColor === '#43B749') return colEnd(3); /* alien col */
-    if (charDotColor === '#FF3399') {                 /* male — pink */
+    if (charDotColor === '#00E5FF') {                 /* male — blue */
       /* male: pick the shorter of the two male columns so it looks balanced */
       const colIdx = counts[0] <= counts[1] ? 0 : 1;
       return colEnd(colIdx);
@@ -1794,11 +1815,11 @@ function getCharPos() {
     return { x: 50, y: 80 };
   }
 
-  /* matrix */
-  const killVal = KILL_VALS[Math.max(0, Math.min(5, Math.round(charState.kills)))];
+  /* matrix — Y is now a CALCULATED OUTPUT from status+wealth, not a slider */
+  const lethalityPct = charLethalityScore() / 100; /* 0.05–0.95 */
   return {
     x: Math.max(PAD.l+DOT, Math.min(PAD.l+plotW-DOT, PAD.l + (charMindsetScore()/100)*plotW)),
-    y: Math.max(PAD.t+DOT, Math.min(PAD.t+plotH-DOT, PAD.t + plotH - (Math.log1p(killVal)/LETHALITY_MAX)*plotH))
+    y: Math.max(PAD.t+DOT, Math.min(PAD.t+plotH-DOT, PAD.t + plotH - lethalityPct * plotH))
   };
 }
 
@@ -1806,11 +1827,9 @@ function updateSlidersFromState() {
   document.getElementById('sl-anon').value    = charState.anon;
   document.getElementById('sl-wealth').value  = charState.wealth;
   document.getElementById('sl-social').value  = charState.social;
-  document.getElementById('sl-kills').value   = charState.kills;
   updateTickHighlight('tk-anon',   charState.anon);
   updateTickHighlight('tk-wealth', charState.wealth);
   updateTickHighlight('tk-social', charState.social);
-  updateTickHighlight('tk-kills',  charState.kills);
 }
 
 /* split two-word category names into two SVG tspan lines */
@@ -1892,8 +1911,8 @@ function buildVillainList() {
   const half  = Math.ceil(males.length / 2);
   const maleWrap = document.createElement('div');
   maleWrap.style.cssText = 'display:flex; gap:4px; flex:2;';
-  const col1 = makeCol('Male', '#FF3399', males.slice(0, half));
-  const col2 = makeCol('Male', '#FF3399', males.slice(half));
+  const col1 = makeCol('Male', '#00E5FF', males.slice(0, half));
+  const col2 = makeCol('Male', '#00E5FF', males.slice(half));
   /* remove the duplicate "Male" header from col2 */
   col2.querySelector('.vl-group-title').remove();
   /* invisible spacer — gives col2 one blank row so it aligns one row lower than col1 */
@@ -1906,7 +1925,7 @@ function buildVillainList() {
   el.appendChild(maleWrap);
 
   /* Female — 1 column */
-  el.appendChild(makeCol('Female', '#00E5FF', [...FEMALE_NAMES]));
+  el.appendChild(makeCol('Female', '#FF3399', [...FEMALE_NAMES]));
 
   /* Alien — 1 column */
   el.appendChild(makeCol('Alien', '#43B749', [...ALIEN_NAMES]));
@@ -1983,7 +2002,7 @@ function setGender(g) {
     charDotColor  = '#fff';
     charDotStroke = 'none';
   } else {
-    const colors = { female:'#00E5FF', male:'#FF3399', alien:'#43B749' };
+    const colors = { female:'#FF3399', male:'#00E5FF', alien:'#43B749' };
     document.querySelectorAll('.g-dot').forEach(el => el.classList.remove('selected'));
     btn.classList.add('selected');
     charDotColor  = colors[g];
@@ -2062,30 +2081,25 @@ window.addEventListener('mousemove', e => {
   /* Store exact pixel position — dot leads, sliders follow */
   charDotPos = { x: px, y: currentMode === 'mindset' ? H / 2 : py };
 
-  /* X → Architecture Index → update social/wealth/anon sliders proportionally */
+  /* X = Architecture Index → drives social/wealth/anon
+     Y is now a CALCULATED OUTPUT (not a drag input) — recalculate from updated sliders */
+
+  /* X drag → proportionally update all 3 sliders */
   const t = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
   charState.social = t * 3;          /* left=Outcast, right=Ruler */
   charState.wealth = t * 4;          /* left=None/Poor, right=Infinite */
   charState.anon   = (1 - t) * 3;   /* left=Visible, right=Fully Masked */
 
-  if (currentMode === 'mindset') {
-    /* mindset mode: horizontal drag only — no Y/kills update */
-    const dot = document.getElementById('char-dot');
-    if (dot) { dot.setAttribute('cx', px); dot.setAttribute('cy', H / 2); }
-    const lbl = document.getElementById('char-lbl');
-    if (lbl) { lbl.setAttribute('x', px + 13); lbl.setAttribute('y', H / 2 + 4); }
-    updateSlidersFromState();
-    return;
-  }
+  /* Y is recalculated from updated sliders — dot snaps to formula output */
+  charDotPos = null; /* clear override so getCharPos() uses formula */
+  const newCharPos = getCharPos();
+  charDotPos = { x: newCharPos.x, y: newCharPos.y }; /* lock to formula result */
 
-  /* Y → kills (top = max lethality, bottom = min) */
-  charState.kills = Math.max(0, Math.min(5, ((PAD.t + plotH - py) / plotH) * 5));
-
-  /* move dot + label live — no rebuild, no snap */
+  /* move dot + label live */
   const dot = document.getElementById('char-dot');
-  if (dot) { dot.setAttribute('cx', px); dot.setAttribute('cy', py); }
+  if (dot) { dot.setAttribute('cx', newCharPos.x); dot.setAttribute('cy', newCharPos.y); }
   const lbl = document.getElementById('char-lbl');
-  if (lbl) { lbl.setAttribute('x', px + 13); lbl.setAttribute('y', py + 4); }
+  if (lbl) { lbl.setAttribute('x', newCharPos.x + 13); lbl.setAttribute('y', newCharPos.y + 4); }
 
   updateSlidersFromState();
 });
