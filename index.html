@@ -331,6 +331,41 @@ input[type=range].vslider::-webkit-slider-thumb {
   min-height: 0;
 }
 
+#villain-list {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 24px 28px;
+  display: flex;
+  gap: 32px;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+#villain-list.hidden { display: none; }
+
+.vl-group { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.vl-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.vl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #ccc;
+  line-height: 1.6;
+}
+.vl-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 #scatter-svg {
   width: 100%;
   height: 100%;
@@ -1081,6 +1116,7 @@ mark.kw.lit {
   <div class="scatter-wrap" id="scatter-wrap">
     <svg id="scatter-svg"></svg>
     <div id="tooltip"></div>
+    <div id="villain-list"></div>
   </div>
 </div>
 
@@ -1129,68 +1165,69 @@ const FEMALE_NAMES = new Set([
 
 const ALIEN_NAMES  = new Set(['Thanos','Xenomorph']);
 const PINNED_NAMES = new Set([
-  'Hannibal Lecter','Darth Vader','Lord Voldemort','Thanos','Scar',
-  'Cruella de Vil','Miranda Priestly','Palpatine','Pennywise',
-  'Loki','Jigsaw','Maleficent','Captain Hook'
+  'Hannibal Lecter','Darth Vader','The Joker','Norman Bates',
+  'Lord Voldemort','Thanos','Scar','Cruella de Vil','Miranda Priestly',
+  'Palpatine','Freddy Krueger','Regina George','Pennywise (1990)',
+  'Dolores Umbridge','Gollum','Maleficent','Captain Hook'
 ]);
 
 const VILLAINS = [
-  { name:'Hannibal Lecter',   anon:'Half Masked',  kills:'60+',      wealth:'Wealthy',      status:'Outcast'  },
-  { name:'Darth Vader',       anon:'Fully Masked', kills:'Planets',  wealth:'Infinite',     status:'Ruler'    },
-  { name:'The Joker',         anon:'Face Paint',   kills:'30+',      wealth:'None',         status:'Outcast'  },
-  { name:'Anton Chigurh',     anon:'Visible',      kills:'12',       wealth:'Working',      status:'Outcast'  },
-  { name:'Nurse Ratched',     anon:'Visible',      kills:'1',        wealth:'Middle Class', status:'Elite'    },
-  { name:'Hans Landa',        anon:'Visible',      kills:'100+',     wealth:'Wealthy',      status:'Elite'    },
-  { name:'Norman Bates',      anon:'Visible',      kills:'5',        wealth:'Working',      status:'Ordinary' },
-  { name:'Amy Dunne',         anon:'Visible',      kills:'1',        wealth:'Wealthy',      status:'Elite'    },
-  { name:'Lord Voldemort',    anon:'Fully Masked', kills:'100+',     wealth:'Infinite',     status:'Ruler'    },
-  { name:'Hans Gruber',       anon:'Visible',      kills:'5',        wealth:'Middle Class', status:'Outcast'  },
-  { name:'Annie Wilkes',      anon:'Visible',      kills:'5',        wealth:'Middle Class', status:'Outcast'  },
-  { name:'Alex DeLarge',      anon:'Face Paint',   kills:'1',        wealth:'Poor',         status:'Outcast'  },
-  { name:'Jack Torrance',     anon:'Visible',      kills:'1',        wealth:'Working',      status:'Ordinary' },
-  { name:'Thanos',            anon:'Alien',        kills:'Trillions',wealth:'Infinite',     status:'Ruler'    },
-  { name:'Scar',              anon:'Visible',      kills:'1',        wealth:'Infinite',     status:'Ruler'    },
-  { name:'Agent Smith',       anon:'Half Masked',  kills:'Digital',  wealth:'Wealthy',      status:'Elite'    },
-  { name:'Patrick Bateman',   anon:'Visible',      kills:'15+',      wealth:'None',         status:'Outcast'  },
-  { name:'Cruella de Vil',    anon:'Face Paint',   kills:'0',        wealth:'Infinite',     status:'Ruler'    },
-  { name:'Amon Goeth',        anon:'Visible',      kills:'1000s',    wealth:'Infinite',     status:'Ruler'    },
-  { name:'Sauron',            anon:'Face Paint',   kills:'Armies',   wealth:'None',         status:'Outcast'  },
-  { name:'Hal 9000',          anon:'Fully Masked', kills:'4',        wealth:'Middle Class', status:'Outcast'  },
-  { name:'Tommy DeVito',      anon:'Visible',      kills:'5+',       wealth:'Poor',         status:'Outcast'  },
-  { name:'John Doe',          anon:'Visible',      kills:'7',        wealth:'Wealthy',      status:'Elite'    },
-  { name:'T-1000',            anon:'Fully Masked', kills:'10+',      wealth:'Wealthy',      status:'Ruler'    },
-  { name:'Miranda Priestly',  anon:'Visible',      kills:'0',        wealth:'Infinite',     status:'Ruler'    },
-  { name:'Xenomorph',         anon:'Alien',        kills:'7',        wealth:'None',         status:'Outcast'  },
-  { name:'Palpatine',         anon:'Fully Masked', kills:'Systemic', wealth:'Wealthy',      status:'Ruler'    },
-  { name:'Roy Batty',         anon:'Visible',      kills:'4',        wealth:'Infinite',     status:'Ruler'    },
-  { name:'Catherine Tramell', anon:'Visible',      kills:'3+',       wealth:'Working',      status:'Ruler'    },
-  { name:'Michael Corleone',  anon:'Visible',      kills:'Systemic', wealth:'Wealthy',      status:'Elite'    },
-  { name:'Freddy Krueger',    anon:'Fully Masked', kills:'30+',      wealth:'None',         status:'Outcast'  },
-  { name:'Bane',              anon:'Half Masked',  kills:'100',      wealth:'Poor',         status:'Outcast'  },
-  { name:'Regina George',     anon:'Visible',      kills:'0',        wealth:'None',         status:'Outcast'  },
-  { name:'Commodus',          anon:'Visible',      kills:'5+',       wealth:'Wealthy',      status:'Elite'    },
-  { name:'Pennywise',         anon:'Face Paint',   kills:'Scores',   wealth:'Infinite',     status:'Ruler'    },
-  { name:'Dolores Umbridge',  anon:'Visible',      kills:'0',        wealth:'Working',      status:'Ruler'    },
-  { name:'Magneto',           anon:'Half Masked',  kills:'Many',     wealth:'Poor',         status:'Outcast'  },
-  { name:'Loki',              anon:'Half Masked',  kills:'Many',     wealth:'Wealthy',      status:'Ruler'    },
-  { name:'Colonel Kurtz',     anon:'Visible',      kills:'Many',     wealth:'Infinite',     status:'Elite'    },
-  { name:'Auric Goldfinger',  anon:'Visible',      kills:'3',        wealth:'None',         status:'Outcast'  },
-  { name:'Leatherface',       anon:'Fully Masked', kills:'5+',       wealth:'Poor',         status:'Outcast'  },
-  { name:'Calvin Candie',     anon:'Visible',      kills:'Many',     wealth:'Wealthy',      status:'Elite'    },
-  { name:'Gollum',            anon:'Fully Masked', kills:'2',        wealth:'Wealthy',      status:'Elite'    },
-  { name:'Green Goblin',      anon:'Fully Masked', kills:'Many',     wealth:'Working',      status:'Outcast'  },
-  { name:'Jigsaw',            anon:'Fully Masked', kills:'1',        wealth:'Working',      status:'Elite'    },
-  { name:'Jason Voorhees',    anon:'Fully Masked', kills:'150+',     wealth:'None',         status:'Outcast'  },
-  { name:'Michael Myers',     anon:'Fully Masked', kills:'120+',     wealth:'Wealthy',      status:'Elite'    },
-  { name:'Maleficent',        anon:'Visible',      kills:'0',        wealth:'Infinite',     status:'Ruler'    },
-  { name:'Sweeney Todd',      anon:'Visible',      kills:'15+',      wealth:'Wealthy',      status:'Elite'    },
-  { name:'Captain Hook',      anon:'Visible',      kills:'0',        wealth:'None',         status:'Outcast'  },
+  { name:'Hannibal Lecter',   anon:'Half Masked',  kills:'29',   wealth:'Wealthy',      status:'Outcast',  movie:'Silence of the Lambs',    genre:'Thriller',               mindset:'Cerebral', survives:'Yes' },
+  { name:'Darth Vader',       anon:'Fully Masked', kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Star Wars',               genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
+  { name:'The Joker',         anon:'Face Paint',   kills:'2000', wealth:'None/Poor',    status:'Outcast',  movie:'The Dark Knight',         genre:'Superhero',               mindset:'Cerebral', survives:'Yes' },
+  { name:'Anton Chigurh',     anon:'Visible',      kills:'14',   wealth:'None/Poor',    status:'Outcast',  movie:'No Country for Old Men',  genre:'Thriller',                mindset:'Physical', survives:'Yes' },
+  { name:'Nurse Ratched',     anon:'Visible',      kills:'2',    wealth:'Middle Class', status:'Ordinary', movie:"Cuckoo's Nest",           genre:'Drama',                   mindset:'Cerebral', survives:'Yes' },
+  { name:'Hans Landa',        anon:'Visible',      kills:'350',  wealth:'Wealthy',      status:'Elite',    movie:'Inglourious Basterds',    genre:'Action/Historical Drama', mindset:'Cerebral', survives:'Yes' },
+  { name:'Norman Bates',      anon:'Visible',      kills:'9',    wealth:'Middle Class', status:'Ordinary', movie:'Psycho',                  genre:'Horror',                  mindset:'Cerebral', survives:'Yes' },
+  { name:'Amy Dunne',         anon:'Visible',      kills:'1',    wealth:'Wealthy',      status:'Elite',    movie:'Gone Girl',               genre:'Thriller',                mindset:'Cerebral', survives:'Yes' },
+  { name:'Lord Voldemort',    anon:'Fully Masked', kills:'1000', wealth:'Infinite',     status:'Ruler',    movie:'Harry Potter',            genre:'Fantasy',                 mindset:'Cerebral', survives:'No'  },
+  { name:'Hans Gruber',       anon:'Visible',      kills:'2',    wealth:'Wealthy',      status:'Elite',    movie:'Die Hard',                genre:'Action/Historical Drama', mindset:'Cerebral', survives:'No'  },
+  { name:'Annie Wilkes',      anon:'Visible',      kills:'11',   wealth:'Middle Class', status:'Outcast',  movie:'Misery',                  genre:'Horror',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Alex DeLarge',      anon:'Face Paint',   kills:'1',    wealth:'None/Poor',    status:'Outcast',  movie:'A Clockwork Orange',      genre:'Thriller',                mindset:'Physical', survives:'Yes' },
+  { name:'Jack Torrance',     anon:'Visible',      kills:'1',    wealth:'None/Poor',    status:'Ordinary', movie:'The Shining',             genre:'Horror',                  mindset:'Physical', survives:'No'  },
+  { name:'Thanos',            anon:'Alien',        kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Avengers: Infinity War',  genre:'Superhero',               mindset:'Physical', survives:'No'  },
+  { name:'Scar',              anon:'Visible',      kills:'100',  wealth:'Infinite',     status:'Ruler',    movie:'The Lion King',           genre:'Animated',                mindset:'Cerebral', survives:'No'  },
+  { name:'Agent Smith',       anon:'Half Masked',  kills:'1m+',  wealth:'Wealthy',      status:'Elite',    movie:'The Matrix',              genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
+  { name:'Patrick Bateman',   anon:'Visible',      kills:'24',   wealth:'None/Poor',    status:'Elite',    movie:'American Psycho',         genre:'Horror',                  mindset:'Physical', survives:'Yes' },
+  { name:'Cruella de Vil',    anon:'Face Paint',   kills:'0',    wealth:'Wealthy',      status:'Elite',    movie:'101 Dalmatians',          genre:'Animated',                mindset:'Cerebral', survives:'Yes' },
+  { name:'Amon Goeth',        anon:'Visible',      kills:'10k',  wealth:'Wealthy',      status:'Elite',    movie:"Schindler's List",        genre:'Drama',                   mindset:'Physical', survives:'No'  },
+  { name:'Sauron',            anon:'Face Paint',   kills:'1m+',  wealth:'Infinite',     status:'Outcast',  movie:'Lord of the Rings',       genre:'Fantasy',                 mindset:'Cerebral', survives:'No'  },
+  { name:'Hal 9000',          anon:'Fully Masked', kills:'4',    wealth:'Wealthy',      status:'Outcast',  movie:'2001: Space Odyssey',     genre:'Sci-Fi',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Tommy DeVito',      anon:'Visible',      kills:'5',    wealth:'Middle Class', status:'Ordinary', movie:'Goodfellas',              genre:'Thriller',                mindset:'Physical', survives:'No'  },
+  { name:'John Doe',          anon:'Visible',      kills:'7',    wealth:'Middle Class', status:'Ordinary', movie:'Se7en',                   genre:'Thriller',                mindset:'Cerebral', survives:'No'  },
+  { name:'T-1000',            anon:'Fully Masked', kills:'12',   wealth:'Wealthy',      status:'Outcast',  movie:'Terminator 2',            genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
+  { name:'Miranda Priestly',  anon:'Visible',      kills:'0',    wealth:'Wealthy',      status:'Ruler',    movie:'Devil Wears Prada',       genre:'Drama/Comedy',            mindset:'Cerebral', survives:'Yes' },
+  { name:'Xenomorph',         anon:'Alien',        kills:'100',  wealth:'None/Poor',    status:'Outcast',  movie:'Alien',                   genre:'Horror',                  mindset:'Physical', survives:'No'  },
+  { name:'Palpatine',         anon:'Fully Masked', kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Star Wars',               genre:'Sci-Fi',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Roy Batty',         anon:'Visible',      kills:'4',    wealth:'None/Poor',    status:'Outcast',  movie:'Blade Runner',            genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
+  { name:'Catherine Tramell', anon:'Visible',      kills:'3',    wealth:'Wealthy',      status:'Elite',    movie:'Basic Instinct',          genre:'Thriller',                mindset:'Cerebral', survives:'Yes' },
+  { name:'Michael Corleone',  anon:'Visible',      kills:'450',  wealth:'Wealthy',      status:'Ruler',    movie:'Godfather II',            genre:'Thriller',                mindset:'Cerebral', survives:'Yes' },
+  { name:'Freddy Krueger',    anon:'Fully Masked', kills:'62',   wealth:'None/Poor',    status:'Outcast',  movie:'Nightmare on Elm St',     genre:'Horror',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Bane',              anon:'Half Masked',  kills:'300',  wealth:'Middle Class', status:'Outcast',  movie:'Dark Knight Rises',       genre:'Superhero',               mindset:'Physical', survives:'No'  },
+  { name:'Regina George',     anon:'Visible',      kills:'0',    wealth:'Wealthy',      status:'Elite',    movie:'Mean Girls',              genre:'Comedy',                  mindset:'Cerebral', survives:'Yes' },
+  { name:'Commodus',          anon:'Visible',      kills:'5+',   wealth:'Infinite',     status:'Ruler',    movie:'Gladiator',               genre:'Action',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Pennywise (1990)',   anon:'Face Paint',   kills:'5500', wealth:'None/Poor',    status:'Outcast',  movie:'IT',                      genre:'Horror',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Dolores Umbridge',  anon:'Visible',      kills:'0',    wealth:'Middle Class', status:'Elite',    movie:'Harry Potter',            genre:'Fantasy',                 mindset:'Cerebral', survives:'Yes' },
+  { name:'Magneto',           anon:'Half Masked',  kills:'4000', wealth:'Wealthy',      status:'Outcast',  movie:'X-Men',                   genre:'Superhero',               mindset:'Cerebral', survives:'Yes' },
+  { name:'Loki',              anon:'Half Masked',  kills:'1200', wealth:'Infinite',     status:'Ruler',    movie:'The Avengers',            genre:'Superhero',               mindset:'Cerebral', survives:'Yes' },
+  { name:'Colonel Kurtz',     anon:'Visible',      kills:'800',  wealth:'Middle Class', status:'Ruler',    movie:'Apocalypse Now',          genre:'Action/Historical Drama', mindset:'Cerebral', survives:'No'  },
+  { name:'Auric Goldfinger',  anon:'Visible',      kills:'9',    wealth:'Wealthy',      status:'Elite',    movie:'Goldfinger',              genre:'Action/Historical Drama', mindset:'Cerebral', survives:'No'  },
+  { name:'Leatherface',       anon:'Fully Masked', kills:'31',   wealth:'None/Poor',    status:'Outcast',  movie:'Texas Chainsaw',          genre:'Horror',                  mindset:'Physical', survives:'Yes' },
+  { name:'Calvin Candie',     anon:'Visible',      kills:'200',  wealth:'Wealthy',      status:'Elite',    movie:'Django Unchained',        genre:'Action/Historical Drama', mindset:'Cerebral', survives:'No'  },
+  { name:'Gollum',            anon:'Fully Masked', kills:'2',    wealth:'None/Poor',    status:'Outcast',  movie:'Lord of the Rings',       genre:'Fantasy',                 mindset:'Cerebral', survives:'No'  },
+  { name:'Green Goblin',      anon:'Fully Masked', kills:'80',   wealth:'Wealthy',      status:'Elite',    movie:'Spider-Man',              genre:'Superhero',               mindset:'Physical', survives:'No'  },
+  { name:'Jigsaw',            anon:'Fully Masked', kills:'52',   wealth:'Middle Class', status:'Outcast',  movie:'Saw',                     genre:'Horror',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Jason Voorhees',    anon:'Fully Masked', kills:'157',  wealth:'None/Poor',    status:'Outcast',  movie:'Friday the 13th',         genre:'Horror',                  mindset:'Physical', survives:'No'  },
+  { name:'Michael Myers',     anon:'Fully Masked', kills:'161',  wealth:'None/Poor',    status:'Outcast',  movie:'Halloween',               genre:'Horror',                  mindset:'Physical', survives:'Yes' },
+  { name:'Maleficent',        anon:'Visible',      kills:'3',    wealth:'Infinite',     status:'Ruler',    movie:'Sleeping Beauty',         genre:'Animated',                mindset:'Cerebral', survives:'No'  },
+  { name:'Sweeney Todd',      anon:'Visible',      kills:'160',  wealth:'None/Poor',    status:'Ordinary', movie:'Sweeney Todd',            genre:'Horror',                  mindset:'Physical', survives:'No'  },
+  { name:'Captain Hook',      anon:'Visible',      kills:'50',   wealth:'Wealthy',      status:'Ordinary', movie:'Peter Pan',               genre:'Animated',                mindset:'Cerebral', survives:'Yes' },
 ];
 
 /* numeric mappings */
 const ANON_MAP   = { 'Visible':1,'Face Paint':2,'Half Masked':3,'Fully Masked':4,'Alien':5 };
 const STATUS_MAP = { 'Outcast':1,'Ordinary':2,'Elite':3,'Ruler':4 };
-const WEALTH_MAP = { 'None':1,'Poor':1,'Working':2,'Middle Class':3,'Wealthy':4,'Infinite':5 };
+const WEALTH_MAP = { 'None':1,'Poor':1,'None/Poor':1,'Working':2,'Middle Class':3,'Wealthy':4,'Infinite':5 };
 
 const BODY_KEYWORDS = {
   'Trillions':1e8,'Planets':1e6,'Armies':5e4,'Systemic':500,
@@ -1377,18 +1414,11 @@ function buildSVG() {
 
   /* ── Empty state: fewer than 2 dimensions selected ── */
   if (selectedDims.length < 2) {
-    const msg = selectedDims.length === 0
-      ? 'Select two axes above to build the chart'
-      : `"${DIMS[selectedDims[0]].label}" selected — pick one more axis`;
-    const t = makeSVG('text', {
-      x: W / 2, y: H / 2,
-      'text-anchor': 'middle',
-      style: 'font-family:"Red Hat Display",sans-serif; font-size:13px; fill:#2d2d2d;'
-    });
-    t.textContent = msg;
-    svg.appendChild(t);
+    document.getElementById('villain-list').classList.remove('hidden');
+    buildVillainList();
     return;
   }
+  document.getElementById('villain-list').classList.add('hidden');
 
   /* ── Chart state: exactly 2 dims ── */
   const [xKey, yKey] = selectedDims;
@@ -1481,18 +1511,7 @@ function buildSVG() {
   const labelsG = makeSVG('g');
   const positions = computePositions(xKey, yKey);
 
-  /* Your Character dashed lines */
   const charPos = getCharPos(xDim, yDim);
-  const trailG  = makeSVG('g', { opacity:'0.35' });
-  trailG.appendChild(makeSVG('line', {
-    x1:PAD.l, y1:charPos.y, x2:charPos.x, y2:PAD.t+plotH,
-    stroke:'#fff', 'stroke-width':'1', 'stroke-dasharray':'4 6'
-  }));
-  trailG.appendChild(makeSVG('line', {
-    x1:charPos.x, y1:PAD.t, x2:charPos.x+plotW*0.3, y2:charPos.y,
-    stroke:'#fff', 'stroke-width':'1', 'stroke-dasharray':'4 6'
-  }));
-  svg.appendChild(trailG);
 
   /* render male → female → alien so alien dots are always on top in SVG z-order */
   const zOrder = [
@@ -1516,13 +1535,13 @@ function buildSVG() {
       x:p.x+10, y:p.y+4,
       style:`fill:${color}; font-size:9px;`
     });
-    gIcon.textContent = alien ? '★' : female ? '♀' : '♂';
+    gIcon.textContent = '';
     labelsG.appendChild(gIcon);
 
     const lbl = makeSVG('text', {
       class: pinned ? 'vlabel always-on' : 'vlabel',
       id:`lbl-${i}`,
-      x:p.x+18, y:p.y+4, style:'font-size:10px;'
+      x: p.x + 9, y:p.y+4, style:'font-size:10px;'
     });
     lbl.textContent = v.name;
     labelsG.appendChild(lbl);
@@ -1532,16 +1551,8 @@ function buildSVG() {
       cx:p.x, cy:p.y, r:7,
       fill:color, stroke:'none', 'stroke-width':'0'
     });
-    circle.addEventListener('mouseenter', e => {
-      gIcon.style.opacity = '1';
-      lbl.style.opacity   = '1';
-      showTip(e, v, p);
-    });
-    circle.addEventListener('mouseleave', () => {
-      gIcon.style.opacity = '0';
-      lbl.style.opacity   = '0';
-      hideTip();
-    });
+    circle.addEventListener('mouseenter', e => { showTip(e, v, p); });
+    circle.addEventListener('mouseleave', () => { hideTip(); });
     dotsG.appendChild(circle);
   });
 
@@ -1644,16 +1655,67 @@ function makeSVG(tag, attrs = {}) {
 }
 
 
+function buildVillainList() {
+  const el = document.getElementById('villain-list');
+  el.innerHTML = '';
+
+  function makeCol(label, color, names) {
+    const col = document.createElement('div');
+    col.className = 'vl-group';
+    const title = document.createElement('div');
+    title.className = 'vl-group-title';
+    title.style.color = color;
+    title.textContent = label;
+    col.appendChild(title);
+    names.forEach(name => {
+      const v = VILLAINS.find(x => x.name === name);
+      if (!v) return;
+      const row = document.createElement('div');
+      row.className = 'vl-item';
+      row.innerHTML = `<span class="vl-dot" style="background:${color}"></span>${v.name}`;
+      col.appendChild(row);
+    });
+    return col;
+  }
+
+  /* Male — split into 2 columns, wrapped close together */
+  const males = VILLAINS.map(v => v.name).filter(n => !FEMALE_NAMES.has(n) && !ALIEN_NAMES.has(n));
+  const half  = Math.ceil(males.length / 2);
+  const maleWrap = document.createElement('div');
+  maleWrap.style.cssText = 'display:flex; gap:4px; flex:2;';
+  const col1 = makeCol('Male', '#00E5FF', males.slice(0, half));
+  const col2 = makeCol('Male', '#00E5FF', males.slice(half));
+  /* remove the duplicate "Male" header from col2 */
+  col2.querySelector('.vl-group-title').remove();
+  /* invisible spacer — gives col2 one blank row so it aligns one row lower than col1 */
+  const spacer = document.createElement('div');
+  spacer.className = 'vl-item';
+  spacer.innerHTML = '<span style="visibility:hidden">&nbsp;</span>';
+  col2.prepend(spacer);
+  maleWrap.appendChild(col1);
+  maleWrap.appendChild(col2);
+  el.appendChild(maleWrap);
+
+  /* Female — 1 column */
+  el.appendChild(makeCol('Female', '#FF3399', [...FEMALE_NAMES]));
+
+  /* Alien — 1 column */
+  el.appendChild(makeCol('Alien', '#43B749', [...ALIEN_NAMES]));
+}
+
 function showTip(e, v, p) {
   const alien  = ALIEN_NAMES.has(v.name);
   const female = FEMALE_NAMES.has(v.name);
   const gender = alien ? 'Alien' : female ? 'Female' : 'Male';
   tipEl.innerHTML = `
     <strong>${v.name}</strong><br>
+    <span style="opacity:0.55;font-size:10px;">${v.movie}</span><br>
     Anonymity: ${v.anon}<br>
     Wealth: ${v.wealth}<br>
     Status: ${v.status}<br>
     Body Count: ${v.kills}<br>
+    Mindset: ${v.mindset}<br>
+    Survives: ${v.survives}<br>
     Gender: ${gender}
   `;
   tipEl.style.display = 'block';
