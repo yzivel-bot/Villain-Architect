@@ -2077,6 +2077,10 @@ window.addEventListener('mousemove', e => {
   const plotH = H - PAD.t - PAD.b;
   const DOT   = 9;
 
+  /* Kill CSS transition during drag so dot tracks mouse instantly */
+  if (charDotEl) charDotEl.style.transition = 'none';
+  if (charLabelEl) charLabelEl.style.transition = 'none';
+
   /* X = exact mouse position (free, unbounded within plot) */
   const px = Math.max(PAD.l + DOT, Math.min(PAD.l + plotW - DOT, e.clientX - rect.left));
 
@@ -2108,6 +2112,10 @@ window.addEventListener('mousemove', e => {
 window.addEventListener('mouseup', () => {
   if (isDragging) {
     isDragging = false;
+    if (charDotEl) charDotEl.style.cursor = 'grab';
+    /* restore spring transition after drag ends */
+    if (charDotEl)  charDotEl.style.transition  = '';
+    if (charLabelEl) charLabelEl.style.transition = '';
     buildSVG();
     updateRightPanel();
   }
