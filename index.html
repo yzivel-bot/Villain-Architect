@@ -172,11 +172,8 @@ html, body {
   white-space: nowrap;
 }
 
-.genre-tab.active {
-  background: #fff;
-  border-color: #fff;
-  color: #000;
-}
+.genre-tab:hover:not(.active) { background: rgba(255,255,255,0.12); }
+.genre-tab.active { background: #fff; border-color: #fff; color: #000; }
 
 .gender-row { display: flex; gap: 8px; align-items: center; }
 
@@ -500,15 +497,15 @@ circle.vdot:hover { opacity: 0.75; }
 
 /* metric blocks */
 .rp-metric { display: flex; flex-direction: column; gap: 2px; }
-.rp-metric-label { font-size: 14px; font-weight: 400; color: #fff; }
-.rp-metric-value { font-size: 38px; font-weight: 700; color: #874fff; line-height: 1.05; }
-.rp-metric-value.small { font-size: 22px; }
+.rp-metric-label { font-size: 13px; font-weight: 500; color: #fff; letter-spacing: 0.3px; }
+.rp-metric-value { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.05; }
+.rp-metric-value.small { font-size: 22px; color: #fff; }
 
 /* mind over power */
 .rp-mop-text { font-size: 12px; font-weight: 400; color: #fff; line-height: 1.5; margin-top: 4px; }
 
 /* charts */
-.rp-chart-label { font-size: 14px; font-weight: 400; color: #fff; margin-bottom: 6px; }
+.rp-chart-label { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 6px; letter-spacing: 0.3px; }
 .rp-radar-wrap  { background: transparent; }
 .rp-bars-wrap   { display: flex; flex-direction: column; gap: 5px; }
 .rp-hbar-row    { display: flex; align-items: center; gap: 8px; }
@@ -528,7 +525,7 @@ circle.vdot:hover { opacity: 0.75; }
   font-size: 9px; color: #888; cursor: pointer;
 }
 .rp-archetype-box {
-  border: 0.5px solid #fff;
+  border: 1px solid #874fff;
   border-radius: 4px;
   padding: 8px;
   font-size: 12px;
@@ -1809,7 +1806,10 @@ function buildSVG() {
       if (charPos) {
         charDotEl.setAttribute('cx',     charPos.x);
         charDotEl.setAttribute('cy',     charPos.y);
-        charLabelEl.setAttribute('x',    charPos.x + 13);
+        /* flip label to left of dot when near right edge (genderless position) */
+        const nearRight = charPos.x > W - 120;
+        charLabelEl.setAttribute('text-anchor', nearRight ? 'end' : 'start');
+        charLabelEl.setAttribute('x', charPos.x + (nearRight ? -13 : 13));
         charLabelEl.setAttribute('y',    charPos.y + 4);
         positionCharDotDiv(charPos.x, charPos.y); /* sync HTML drag handle */
       }
@@ -1876,8 +1876,8 @@ function getCharPos() {
       const colIdx = counts[0] <= counts[1] ? 0 : 1;
       return colEnd(colIdx);
     }
-    /* genderless (white): upper-left corner, clearly separate from columns */
-    return { x: 50, y: 80 };
+    /* genderless (white): bottom-right, label rendered to left so not cut off */
+    return { x: W - 100, y: H - 40 };
   }
 
   /* matrix — Y is now a CALCULATED OUTPUT from status+wealth, not a slider */
@@ -2418,7 +2418,7 @@ function updateRightPanel() {
 
     /* 2 — Brutality (driven by anonymity × lethality proxy) */
     const bLabels = ['Minimal','Low','Medium','High','Extreme','Lethal'];
-    const bColors = ['#6b3fd4','#7a4de8','#874fff','#9e65ff','#b07fff','#c49fff'];
+    const bColors = ['#fff','#fff','#fff','#fff','#fff','#fff'];
     const brutalIdx = Math.min(5, Math.round(anonIdx/4*2 + (1-score/100)*3));
     const bEl = $id('rp-brutality');
     if(bEl){ bEl.textContent = bLabels[brutalIdx]; bEl.style.color = bColors[brutalIdx]; }
