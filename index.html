@@ -386,17 +386,18 @@ input[type=range].vslider::-webkit-slider-thumb {
 /* HTML overlay dot — bypasses SVG pointer-event issues entirely */
 #char-dot-html {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 12px 4px rgba(255,255,255,0.55);
+  box-shadow: 0 0 14px 5px rgba(255,255,255,0.6);
   transform: translate(-50%, -50%);
   cursor: grab;
-  z-index: 20;
+  z-index: 30;
   pointer-events: auto;
   display: none;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255,255,255,0.4);
+  transition: none;
 }
 #char-dot-html.grabbing { cursor: grabbing; }
 #char-dot-html.matrix-active { display: block; }
@@ -1299,27 +1300,39 @@ let charDotStroke = 'none';
 let isDragging    = false;
 let charDotPos    = null; /* free-drag override — {x,y} pixels, null = use calculated */
 
-/* ── HTML dot drag handle — completely bypasses SVG pointer events ── */
+/* ── Dot position helper ── */
 function positionCharDotDiv(x, y) {
   if (!charDotDiv) return;
   charDotDiv.style.left = x + 'px';
   charDotDiv.style.top  = y + 'px';
 }
 
-charDotDiv.addEventListener('mousedown', e => {
+/* ── DOCUMENT-LEVEL mousedown: start drag if click is near white dot ── */
+document.addEventListener('mousedown', e => {
   if (currentMode !== 'matrix') return;
-  isDragging = true;
-  e.preventDefault();
-  e.stopPropagation();
-  charDotDiv.classList.add('grabbing');
+  const rect = wrap.getBoundingClientRect();
+  const cx = e.clientX - rect.left;
+  const cy = e.clientY - rect.top;
+  const cp = charDotPos || getCharPos();
+  const dist = Math.sqrt((cx - cp.x) ** 2 + (cy - cp.y) ** 2);
+  if (dist <= 18) {
+    isDragging = true;
+    e.preventDefault();
+    if (charDotDiv) charDotDiv.classList.add('grabbing');
+  }
 });
 
-/* Touch support for mobile */
-charDotDiv.addEventListener('touchstart', e => {
+document.addEventListener('touchstart', e => {
   if (currentMode !== 'matrix') return;
-  isDragging = true;
-  e.preventDefault();
-  charDotDiv.classList.add('grabbing');
+  const rect = wrap.getBoundingClientRect();
+  const cx = e.touches[0].clientX - rect.left;
+  const cy = e.touches[0].clientY - rect.top;
+  const cp = charDotPos || getCharPos();
+  if (Math.sqrt((cx - cp.x) ** 2 + (cy - cp.y) ** 2) <= 18) {
+    isDragging = true;
+    e.preventDefault();
+    if (charDotDiv) charDotDiv.classList.add('grabbing');
+  }
 }, { passive: false });
 let W = 0, H = 0;
 const PAD = { t:55, b:55, l:70, r:30 };
