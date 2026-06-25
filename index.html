@@ -160,7 +160,7 @@ html, body {
   justify-content: center;
   height: 28px;
   padding: 0 12px;
-  border: 1px solid var(--genre-color);
+  border: 1px solid #fff;
   border-radius: 28px;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
@@ -173,8 +173,9 @@ html, body {
 }
 
 .genre-tab.active {
-  background: var(--genre-color);
-  border-color: var(--genre-color);
+  background: #fff;
+  border-color: #fff;
+  color: #000;
 }
 
 .gender-row { display: flex; gap: 8px; align-items: center; }
@@ -275,10 +276,9 @@ input[type=range].vslider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 17px; height: 17px;
   border-radius: 50%;
-  /* radio-button selected look: red fill, dark outer ring */
-  background: #E41B23;
+  background: #fff;
   border: 2px solid #111;
-  box-shadow: 0 0 0 1.5px #E41B23;
+  box-shadow: 0 0 0 1.5px #fff;
   cursor: pointer;
   margin-top: -7.5px;
 }
@@ -321,7 +321,7 @@ input[type=range].vslider::-webkit-slider-thumb {
 .mode-btn {
   flex: 1;
   height: 28px;
-  border: 1px solid var(--red);
+  border: 1px solid #fff;
   border-radius: 28px;
   background: transparent;
   color: #fff;
@@ -333,8 +333,8 @@ input[type=range].vslider::-webkit-slider-thumb {
   white-space: nowrap;
   letter-spacing: 0.3px;
 }
-.mode-btn:hover { background: rgba(228,27,35,0.15); }
-.mode-btn.active { background: #E41B23; border-color: #E41B23; }
+.mode-btn:hover { background: rgba(255,255,255,0.12); }
+.mode-btn.active { background: #fff; border-color: #fff; color: #000; }
 
 .scatter-wrap {
   flex: 1;
@@ -390,7 +390,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 10px 3px rgba(255,255,255,0.55);
+  box-shadow: 0 0 14px 5px rgba(255,255,255,0.7), 0 0 4px 2px rgba(255,255,255,0.9);
   transform: translate(-50%, -50%);
   cursor: grab;
   z-index: 30;
@@ -461,6 +461,8 @@ circle.vdot:hover { opacity: 0.75; }
   white-space: nowrap;
   line-height: 1.7;
 }
+.tip-row { display: flex; align-items: center; gap: 6px; }
+.tip-icon { width: 13px; height: 13px; opacity: 0.6; flex-shrink: 0; }
 
 /* ════════════ RIGHT PANEL ════════════ */
 .right-panel {
@@ -1109,14 +1111,9 @@ mark.kw.lit {
       <span class="rp-metric-value small" id="rp-brutality">High</span>
     </div>
 
-    <!-- Mind over Power donut -->
-    <div>
-      <div class="rp-metric-label">Mind over Power</div>
-      <div class="rp-mop-text" id="rp-mop-text">Loading...</div>
-      <div style="display:flex;justify-content:center;margin-top:10px;">
-        <svg id="rp-donut" width="130" height="130" viewBox="0 0 130 130"></svg>
-      </div>
-    </div>
+    <!-- Mind over Power removed -->
+    <div id="rp-mop-text" style="display:none"></div>
+    <svg id="rp-donut" style="display:none"></svg>
 
     <!-- Psychological Fingerprint radar -->
     <div>
@@ -1999,20 +1996,34 @@ function buildVillainList() {
   el.appendChild(makeCol('Alien', '#43B749', [...ALIEN_NAMES]));
 }
 
+const TIP_ICONS = {
+  eye: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><path d="M128,56C48,56,16,128,16,128s32,72,112,72,112-72,112-72S208,56,128,56Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><circle cx="128" cy="128" r="40" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>`,
+  crown: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><circle cx="128" cy="52" r="20" stroke="currentColor" stroke-width="16"/><circle cx="220" cy="80" r="20" stroke="currentColor" stroke-width="16"/><circle cx="36" cy="80" r="20" stroke="currentColor" stroke-width="16"/><polyline points="120.02 70.35 88 144 48.61 95.52" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><polyline points="207.39 95.52 168 144 135.98 70.35" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M39.29,99.73l15.6,93.59A8,8,0,0,0,62.78,200H193.22a8,8,0,0,0,7.89-6.68l15.6-93.59" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>`,
+  dollar: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><line x1="128" y1="72" x2="128" y2="88" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><line x1="128" y1="168" x2="128" y2="184" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><circle cx="128" cy="128" r="96" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><path d="M104,168h36a20,20,0,0,0,0-40H116a20,20,0,0,1,0-40h36" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>`,
+  skull: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><circle cx="92" cy="132" r="20" stroke="currentColor" stroke-width="16"/><circle cx="164" cy="132" r="20" stroke="currentColor" stroke-width="16"/><line x1="112" y1="224" x2="112" y2="192" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><line x1="144" y1="224" x2="144" y2="192" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><path d="M176,216a8,8,0,0,1-8,8H88a8,8,0,0,1-8-8V195.69C51.31,179.78,32,150.05,32,116c0-50.81,43-92,96-92s96,41.19,96,92c0,34.05-19.31,63.78-48,79.69Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>`,
+  brain: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><path d="M88,136a40,40,0,1,1-40,40v-6.73" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M168,136a40,40,0,1,0,40,40v-6.73" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M72,172H64A48,48,0,0,1,48,78.73V72a40,40,0,0,1,80,0V176" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M184,172h8a48,48,0,0,0,16-93.27V72a40,40,0,0,0-80,0" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>`,
+  heart: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><polyline points="32 136 72 136 88 112 120 160 136 136 160 136" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M24,104c0-.67,0-1.33,0-2A54,54,0,0,1,78,48c22.59,0,41.94,12.31,50,32,8.06-19.69,27.41-32,50-32a54,54,0,0,1,54,54c0,66-104,122-104,122s-42-22.6-72.58-56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>`,
+  gender: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><circle cx="120" cy="112" r="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="120" y1="168" x2="120" y2="232" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><line x1="88" y1="200" x2="152" y2="200" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><polyline points="168 32 208 32 208 72" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="163.4" y1="76.6" x2="208" y2="32" stroke="currentColor" stroke-linecap="round" stroke-width="16"/></svg>`,
+};
+
+function tipRow(icon, text) {
+  return `<div class="tip-row">${TIP_ICONS[icon]}<span>${text}</span></div>`;
+}
+
 function showTip(e, v, p) {
   const alien  = ALIEN_NAMES.has(v.name);
   const female = FEMALE_NAMES.has(v.name);
   const gender = alien ? 'Alien' : female ? 'Female' : 'Male';
   tipEl.innerHTML = `
     <strong>${v.name}</strong><br>
-    <span style="opacity:0.6;font-size:12px;">${v.movie}</span><br>
-    Anonymity: ${v.anon}<br>
-    Wealth: ${v.wealth}<br>
-    Status: ${v.status}<br>
-    Body Count: ${v.kills}<br>
-    Mindset: ${v.mindset}<br>
-    Survives: ${v.survives}<br>
-    Gender: ${gender}
+    <span style="opacity:0.6;font-size:12px;">${v.movie}</span>
+    ${tipRow('eye',    'Anonymity: ' + v.anon)}
+    ${tipRow('dollar', 'Wealth: '    + v.wealth)}
+    ${tipRow('crown',  'Status: '    + v.status)}
+    ${tipRow('skull',  'Body Count: '+ v.kills)}
+    ${tipRow('brain',  'Mindset: '   + v.mindset)}
+    ${tipRow('heart',  'Survives: '  + v.survives)}
+    ${tipRow('gender', 'Gender: '    + gender)}
   `;
   tipEl.style.display = 'block';
   positionTip(e);
