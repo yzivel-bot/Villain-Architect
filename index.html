@@ -2138,30 +2138,16 @@ window.addEventListener('load', () => {
 });
 
 /* ══════════════════════════════════════════════════════════
-   DRAG ENGINE — restored from working commit (298ac35)
-   svg.mousedown + svg.mousemove, exactly as it worked before
+   DRAG ENGINE — matrix only
 ══════════════════════════════════════════════════════════ */
-/* mousedown on SVG — exactly like working commit 298ac35 */
-svg.addEventListener('mousedown', e => {
-  if (currentMode !== 'matrix') return;
-  const rect = svg.getBoundingClientRect();
-  const cp   = charDotPos || getCharPos();
-  if (Math.hypot(e.clientX - rect.left - cp.x, e.clientY - rect.top - cp.y) <= 16) {
-    isDragging = true;
-    e.preventDefault();
-    if (charDotEl)  charDotEl.style.cursor = 'grabbing';
-    if (charDotDiv) charDotDiv.classList.add('grabbing');
-  }
-});
 
-/* mousemove on SVG — exactly like working commit 298ac35 */
-svg.addEventListener('mousemove', e => {
-  if (!isDragging || currentMode !== 'matrix') return;
+/* Shared drag logic — called from both svg and window mousemove */
+function _execDrag(clientX, clientY) {
   const rect  = svg.getBoundingClientRect();
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
   const DOT   = 9;
-  const px    = Math.max(PAD.l + DOT, Math.min(PAD.l + plotW - DOT, e.clientX - rect.left));
+  const px    = Math.max(PAD.l + DOT, Math.min(PAD.l + plotW - DOT, clientX - rect.left));
   const t     = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
 
   charState.social = t * 3;
@@ -2173,21 +2159,35 @@ svg.addEventListener('mousemove', e => {
 
   charDotPos = { x: px, y: py };
 
-  /* move dot + label live without full rebuild */
   if (charDotEl)  { charDotEl.style.transition = 'none'; charDotEl.setAttribute('cx', px); charDotEl.setAttribute('cy', py); }
   if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', px + 13); charLabelEl.setAttribute('y', py + 4); }
   if (charDotDiv) { charDotDiv.style.left = px + 'px'; charDotDiv.style.top = py + 'px'; }
 
   updateSlidersFromState();
+}
+
+/* mousedown — on SVG (proximity check) + charDotEl direct */
+svg.addEventListener('mousedown', e => {
+  if (currentMode !== 'matrix') return;
+  const rect = svg.getBoundingClientRect();
+  const cp   = charDotPos || getCharPos();
+  if (Math.hypot(e.clientX - rect.left - cp.x, e.clientY - rect.top - cp.y) <= 18) {
+    isDragging = true;
+    e.preventDefault();
+    if (charDotEl)  charDotEl.style.cursor = 'grabbing';
+  }
 });
 
-/* mouseup on window — exactly like working commit 298ac35 */
+/* mousemove — BOTH svg AND window so drag never loses tracking */
+svg.addEventListener('mousemove',    e => { if (isDragging && currentMode === 'matrix') _execDrag(e.clientX, e.clientY); });
+window.addEventListener('mousemove', e => { if (isDragging && currentMode === 'matrix') _execDrag(e.clientX, e.clientY); });
+
+/* mouseup — window */
 window.addEventListener('mouseup', () => {
   if (!isDragging) return;
   isDragging = false;
   if (charDotEl)  { charDotEl.style.cursor = 'grab'; charDotEl.style.transition = ''; }
   if (charLabelEl) charLabelEl.style.transition = '';
-  if (charDotDiv)  charDotDiv.classList.remove('grabbing');
   buildSVG();
   updateRightPanel();
 });
