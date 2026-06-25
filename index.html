@@ -57,7 +57,7 @@ html, body {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 36px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -470,7 +470,7 @@ circle.vdot:hover { opacity: 0.75; }
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -498,8 +498,8 @@ circle.vdot:hover { opacity: 0.75; }
 /* metric blocks */
 .rp-metric { display: flex; flex-direction: column; gap: 2px; }
 .rp-metric-label { font-size: 12px; font-weight: 500; color: #fff; } /* matches ctrl-label */
-.rp-metric-value { font-size: 28px; font-weight: 700; color: #fff; line-height: 1.05; }
-.rp-metric-value.small { font-size: 28px; color: #fff; }
+.rp-metric-value { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.05; }
+.rp-metric-value.small { font-size: 20px; color: #fff; }
 
 /* mind over power */
 .rp-mop-text { font-size: 12px; font-weight: 400; color: #fff; line-height: 1.5; margin-top: 4px; }
@@ -533,7 +533,7 @@ circle.vdot:hover { opacity: 0.75; }
   color: #fff;
   line-height: 1.55;
   margin-top: 6px;
-  background: #874fff;
+  background: #3d1f82;
 }
 
 /* reset button (kept for center panel) */
@@ -984,6 +984,16 @@ mark.kw.lit {
   </div>
 
   <div class="ctrl-group">
+    <div class="field-header">
+      <span class="ctrl-label">Character Name</span>
+      <button class="edit-btn" onclick="toggleEdit('char-name')" title="Edit">
+        <svg width="15" height="15" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <input class="editable-inp" type="text" value="Untitled" readonly id="char-name">
+  </div>
+
+  <div class="ctrl-group">
     <span class="ctrl-label">Genre</span>
     <div class="genre-tabs" id="genre-tabs">
       <button class="genre-tab" style="--genre-color:#ec7624" data-genre="Horror">Horror</button>
@@ -1064,15 +1074,6 @@ mark.kw.lit {
 
   </div>
 
-  <div class="ctrl-group">
-    <div class="field-header">
-      <span class="ctrl-label">Character Name</span>
-      <button class="edit-btn" onclick="toggleEdit('char-name')" title="Edit">
-        <svg width="15" height="15" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-    <input class="editable-inp" type="text" value="Untitled" readonly id="char-name">
-  </div>
 </div>
 
 <!-- ══════════ CENTER PANEL ══════════ -->
