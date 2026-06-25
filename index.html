@@ -386,18 +386,21 @@ input[type=range].vslider::-webkit-slider-thumb {
 /* HTML overlay dot — bypasses SVG pointer-event issues entirely */
 #char-dot-html {
   position: absolute;
-  width: 26px;
-  height: 26px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 14px 5px rgba(255,255,255,0.6);
+  box-shadow: 0 0 10px 3px rgba(255,255,255,0.55);
   transform: translate(-50%, -50%);
   cursor: grab;
   z-index: 30;
   pointer-events: auto;
   display: none;
-  border: 2px solid rgba(255,255,255,0.4);
+  border: 2px solid rgba(200,200,200,0.3);
   transition: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 #char-dot-html.grabbing { cursor: grabbing; }
 #char-dot-html.matrix-active { display: block; }
@@ -1084,7 +1087,7 @@ mark.kw.lit {
     <div id="tooltip"></div>
     <div id="villain-list"></div>
     <!-- HTML drag handle — sits on top of SVG, bypasses all SVG pointer-event issues -->
-    <div id="char-dot-html" title="Your Character"></div>
+    <div id="char-dot-html" title="Your Character" draggable="false"></div>
   </div>
 </div>
 
@@ -2139,6 +2142,9 @@ window.addEventListener('load', () => {
 ══════════════════════════════════════════════════════════ */
 let _drag = false; /* dedicated drag flag — isolated from all other state */
 
+/* Prevent browser native drag on the overlay div */
+document.addEventListener('dragstart', e => { if (_drag) e.preventDefault(); }, true);
+
 /* MOUSEDOWN — capture phase fires before anything can block it */
 document.addEventListener('mousedown', e => {
   if (currentMode !== 'matrix') return;
@@ -2149,6 +2155,7 @@ document.addEventListener('mousedown', e => {
     isDragging = true;
     e.preventDefault();
     document.body.style.userSelect = 'none';
+    document.body.style.webkitUserSelect = 'none';
     if (charDotDiv) charDotDiv.classList.add('grabbing');
   }
 }, true /* capture */);
@@ -2180,8 +2187,7 @@ document.addEventListener('mousemove', e => {
   if (charDotEl)  { charDotEl.style.transition = 'none'; charDotEl.setAttribute('cx', px); charDotEl.setAttribute('cy', py); }
   if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', px + 13); charLabelEl.setAttribute('y', py + 4); }
 
-  updateSlidersFromState();
-  updateRightPanel();
+  updateSlidersFromState(); /* sliders move live; right panel updates on release */
 }, true /* capture */);
 
 /* MOUSEUP — capture phase */
