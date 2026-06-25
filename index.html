@@ -390,7 +390,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 14px 5px rgba(255,255,255,0.7), 0 0 4px 2px rgba(255,255,255,0.9);
+  box-shadow: 0 0 8px 2px rgba(255,255,255,0.4);
   transform: translate(-50%, -50%);
   cursor: grab;
   z-index: 30;
@@ -501,7 +501,7 @@ circle.vdot:hover { opacity: 0.75; }
 /* metric blocks */
 .rp-metric { display: flex; flex-direction: column; gap: 2px; }
 .rp-metric-label { font-size: 14px; font-weight: 400; color: #fff; }
-.rp-metric-value { font-size: 38px; font-weight: 700; color: #ed1c24; line-height: 1.05; }
+.rp-metric-value { font-size: 38px; font-weight: 700; color: #874fff; line-height: 1.05; }
 .rp-metric-value.small { font-size: 22px; }
 
 /* mind over power */
@@ -2418,7 +2418,7 @@ function updateRightPanel() {
 
     /* 2 — Brutality (driven by anonymity × lethality proxy) */
     const bLabels = ['Minimal','Low','Medium','High','Extreme','Lethal'];
-    const bColors = ['#43b749','#43b749','#ff8c00','#ed1c24','#ed1c24','#ed1c24'];
+    const bColors = ['#6b3fd4','#7a4de8','#874fff','#9e65ff','#b07fff','#c49fff'];
     const brutalIdx = Math.min(5, Math.round(anonIdx/4*2 + (1-score/100)*3));
     const bEl = $id('rp-brutality');
     if(bEl){ bEl.textContent = bLabels[brutalIdx]; bEl.style.color = bColors[brutalIdx]; }
@@ -2465,7 +2465,7 @@ function drawDonut(cerN, phyN) {
   el.innerHTML = '';
   const cx=65, cy=65, R=52, ri=30, total=cerN+phyN;
   if(!total) return;
-  const segs=[{n:cerN,c:'#8b0000'},{n:phyN,c:'#ed1c24'}];
+  const segs=[{n:cerN,c:'#5c2dab'},{n:phyN,c:'#874fff'}];
   let a0 = -Math.PI/2;
   segs.forEach(s=>{
     const sw=(s.n/total)*2*Math.PI;
@@ -2501,7 +2501,7 @@ function drawRadar(vals) {
   angs.forEach(a=>el.appendChild(rpSvg('line',{x1:cx,y1:cy,x2:cx+R*Math.cos(a),y2:cy+R*Math.sin(a),stroke:'#333','stroke-width':'0.5'})));
 
   const dpts=angs.map((a,i)=>`${cx+dataArr[i]*R*Math.cos(a)},${cy+dataArr[i]*R*Math.sin(a)}`).join(' ');
-  el.appendChild(rpSvg('polygon',{points:dpts,fill:'rgba(180,0,60,0.35)',stroke:'#ec008c','stroke-width':'1.5'}));
+  el.appendChild(rpSvg('polygon',{points:dpts,fill:'rgba(135,79,255,0.3)',stroke:'#874fff','stroke-width':'1.5'}));
 
   axes.forEach((name,i)=>{
     const a=angs[i];
