@@ -2135,55 +2135,100 @@ window.addEventListener('load', () => {
 });
 
 /* ══════════════════════════════════════════════════════════
-   HTML-BASED DRAG ENGINE — bypasses ALL SVG pointer-event issues
-   MODE 3 [Architect Matrix] ONLY
+   DRAG ENGINE — capture phase, dedicated state, matrix only
 ══════════════════════════════════════════════════════════ */
-function handleDragMove(clientX, clientY) {
-  if (!isDragging || currentMode !== 'matrix') return;
-  const rect  = wrap.getBoundingClientRect();
+let _drag = false; /* dedicated drag flag — isolated from all other state */
+
+/* MOUSEDOWN — capture phase fires before anything can block it */
+document.addEventListener('mousedown', e => {
+  if (currentMode !== 'matrix') return;
+  const r  = wrap.getBoundingClientRect();
+  const cp = charDotPos || getCharPos();
+  if (Math.hypot(e.clientX - r.left - cp.x, e.clientY - r.top - cp.y) <= 22) {
+    _drag = true;
+    isDragging = true;
+    e.preventDefault();
+    document.body.style.userSelect = 'none';
+    if (charDotDiv) charDotDiv.classList.add('grabbing');
+  }
+}, true /* capture */);
+
+/* MOUSEMOVE — capture phase, runs regardless of any other handlers */
+document.addEventListener('mousemove', e => {
+  if (!_drag || currentMode !== 'matrix') return;
+  e.preventDefault();
+  const r     = wrap.getBoundingClientRect();
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
   const DOT   = 9;
+  const px    = Math.max(PAD.l + DOT, Math.min(PAD.l + plotW - DOT, e.clientX - r.left));
+  const t     = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
 
-  const px = Math.max(PAD.l + DOT, Math.min(PAD.l + plotW - DOT, clientX - rect.left));
-
-  /* X → Architecture Index → update all 3 sliders instantly */
-  const t = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
   charState.social = t * 3;
   charState.wealth = t * 4;
   charState.anon   = (1 - t) * 3;
 
-  /* Y = lethality formula output */
   const py = Math.max(PAD.t + DOT, Math.min(PAD.t + plotH - DOT,
     PAD.t + plotH - (charLethalityScore() / 100) * plotH));
 
   charDotPos = { x: px, y: py };
 
-  /* Move HTML handle (no CSS transition — follows mouse exactly) */
-  positionCharDotDiv(px, py);
+  /* Move HTML div */
+  if (charDotDiv) { charDotDiv.style.left = px + 'px'; charDotDiv.style.top = py + 'px'; }
 
-  /* Move SVG dot + label (transition disabled) */
+  /* Move SVG dot */
   if (charDotEl)  { charDotEl.style.transition = 'none'; charDotEl.setAttribute('cx', px); charDotEl.setAttribute('cy', py); }
   if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', px + 13); charLabelEl.setAttribute('y', py + 4); }
 
   updateSlidersFromState();
   updateRightPanel();
-}
+}, true /* capture */);
 
-function handleDragEnd() {
-  if (!isDragging) return;
+/* MOUSEUP — capture phase */
+document.addEventListener('mouseup', () => {
+  if (!_drag) return;
+  _drag = false;
   isDragging = false;
-  if (charDotDiv)  charDotDiv.classList.remove('grabbing');
-  if (charDotEl)  { charDotEl.style.transition = ''; charDotEl.style.cursor = 'grab'; }
+  document.body.style.userSelect = '';
+  if (charDotDiv) charDotDiv.classList.remove('grabbing');
+  if (charDotEl)  { charDotEl.style.transition = ''; }
   if (charLabelEl) charLabelEl.style.transition = '';
   buildSVG();
   updateRightPanel();
-}
+}, true /* capture */);
 
-window.addEventListener('mousemove',  e  => handleDragMove(e.clientX, e.clientY));
-window.addEventListener('mouseup',    ()  => handleDragEnd());
-window.addEventListener('touchmove',  e  => { if (isDragging) { e.preventDefault(); handleDragMove(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
-window.addEventListener('touchend',   ()  => handleDragEnd());
+/* Touch */
+document.addEventListener('touchstart', e => {
+  if (currentMode !== 'matrix') return;
+  const r  = wrap.getBoundingClientRect();
+  const cp = charDotPos || getCharPos();
+  if (Math.hypot(e.touches[0].clientX - r.left - cp.x, e.touches[0].clientY - r.top - cp.y) <= 22) {
+    _drag = true; isDragging = true; e.preventDefault();
+    if (charDotDiv) charDotDiv.classList.add('grabbing');
+  }
+}, { capture: true, passive: false });
+
+document.addEventListener('touchmove', e => {
+  if (!_drag) return;
+  e.preventDefault();
+  const r = wrap.getBoundingClientRect();
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b, DOT = 9;
+  const px = Math.max(PAD.l+DOT, Math.min(PAD.l+plotW-DOT, e.touches[0].clientX - r.left));
+  const t  = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
+  charState.social = t*3; charState.wealth = t*4; charState.anon = (1-t)*3;
+  const py = Math.max(PAD.t+DOT, Math.min(PAD.t+plotH-DOT, PAD.t+plotH-(charLethalityScore()/100)*plotH));
+  charDotPos = { x:px, y:py };
+  if (charDotDiv) { charDotDiv.style.left=px+'px'; charDotDiv.style.top=py+'px'; }
+  if (charDotEl)  { charDotEl.style.transition='none'; charDotEl.setAttribute('cx',px); charDotEl.setAttribute('cy',py); }
+  updateSlidersFromState(); updateRightPanel();
+}, { capture: true, passive: false });
+
+document.addEventListener('touchend', () => {
+  if (!_drag) return;
+  _drag = false; isDragging = false;
+  if (charDotDiv) charDotDiv.classList.remove('grabbing');
+  buildSVG(); updateRightPanel();
+}, true);
 
 /* ══════════════════════════════════════════════════════════
    ONBOARDING → CHAT → DASHBOARD
