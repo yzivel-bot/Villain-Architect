@@ -394,7 +394,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   transform: translate(-50%, -50%);
   cursor: grab;
   z-index: 30;
-  pointer-events: auto;
+  pointer-events: none; /* visual only — SVG handles all mouse events */
   display: none;
   border: 2px solid rgba(200,200,200,0.3);
   transition: none;
