@@ -1633,6 +1633,27 @@ function distributeGrid(indices, x0, y0, w, h, positions) {
 /* stored layout so getCharPos can append white dot at end of correct column */
 let gLayout = { colX: [], step: 0, dotStart: 0, counts: [0,0,0,0] };
 
+/* Pure, side-effect-free column-X calculator shared by computeGenderPositions()
+   (which places the dots) and buildSVG()'s header rendering (MALE/FEMALE/ALIEN
+   labels) — both call this identically so headers and dots can never drift
+   apart, regardless of render order.
+   Columns are weighted by villain count so dense columns (Male1/Male2) get
+   proportionally more width and sparse ones (Alien) don't leave the right
+   side of the canvas empty — keeps the whole group visually centered instead
+   of content clustering toward the left. */
+function computeGenderColumnX(counts, width) {
+  const MARGIN = 24;
+  const totalCount = counts.reduce((a,b) => a + b, 0) || 1;
+  const minColW = (width - 2 * MARGIN) * 0.12; /* floor so sparse columns still get visible room */
+  const rawW = counts.map(c => Math.max(minColW, (c / totalCount) * (width - 2 * MARGIN)));
+  const scale = (width - 2 * MARGIN) / rawW.reduce((a,b) => a + b, 0);
+  const colW4 = rawW.map(w => w * scale);
+  const colX  = [];
+  let cursor = MARGIN;
+  colW4.forEach(w => { colX.push(cursor + w / 2); cursor += w; });
+  return colX;
+}
+
 function computeGenderPositions() {
   const females = VILLAINS.map((_,i)=>i).filter(i =>  FEMALE_NAMES.has(VILLAINS[i].name));
   const aliens  = VILLAINS.map((_,i)=>i).filter(i =>  ALIEN_NAMES.has(VILLAINS[i].name));
@@ -1648,10 +1669,8 @@ function computeGenderPositions() {
   const denseN = Math.max(half, males.length - half);
   const step   = (H - PAD.b - 10 - DOT_START) / denseN * 0.88;
 
-  /* Centered 4-column layout — slightly reduced margin for visual balance */
-  const MARGIN = 24;
-  const colW   = (W - 2 * MARGIN) / 4;
-  const colX   = [0,1,2,3].map(c => MARGIN + (c + 0.5) * colW);
+  const counts0 = [half, males.length - half, females.length, aliens.length];
+  const colX = computeGenderColumnX(counts0, W);
 
   function placeCol(indices, cx) {
     indices.forEach((i, j) => {
@@ -2003,9 +2022,12 @@ function buildSVG() {
     mkRegionInfoIcon('cerebral', 'CEREBRAL / STRATEGIC',  W * 0.25, headerY);
     mkRegionInfoIcon('physical', 'PHYSICAL / BRUTE FORCE', W * 0.75, headerY);
 
-  } else { /* gender — 4 columns, centered with equal margins */
-    const gM = 24, gColW = (W - 2 * gM) / 4;
-    const gX = [0,1,2,3].map(c => gM + (c + 0.5) * gColW);
+  } else { /* gender — 4 columns, weighted by content density, centered as a group */
+    const gFemales = VILLAINS.filter(v => FEMALE_NAMES.has(v.name)).length;
+    const gAliens  = VILLAINS.filter(v => ALIEN_NAMES.has(v.name)).length;
+    const gMales   = VILLAINS.length - gFemales - gAliens;
+    const gHalf    = Math.ceil(gMales / 2);
+    const gX = computeGenderColumnX([gHalf, gMales - gHalf, gFemales, gAliens], W);
     /* headers — all on the same Y line, no divider lines */
     mkRegionLabel('MALE',   gX[0], PAD.t + 18, '#00E5FF');
     mkRegionLabel('FEMALE', gX[2], PAD.t + 18, '#FF3399');
@@ -2176,8 +2198,10 @@ function getCharPos() {
       const colIdx = counts[0] <= counts[1] ? 0 : 1;
       return colEnd(colIdx);
     }
-    /* genderless (white): centered horizontally below all 4 columns */
-    return { x: W / 2, y: H - 40 };
+    /* genderless (white): centered between the inner two columns (true visual
+       centre of the weighted layout, not raw canvas W/2) */
+    const midX = colX.length === 4 ? (colX[1] + colX[2]) / 2 : W / 2;
+    return { x: midX, y: H - 40 };
   }
 
   /* matrix — Y is now a CALCULATED OUTPUT from status+wealth, not a slider */
