@@ -1551,7 +1551,7 @@ document.addEventListener('touchstart', e => {
   }
 }, { passive: false });
 let W = 0, H = 0;
-const PAD = { t:55, b:55, l:70, r:30 };
+const PAD = { t:30, b:55, l:70, r:30 };
 const charState   = { anon:2, wealth:3, social:0, kills:2 };
 const KILL_VALS      = [1, 10, 100, 1000, 10000, 1000000];
 const LETHALITY_MAX  = Math.log1p(Math.max(...VILLAINS.map(v => bodyNum(v.kills))));
