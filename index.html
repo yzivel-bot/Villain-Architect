@@ -1945,11 +1945,12 @@ function buildSVG() {
       /* 15px font + 2px letter-spacing — real per-char width is much wider than body text */
       const tw = headerText.length * 11.6;
       const iconX = cx + tw / 2 + 18;
+      const iconY = cy - 5; /* lift to align with header text's visual cap-height, not its baseline */
       const g = makeSVG('g', { class:'region-info-svg-ic', style:'cursor:pointer;' });
-      const circle = makeSVG('circle', { cx:iconX, cy, r:7, fill:'none', stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5' });
-      const l1 = makeSVG('line', { x1:iconX, y1:cy+0.5, x2:iconX, y2:cy+3, stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5', 'stroke-linecap':'round' });
-      const l2 = makeSVG('circle', { cx:iconX, cy:cy-3, r:0.9, fill:'rgba(255,255,255,0.45)' });
-      const hit = makeSVG('circle', { cx:iconX, cy, r:11, fill:'transparent' });
+      const circle = makeSVG('circle', { cx:iconX, cy:iconY, r:7, fill:'none', stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5' });
+      const l1 = makeSVG('line', { x1:iconX, y1:iconY+0.5, x2:iconX, y2:iconY+3, stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5', 'stroke-linecap':'round' });
+      const l2 = makeSVG('circle', { cx:iconX, cy:iconY-3, r:0.9, fill:'rgba(255,255,255,0.45)' });
+      const hit = makeSVG('circle', { cx:iconX, cy:iconY, r:11, fill:'transparent' });
       g.appendChild(circle); g.appendChild(l1); g.appendChild(l2); g.appendChild(hit);
       g.addEventListener('click', e => {
         e.stopPropagation();
@@ -1959,10 +1960,10 @@ function buildSVG() {
       axisG.appendChild(g);
 
       if (MINDSET_INFO[key].open) {
-        /* Strictly bound to the header's own rendered width, centered on the same cx */
+        /* Slightly wider than the header so the sentence wraps into ~4 balanced lines */
         const textEl = makeSVG('text', { x:cx, 'text-anchor':'middle', style:'fill:rgba(255,255,255,0.6); font-weight:400; font-size:11px; font-family:\'Red Hat Display\',sans-serif;' });
         axisG.appendChild(textEl);
-        MINDSET_INFO[key].lines = wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 22, tw, 16);
+        MINDSET_INFO[key].lines = wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 22, tw * 1.15, 16);
       }
     };
     mkRegionInfoIcon('cerebral', 'CEREBRAL / STRATEGIC',  W * 0.25, headerY);
