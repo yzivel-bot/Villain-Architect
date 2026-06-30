@@ -1699,12 +1699,36 @@ function computeMindsetPositions() {
 
   packCloud(cerebral, W * 0.25, cY, positions);
   packCloud(physical, W * 0.75, cY, positions);
-  /* Push Darth Vader & Hannibal away from centre so white dot is unobstructed */
+  /* Push Darth Vader & Hannibal away from centre as a starting nudge — both
+     clusters are dense near their anchor point and these two tend to land
+     closest to it. */
   ['Darth Vader','Hannibal Lecter'].forEach(name => {
     const i = VILLAINS.findIndex(v => v.name === name);
     if (i >= 0 && positions[i]) {
       positions[i].x += (seededRand(name, 77) - 0.3) * 55;
       positions[i].y += (seededRand(name, 79) - 0.3) * 45 + 28;
+    }
+  });
+
+  /* Generic pass: whichever dot ends up under the white character dot,
+     not just the two named above, gets pushed clear. The white dot sits
+     at cluster centre (W*0.25 or W*0.75, cY) — same formula as getCharPos(). */
+  const isCerebral = document.getElementById('tog-c').classList.contains('on');
+  const charX = isCerebral ? W * 0.25 : W * 0.75;
+  const charY = cY;
+  const CLEAR_RADIUS = 26; /* char dot r=9 + villain dot r=7 + visual buffer */
+  [...cerebral, ...physical].forEach(i => {
+    const p = positions[i];
+    if (!p) return;
+    const dx = p.x - charX, dy = p.y - charY;
+    const dist = Math.hypot(dx, dy);
+    if (dist < CLEAR_RADIUS && dist > 0.01) {
+      const push = (CLEAR_RADIUS - dist);
+      p.x += (dx / dist) * push;
+      p.y += (dy / dist) * push;
+    } else if (dist <= 0.01) {
+      /* exact overlap — push in a deterministic direction */
+      p.x += CLEAR_RADIUS;
     }
   });
 
@@ -2126,11 +2150,12 @@ function getCharPos() {
   const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b, DOT = 9;
 
   if (currentMode === 'mindset') {
-    /* Dot at cluster centre; Darth Vader & Hannibal are pushed by force-sep in packCloud */
+    /* Dot at cluster centre — must match computeMindsetPositions()' cY exactly */
     const isCerebral = document.getElementById('tog-c').classList.contains('on');
+    const cloudTop = MINDSET_HEADER_Y + MINDSET_TEXT_RESERVE;
     return {
       x: isCerebral ? W * 0.25 : W * 0.75,
-      y: H / 2
+      y: cloudTop + (H - cloudTop - PAD.b) / 2
     };
   }
 
