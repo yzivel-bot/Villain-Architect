@@ -1682,9 +1682,10 @@ function computeMindsetPositions() {
   const positions = new Array(VILLAINS.length);
   const cY = H / 2; /* vertical centre of the full canvas */
 
-  /* Each open info panel pushes its own cloud down so dots never overlap the text */
-  const cerebralShift = MINDSET_INFO.cerebral.open ? 68 : 0;
-  const physicalShift = MINDSET_INFO.physical.open ? 68 : 0;
+  /* Each open info panel pushes its own cloud down so dots never overlap the text.
+     Shift scales with actual wrapped line count (22px text offset + 16px/line + 14px buffer). */
+  const cerebralShift = MINDSET_INFO.cerebral.open ? 22 + (MINDSET_INFO.cerebral.lines || 3) * 16 + 14 : 0;
+  const physicalShift = MINDSET_INFO.physical.open ? 22 + (MINDSET_INFO.physical.lines || 3) * 16 + 14 : 0;
 
   packCloud(cerebral, W * 0.25, cY + cerebralShift, positions);
   packCloud(physical, W * 0.75, cY + physicalShift, positions);
@@ -1958,11 +1959,10 @@ function buildSVG() {
       axisG.appendChild(g);
 
       if (MINDSET_INFO[key].open) {
-        const textWidth = Math.min(420, W * 0.46);
-        const textX = Math.max(PAD.l + 4, cx - textWidth / 2);
-        const textEl = makeSVG('text', { x:textX, 'text-anchor':'start', style:'fill:rgba(255,255,255,0.6); font-weight:400; font-size:11px; font-family:\'Red Hat Display\',sans-serif;' });
+        /* Strictly bound to the header's own rendered width, centered on the same cx */
+        const textEl = makeSVG('text', { x:cx, 'text-anchor':'middle', style:'fill:rgba(255,255,255,0.6); font-weight:400; font-size:11px; font-family:\'Red Hat Display\',sans-serif;' });
         axisG.appendChild(textEl);
-        wrapSvgText(textEl, MINDSET_INFO[key].text, textX, cy + 22, textWidth, 16);
+        MINDSET_INFO[key].lines = wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 22, tw, 16);
       }
     };
     mkRegionInfoIcon('cerebral', 'CEREBRAL / STRATEGIC',  W * 0.25, headerY);
