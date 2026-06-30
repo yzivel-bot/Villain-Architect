@@ -495,6 +495,45 @@ circle.vdot:hover { opacity: 0.75; }
   fill: #4a4a4a;
 }
 
+/* ── Info icon + tooltip system ── */
+.info-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  vertical-align: middle;
+  cursor: help;
+  flex-shrink: 0;
+}
+.info-ic svg {
+  width: 14px;
+  height: 14px;
+  stroke: rgba(255,255,255,0.4);
+  transition: stroke 0.18s ease;
+}
+.info-ic:hover svg { stroke: #fff; }
+
+#info-tip {
+  position: fixed;
+  background: #141416;
+  border: 1px solid #2B2B2E;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.5;
+  text-align: left;
+  max-width: 240px;
+  pointer-events: none;
+  display: none;
+  z-index: 9999;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+}
+
 #tooltip {
   position: absolute;
   background: rgba(8,8,8,0.93);
@@ -931,6 +970,9 @@ mark.kw.lit {
 </head>
 <body>
 
+<!-- Global info tooltip (shared by all info icons) -->
+<div id="info-tip"></div>
+
 <!-- ══════════ ONBOARDING ══════════ -->
 <div id="onboarding">
   <div class="ob-title">Villain<br>Architect</div>
@@ -1074,8 +1116,8 @@ mark.kw.lit {
   </div>
 
   <div class="toggle-row">
-    <button class="tog on" id="tog-c" onclick="setTog('c')">Cerebral</button>
-    <button class="tog"    id="tog-p" onclick="setTog('p')">Physical</button>
+    <button class="tog on" id="tog-c" onclick="setTog('c')">Cerebral<span class="info-ic" data-tip="Cerebral Mindset: Villains driven by strategic planning, psychological manipulation, or systemic control. They leverage power, wealth, or high intellect to achieve goals without direct physical confrontation." onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></button>
+    <button class="tog"    id="tog-p" onclick="setTog('p')">Physical<span class="info-ic" data-tip="Physical Mindset: Villains driven by brute force, survival instincts, or direct violence. They rely on physical presence, combat, and immediate localized damage." onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></button>
   </div>
 
   <div class="sliders-sec">
@@ -1154,13 +1196,13 @@ mark.kw.lit {
 
     <!-- Survival Forecast -->
     <div class="rp-metric">
-      <span class="rp-metric-label">Survival Forecast</span>
+      <span class="rp-metric-label">Survival Forecast<span class="info-ic" data-tip="Survival Forecast: The historical probability of the character surviving the plot. High anonymity (masked) or low social status often leads to death, while high status or visible faces favor survival."><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></span>
       <span class="rp-metric-value" id="rp-survival">58%</span>
     </div>
 
     <!-- Brutality -->
     <div class="rp-metric">
-      <span class="rp-metric-label">Brutality</span>
+      <span class="rp-metric-label">Brutality<span class="info-ic" data-tip="Brutality Index: The nature of the villain's violence. Physical combatants register 'High/Extreme' brutality, while system-level villains trigger 'Calculated' or lower physical impact."><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></span>
       <span class="rp-metric-value small" id="rp-brutality">High</span>
     </div>
 
@@ -1170,7 +1212,7 @@ mark.kw.lit {
 
     <!-- Psychological Fingerprint radar -->
     <div>
-      <div class="rp-chart-label">Psychological Fingerprint</div>
+      <div class="rp-chart-label">Psychological Fingerprint<span class="info-ic" data-tip="Psychological Fingerprint: A multi-dimensional mapping of the villain's traits across 6 core metrics, dynamically adjusting to visualize their profiling footprint."><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></div>
       <div class="rp-radar-wrap">
         <svg id="rp-radar" width="234" height="170" viewBox="0 0 220 160" style="width:100%"></svg>
       </div>
@@ -1178,14 +1220,14 @@ mark.kw.lit {
 
     <!-- Predicted Body Count bars -->
     <div>
-      <div class="rp-chart-label">Predicted Body Count</div>
+      <div class="rp-chart-label">Predicted Body Count<span class="info-ic" data-tip="Predicted Lethality: An output predicting the villain's body count. It is derived from their resources: systemic assets (Wealth/Status) unlock widespread chaos, while low resources limit them to localized violence."><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></div>
       <svg id="rp-bars-html" width="234" height="155" viewBox="0 0 220 150" style="display:block;overflow:visible;width:100%"></svg>
     </div>
 
     <!-- Detected Archetype -->
     <div>
       <div class="rp-archetype-hdr">
-        <span class="rp-metric-label">Detected Archetype</span>
+        <span class="rp-metric-label">Detected Archetype<span class="info-ic" data-tip="Detected Archetype: The final narrative verdict. The algorithm compares your slider inputs against 50 iconic cinematic villains to classify your character's explicit screenwriting profile."><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span></span>
         <div class="rp-archetype-icons">
           <div class="rp-archetype-icon">⧉</div>
           <div class="rp-archetype-icon">↓</div>
@@ -1343,6 +1385,50 @@ const svg        = document.getElementById('scatter-svg');
 const wrap       = document.getElementById('scatter-wrap');
 const tipEl      = document.getElementById('tooltip');
 const charDotDiv = document.getElementById('char-dot-html'); /* HTML drag handle */
+
+/* ══════════════════════════════════════════════════════════
+   INFO ICON + TOOLTIP SYSTEM (global, shared across all panels)
+══════════════════════════════════════════════════════════ */
+const infoTipEl = document.getElementById('info-tip');
+
+const INFO_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+
+/* Returns an HTML string for an info icon — use inside any label markup */
+function infoIcon(text) {
+  return `<span class="info-ic" data-tip="${text.replace(/"/g, '&quot;')}">${INFO_ICON_SVG}</span>`;
+}
+
+function showInfoTip(target, text) {
+  if (!infoTipEl) return;
+  infoTipEl.textContent = text;
+  infoTipEl.style.display = 'block';
+  const r = target.getBoundingClientRect();
+  let left = r.left + r.width / 2;
+  let top  = r.top - 10;
+  infoTipEl.style.left = left + 'px';
+  infoTipEl.style.top  = top + 'px';
+  infoTipEl.style.transform = 'translate(-50%, -100%)';
+  /* keep on-screen horizontally */
+  requestAnimationFrame(() => {
+    const tr = infoTipEl.getBoundingClientRect();
+    if (tr.left < 4) infoTipEl.style.left = (left + (4 - tr.left)) + 'px';
+    if (tr.right > window.innerWidth - 4) infoTipEl.style.left = (left - (tr.right - window.innerWidth + 4)) + 'px';
+  });
+}
+
+function hideInfoTip() {
+  if (infoTipEl) infoTipEl.style.display = 'none';
+}
+
+/* Event delegation — works for icons added now or later (e.g. inside buildSVG) */
+document.addEventListener('mouseenter', e => {
+  const ic = e.target.closest && e.target.closest('.info-ic');
+  if (ic) showInfoTip(ic, ic.dataset.tip);
+}, true);
+document.addEventListener('mouseleave', e => {
+  const ic = e.target.closest && e.target.closest('.info-ic');
+  if (ic) hideInfoTip();
+}, true);
 
 let currentMode    = 'matrix'; /* 'gender' | 'mindset' | 'matrix' */
 let lastPositions  = null;     /* [{ x,y }] for smooth transition animation */
@@ -1779,6 +1865,27 @@ function buildSVG() {
     xT.textContent = 'VILLAIN ARCHITECTURE INDEX (0 - 100)'; axisG.appendChild(xT);
     const yT = makeSVG('text', { x:14, y:PAD.t+plotH/2, class:'ax-text', 'text-anchor':'middle', style:'fill:#fff; font-weight:700; font-size:13px; letter-spacing:1px;', transform:`rotate(-90,14,${PAD.t+plotH/2})` });
     yT.textContent = 'PREDICTED LETHALITY / BODY COUNT'; axisG.appendChild(yT);
+
+    /* Info icons next to axis titles */
+    const mkAxisInfoIcon = (cx, cy, rotateAttr, tipText) => {
+      const g = makeSVG('g', { class:'svg-info-ic', style:'cursor:help;' });
+      if (rotateAttr) g.setAttribute('transform', rotateAttr);
+      const c = makeSVG('circle', { cx, cy, r:7, fill:'none', stroke:'rgba(255,255,255,0.4)', 'stroke-width':'1.6' });
+      const l1 = makeSVG('line', { x1:cx, y1:cy+2.5, x2:cx, y2:cy-0.5, stroke:'rgba(255,255,255,0.4)', 'stroke-width':'1.6', 'stroke-linecap':'round' });
+      const l2 = makeSVG('line', { x1:cx, y1:cy-3.5, x2:cx, y2:cy-3.4, stroke:'rgba(255,255,255,0.4)', 'stroke-width':'1.6', 'stroke-linecap':'round' });
+      const hit = makeSVG('circle', { cx, cy, r:10, fill:'transparent' }); /* larger invisible hit area */
+      g.appendChild(c); g.appendChild(l1); g.appendChild(l2); g.appendChild(hit);
+      g.addEventListener('mouseenter', () => { g.querySelectorAll('circle,line').forEach(el => { if (el !== hit) el.setAttribute('stroke', '#fff'); }); showInfoTip(g, tipText); });
+      g.addEventListener('mouseleave', () => { g.querySelectorAll('circle,line').forEach(el => { if (el !== hit) el.setAttribute('stroke', 'rgba(255,255,255,0.4)'); }); hideInfoTip(); });
+      axisG.appendChild(g);
+    };
+    /* measure approx text width to place icon right after it */
+    const xTitleW = 'VILLAIN ARCHITECTURE INDEX (0 - 100)'.length * 7.2;
+    mkAxisInfoIcon(PAD.l + plotW/2 + xTitleW/2 + 12, H - 12, null,
+      'Architecture Index: A composite score calculating the villain\'s systemic complexity (DNA) based on Social Status, Wealth, and Anonymity. Higher scores indicate strategic, high-tier masterminds.');
+    const yTitleW = 'PREDICTED LETHALITY / BODY COUNT'.length * 7.2;
+    mkAxisInfoIcon(14, PAD.t + plotH/2 - yTitleW/2 - 12, `rotate(-90,14,${PAD.t+plotH/2 - yTitleW/2 - 12})`,
+      'Predicted Lethality: An output predicting the villain\'s body count. It is derived from their resources: systemic assets (Wealth/Status) unlock widespread chaos, while low resources limit them to localized violence.');
 
   } else if (currentMode === 'mindset') {
     /* no divider lines — clean two-cloud layout */
