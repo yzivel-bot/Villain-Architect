@@ -1696,10 +1696,7 @@ function initSVGLayers() {
   charDotEl = makeSVG('circle', {
     id: 'char-dot', cx: -300, cy: -300, r: 9,
     fill: charDotColor, stroke: charDotStroke, 'stroke-width': '2',
-    filter: 'url(#glow)', style: 'cursor:grab; transition:cx 0.45s cubic-bezier(0.34,1.56,0.64,1),cy 0.45s cubic-bezier(0.34,1.56,0.64,1);'
-  });
-  charDotEl.addEventListener('mousedown', e => {
-    isDragging = true; e.preventDefault(); charDotEl.style.cursor = 'grabbing';
+    filter: 'url(#glow)', style: 'cursor:grab; pointer-events:none; transition:cx 0.45s cubic-bezier(0.34,1.56,0.64,1),cy 0.45s cubic-bezier(0.34,1.56,0.64,1);'
   });
   svgDotsG.appendChild(charDotEl);
 
@@ -2253,7 +2250,7 @@ function _execDrag(clientX, clientY) {
 
   if (charDotEl)  { charDotEl.style.transition = 'none'; charDotEl.setAttribute('cx', px); charDotEl.setAttribute('cy', py); }
   if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', px + 13); charLabelEl.setAttribute('y', py + 4); }
-  if (charDotDiv) { charDotDiv.style.left = px + 'px'; charDotDiv.style.top = py + 'px'; }
+  positionCharDotDiv(px, py); /* keeps drag handle + ping ring + coachmark in sync */
 
   updateSlidersFromState();
 }
