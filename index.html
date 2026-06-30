@@ -555,7 +555,7 @@ circle.vdot:hover { opacity: 0.75; }
   transition: max-height 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
 }
 .info-panel-inner {
-  padding-top: 4px;
+  padding: 4px 10px 2px 10px;
   font-size: 11px;
   font-weight: 400;
   color: rgba(255,255,255,0.6);
@@ -1141,16 +1141,10 @@ mark.kw.lit {
     </div>
   </div>
 
-  <div class="toggle-label-row">
-    <span class="toggle-label-item">Cerebral<button type="button" class="info-ic" data-toggles="info-panel-cerebral" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
-    <span class="toggle-label-item">Physical<button type="button" class="info-ic" data-toggles="info-panel-physical" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
-  </div>
   <div class="toggle-row">
     <button class="tog on" id="tog-c" onclick="setTog('c')">Cerebral</button>
     <button class="tog"    id="tog-p" onclick="setTog('p')">Physical</button>
   </div>
-  <div class="info-panel" id="info-panel-cerebral"><div class="info-panel-inner">Cerebral Mindset: Villains driven by strategic planning, psychological manipulation, or systemic control. They leverage power, wealth, or high intellect to achieve goals without direct physical confrontation.</div></div>
-  <div class="info-panel" id="info-panel-physical"><div class="info-panel-inner">Physical Mindset: Villains driven by brute force, survival instincts, or direct violence. They rely on physical presence, combat, and immediate localized damage.</div></div>
 
   <div class="sliders-sec">
     <div class="sl-item">
@@ -2091,8 +2085,8 @@ function getCharPos() {
       const colIdx = counts[0] <= counts[1] ? 0 : 1;
       return colEnd(colIdx);
     }
-    /* genderless (white): bottom-right, label rendered to left so not cut off */
-    return { x: W - 100, y: H - 40 };
+    /* genderless (white): centered horizontally below all 4 columns */
+    return { x: W / 2, y: H - 40 };
   }
 
   /* matrix — Y is now a CALCULATED OUTPUT from status+wealth, not a slider */
