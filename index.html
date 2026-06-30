@@ -336,15 +336,6 @@ input[type=range].vslider::-webkit-slider-thumb {
 .axis-legend-row.show { display: flex; }
 .axis-legend-row .toggle-label-item { flex: 0 0 auto; font-size: 11px; color: rgba(255,255,255,0.65); }
 #info-panel-archidx, #info-panel-axislethality { margin: 0 28px; }
-#info-panel-mindcerebral, #info-panel-mindphysical { margin: 0 28px; }
-
-.region-info-ic {
-  position: absolute;
-  top: 14px;
-  display: none;
-  z-index: 25;
-}
-.region-info-ic.show { display: inline-flex; }
 
 .mode-btn {
   flex: 1;
@@ -1210,15 +1201,10 @@ mark.kw.lit {
   </div>
   <div class="info-panel" id="info-panel-archidx"><div class="info-panel-inner">Architecture Index: A composite score calculating the villain's systemic complexity (DNA) based on Social Status, Wealth, and Anonymity. Higher scores indicate strategic, high-tier masterminds.</div></div>
   <div class="info-panel" id="info-panel-axislethality"><div class="info-panel-inner">Predicted Lethality: An output predicting the villain's body count. It is derived from their resources: systemic assets (Wealth/Status) unlock widespread chaos, while low resources limit them to localized violence.</div></div>
-  <div class="info-panel" id="info-panel-mindcerebral"><div class="info-panel-inner">Cerebral / Strategic: Villains who use their brain, money, or political power to control things. They plan ahead and damage the hero from a distance, rarely fighting face-to-face.</div></div>
-  <div class="info-panel" id="info-panel-mindphysical"><div class="info-panel-inner">Physical / Brute Force: Villains who fight or attack directly using their physical power. They rely on weapons, personal combat, and causing immediate damage close to them.</div></div>
   <div class="scatter-wrap" id="scatter-wrap">
     <svg id="scatter-svg"></svg>
     <div id="tooltip"></div>
     <div id="villain-list"></div>
-    <!-- Info icons anchored next to the big Cerebral/Physical region headers (mindset mode only) -->
-    <button type="button" class="info-ic region-info-ic" id="mind-ic-cerebral" data-toggles="info-panel-mindcerebral" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
-    <button type="button" class="info-ic region-info-ic" id="mind-ic-physical" data-toggles="info-panel-mindphysical" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>
     <!-- Coachmark: pulsing ring + hint bubble, matrix mode only -->
     <div id="char-dot-ping"></div>
     <div id="char-dot-coach">💡 Drag freely to calculate character DNA</div>
@@ -1485,6 +1471,35 @@ let charDotStroke = 'none';
 let isDragging    = false;
 let charDotPos    = null; /* free-drag override — {x,y} pixels, null = use calculated */
 
+/* ── Mindset region info-panel state (anchored under CEREBRAL/PHYSICAL headers) ── */
+const MINDSET_INFO = {
+  cerebral: { open: false, text: 'Villains who use their brain, money, or political power to control things. They plan ahead and damage the hero from a distance, rarely fighting face-to-face.' },
+  physical: { open: false, text: 'Villains who fight or attack directly using their physical power. They rely on weapons, personal combat, and causing immediate damage close to them.' }
+};
+
+/* Wrap text into multiple <tspan> lines fit to maxWidth (approx 6.2px/char at 11px font) */
+function wrapSvgText(textEl, text, x, startY, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '', lines = [];
+  const charW = 6.2;
+  words.forEach(word => {
+    const test = line ? line + ' ' + word : word;
+    if (test.length * charW > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+  if (line) lines.push(line);
+  lines.forEach((ln, i) => {
+    const tspan = makeSVG('tspan', { x, y: startY + i * lineHeight });
+    tspan.textContent = ln;
+    textEl.appendChild(tspan);
+  });
+  return lines.length;
+}
+
 /* ── Dot position helper ── */
 const charDotPing  = document.getElementById('char-dot-ping');
 const charDotCoach = document.getElementById('char-dot-coach');
@@ -1667,8 +1682,12 @@ function computeMindsetPositions() {
   const positions = new Array(VILLAINS.length);
   const cY = H / 2; /* vertical centre of the full canvas */
 
-  packCloud(cerebral, W * 0.25, cY, positions);
-  packCloud(physical, W * 0.75, cY, positions);
+  /* Each open info panel pushes its own cloud down so dots never overlap the text */
+  const cerebralShift = MINDSET_INFO.cerebral.open ? 46 : 0;
+  const physicalShift = MINDSET_INFO.physical.open ? 46 : 0;
+
+  packCloud(cerebral, W * 0.25, cY + cerebralShift, positions);
+  packCloud(physical, W * 0.75, cY + physicalShift, positions);
   /* Push Darth Vader & Hannibal away from centre so white dot is unobstructed */
   ['Darth Vader','Hannibal Lecter'].forEach(name => {
     const i = VILLAINS.findIndex(v => v.name === name);
@@ -1851,10 +1870,6 @@ function buildSVG() {
   document.getElementById('villain-list').classList.add('hidden');
   const axisLegendRow = document.getElementById('axis-legend-row');
   if (axisLegendRow) axisLegendRow.classList.toggle('show', currentMode === 'matrix');
-  const mindIcCerebral = document.getElementById('mind-ic-cerebral');
-  const mindIcPhysical = document.getElementById('mind-ic-physical');
-  if (mindIcCerebral) mindIcCerebral.classList.toggle('show', currentMode === 'mindset');
-  if (mindIcPhysical) mindIcPhysical.classList.toggle('show', currentMode === 'mindset');
 
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
@@ -1920,17 +1935,36 @@ function buildSVG() {
 
   } else if (currentMode === 'mindset') {
     /* no divider lines — clean two-cloud layout */
-    mkRegionLabel('CEREBRAL / STRATEGIC',  W * 0.25, PAD.t + 22, '#777');
-    mkRegionLabel('PHYSICAL / BRUTE FORCE', W * 0.75, PAD.t + 22, '#777');
-    /* position info icons next to the big region headers */
-    if (mindIcCerebral) {
-      const tw = 'CEREBRAL / STRATEGIC'.length * 8.3;
-      mindIcCerebral.style.left = (W * 0.25 + tw / 2 + 10) + 'px';
-    }
-    if (mindIcPhysical) {
-      const tw = 'PHYSICAL / BRUTE FORCE'.length * 8.3;
-      mindIcPhysical.style.left = (W * 0.75 + tw / 2 + 10) + 'px';
-    }
+    const headerY = PAD.t + 22;
+    mkRegionLabel('CEREBRAL / STRATEGIC',  W * 0.25, headerY, '#777');
+    mkRegionLabel('PHYSICAL / BRUTE FORCE', W * 0.75, headerY, '#777');
+
+    /* Info icon + expandable text, anchored directly under each header */
+    const mkRegionInfoIcon = (key, headerText, cx, cy) => {
+      const tw = headerText.length * 8.3;
+      const iconX = cx + tw / 2 + 14;
+      const g = makeSVG('g', { class:'region-info-svg-ic', style:'cursor:pointer;' });
+      const circle = makeSVG('circle', { cx:iconX, cy, r:7, fill:'none', stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5' });
+      const l1 = makeSVG('line', { x1:iconX, y1:cy+0.5, x2:iconX, y2:cy+3, stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5', 'stroke-linecap':'round' });
+      const l2 = makeSVG('circle', { cx:iconX, cy:cy-3, r:0.9, fill:'rgba(255,255,255,0.45)' });
+      const hit = makeSVG('circle', { cx:iconX, cy, r:11, fill:'transparent' });
+      g.appendChild(circle); g.appendChild(l1); g.appendChild(l2); g.appendChild(hit);
+      g.addEventListener('click', e => {
+        e.stopPropagation();
+        MINDSET_INFO[key].open = !MINDSET_INFO[key].open;
+        buildSVG();
+      });
+      axisG.appendChild(g);
+
+      if (MINDSET_INFO[key].open) {
+        const textEl = makeSVG('text', { 'text-anchor':'middle', style:'fill:rgba(255,255,255,0.6); font-weight:400; font-size:11px; font-family:\'Red Hat Display\',sans-serif;' });
+        axisG.appendChild(textEl);
+        const maxWidth = Math.min(280, W * 0.42);
+        wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 18, maxWidth, 15);
+      }
+    };
+    mkRegionInfoIcon('cerebral', 'CEREBRAL / STRATEGIC',  W * 0.25, headerY);
+    mkRegionInfoIcon('physical', 'PHYSICAL / BRUTE FORCE', W * 0.75, headerY);
 
   } else { /* gender — 4 columns, centered with equal margins */
     const gM = 24, gColW = (W - 2 * gM) / 4;
