@@ -1739,13 +1739,15 @@ function buildSVG() {
   charDotEl.style.display   = '';
   charLabelEl.style.display = '';
   charLabelEl.textContent = document.getElementById('char-name').value || 'Your Character';
-  /* HTML drag handle: visible only in matrix, synced to charPos */
+  /* HTML drag handle: visible only in matrix, synced to charPos + color */
   if (charDotDiv) {
     if (currentMode === 'matrix') {
       charDotDiv.classList.add('matrix-active');
     } else {
       charDotDiv.classList.remove('matrix-active');
     }
+    charDotDiv.style.background = charDotColor;
+    charDotDiv.style.borderColor = charDotStroke === 'none' ? 'rgba(200,200,200,0.3)' : charDotStroke;
   }
 
   /* ── Update label visibility classes for current mode ── */
