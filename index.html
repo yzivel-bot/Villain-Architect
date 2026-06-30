@@ -1214,6 +1214,12 @@ mark.kw.lit {
   </div>
   <div class="info-panel" id="info-panel-archidx"><div class="info-panel-inner">Architecture Index: A composite score calculating the villain's systemic complexity (DNA) based on Social Status, Wealth, and Anonymity. Higher scores indicate strategic, high-tier masterminds.</div></div>
   <div class="info-panel" id="info-panel-axislethality"><div class="info-panel-inner">Predicted Lethality: An output predicting the villain's body count. It is derived from their resources: systemic assets (Wealth/Status) unlock widespread chaos, while low resources limit them to localized violence.</div></div>
+  <div class="axis-legend-row" id="mindset-legend-row">
+    <span class="toggle-label-item">Cerebral / Strategic<button type="button" class="info-ic" data-toggles="info-panel-mindcerebral" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
+    <span class="toggle-label-item">Physical / Brute Force<button type="button" class="info-ic" data-toggles="info-panel-mindphysical" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
+  </div>
+  <div class="info-panel" id="info-panel-mindcerebral"><div class="info-panel-inner">Cerebral / Strategic: Villains who use their brain, money, or political power to control things. They plan ahead and damage the hero from a distance, rarely fighting face-to-face.</div></div>
+  <div class="info-panel" id="info-panel-mindphysical"><div class="info-panel-inner">Physical / Brute Force: Villains who fight or attack directly using their physical power. They rely on weapons, personal combat, and causing immediate damage close to them.</div></div>
   <div class="scatter-wrap" id="scatter-wrap">
     <svg id="scatter-svg"></svg>
     <div id="tooltip"></div>
@@ -1843,6 +1849,8 @@ function buildSVG() {
   document.getElementById('villain-list').classList.add('hidden');
   const axisLegendRow = document.getElementById('axis-legend-row');
   if (axisLegendRow) axisLegendRow.classList.toggle('show', currentMode === 'matrix');
+  const mindsetLegendRow = document.getElementById('mindset-legend-row');
+  if (mindsetLegendRow) mindsetLegendRow.classList.toggle('show', currentMode === 'mindset');
 
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
