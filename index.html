@@ -1683,8 +1683,8 @@ function computeMindsetPositions() {
   const cY = H / 2; /* vertical centre of the full canvas */
 
   /* Each open info panel pushes its own cloud down so dots never overlap the text */
-  const cerebralShift = MINDSET_INFO.cerebral.open ? 46 : 0;
-  const physicalShift = MINDSET_INFO.physical.open ? 46 : 0;
+  const cerebralShift = MINDSET_INFO.cerebral.open ? 68 : 0;
+  const physicalShift = MINDSET_INFO.physical.open ? 68 : 0;
 
   packCloud(cerebral, W * 0.25, cY + cerebralShift, positions);
   packCloud(physical, W * 0.75, cY + physicalShift, positions);
@@ -1941,8 +1941,9 @@ function buildSVG() {
 
     /* Info icon + expandable text, anchored directly under each header */
     const mkRegionInfoIcon = (key, headerText, cx, cy) => {
-      const tw = headerText.length * 8.3;
-      const iconX = cx + tw / 2 + 14;
+      /* 15px font + 2px letter-spacing — real per-char width is much wider than body text */
+      const tw = headerText.length * 11.6;
+      const iconX = cx + tw / 2 + 18;
       const g = makeSVG('g', { class:'region-info-svg-ic', style:'cursor:pointer;' });
       const circle = makeSVG('circle', { cx:iconX, cy, r:7, fill:'none', stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5' });
       const l1 = makeSVG('line', { x1:iconX, y1:cy+0.5, x2:iconX, y2:cy+3, stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5', 'stroke-linecap':'round' });
@@ -1957,10 +1958,11 @@ function buildSVG() {
       axisG.appendChild(g);
 
       if (MINDSET_INFO[key].open) {
-        const textEl = makeSVG('text', { 'text-anchor':'middle', style:'fill:rgba(255,255,255,0.6); font-weight:400; font-size:11px; font-family:\'Red Hat Display\',sans-serif;' });
+        const textWidth = Math.min(420, W * 0.46);
+        const textX = Math.max(PAD.l + 4, cx - textWidth / 2);
+        const textEl = makeSVG('text', { x:textX, 'text-anchor':'start', style:'fill:rgba(255,255,255,0.6); font-weight:400; font-size:11px; font-family:\'Red Hat Display\',sans-serif;' });
         axisG.appendChild(textEl);
-        const maxWidth = Math.min(280, W * 0.42);
-        wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 18, maxWidth, 15);
+        wrapSvgText(textEl, MINDSET_INFO[key].text, textX, cy + 22, textWidth, 16);
       }
     };
     mkRegionInfoIcon('cerebral', 'CEREBRAL / STRATEGIC',  W * 0.25, headerY);
