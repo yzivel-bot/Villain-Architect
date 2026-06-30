@@ -2144,7 +2144,8 @@ document.getElementById('genre-tabs').addEventListener('click', e => {
   if (!wasActive) tab.classList.add('active');
 });
 
-document.getElementById('reset-btn').addEventListener('click', () => {
+const resetBtnEl = document.getElementById('reset-btn');
+if (resetBtnEl) resetBtnEl.addEventListener('click', () => {
   charDotPos = null;
   charState.anon = 2; charState.wealth = 3; charState.social = 0; charState.kills = 2;
   updateSlidersFromState();
