@@ -1675,20 +1675,30 @@ function computeGenderPositions() {
   return positions;
 }
 
+/* Header baseline used by both the SVG header text and the dot-cloud
+   reserve calc below — must stay in sync with headerY in buildSVG(). */
+const MINDSET_HEADER_Y = PAD.t + 22;
+/* Fixed vertical space permanently reserved below the header for the
+   expanded info text (sized for the worst case: 4 wrapped lines, each
+   16px, starting 22px below the header, plus a clearance buffer).
+   This never changes when a panel opens/closes — the dot cloud's centre
+   is always positioned as if the text were open, so toggling it never
+   moves a single dot. */
+const MINDSET_TEXT_RESERVE = 22 + 4 * 16 + 20; /* = 106px */
+
 function computeMindsetPositions() {
   /* Physical (0–50) → left half · Cerebral (51–100) → right half */
   const cerebral = VILLAINS.map((_,i)=>i).filter(i => computeMindsetScore(VILLAINS[i]) > 50);
   const physical = VILLAINS.map((_,i)=>i).filter(i => computeMindsetScore(VILLAINS[i]) <= 50);
   const positions = new Array(VILLAINS.length);
-  const cY = H / 2; /* vertical centre of the full canvas */
 
-  /* Each open info panel pushes its own cloud down so dots never overlap the text.
-     Shift scales with actual wrapped line count (22px text offset + 16px/line + 14px buffer). */
-  const cerebralShift = MINDSET_INFO.cerebral.open ? 22 + (MINDSET_INFO.cerebral.lines || 3) * 16 + 14 : 0;
-  const physicalShift = MINDSET_INFO.physical.open ? 22 + (MINDSET_INFO.physical.lines || 3) * 16 + 14 : 0;
+  /* Centre the cloud in the space BELOW the reserved header+text zone,
+     down to the bottom padding — bounded entirely within H, no overflow. */
+  const cloudTop = MINDSET_HEADER_Y + MINDSET_TEXT_RESERVE;
+  const cY = cloudTop + (H - cloudTop - PAD.b) / 2;
 
-  packCloud(cerebral, W * 0.25, cY + cerebralShift, positions);
-  packCloud(physical, W * 0.75, cY + physicalShift, positions);
+  packCloud(cerebral, W * 0.25, cY, positions);
+  packCloud(physical, W * 0.75, cY, positions);
   /* Push Darth Vader & Hannibal away from centre so white dot is unobstructed */
   ['Darth Vader','Hannibal Lecter'].forEach(name => {
     const i = VILLAINS.findIndex(v => v.name === name);
@@ -1936,7 +1946,7 @@ function buildSVG() {
 
   } else if (currentMode === 'mindset') {
     /* no divider lines — clean two-cloud layout */
-    const headerY = PAD.t + 22;
+    const headerY = MINDSET_HEADER_Y; /* shared with computeMindsetPositions' reserve calc */
     mkRegionLabel('CEREBRAL / STRATEGIC',  W * 0.25, headerY, '#777');
     mkRegionLabel('PHYSICAL / BRUTE FORCE', W * 0.75, headerY, '#777');
 
