@@ -402,7 +402,7 @@ input[type=range].vslider::-webkit-slider-thumb {
 #char-dot-html.grabbing { cursor: grabbing; }
 #char-dot-html.matrix-active { display: block; }
 
-/* Pulsing ring (ping effect) — draws attention to draggability, matrix only */
+/* Pulsing ring (ping effect) — draws attention to the dot in all 3 modes */
 #char-dot-ping {
   position: absolute;
   width: 18px;
@@ -415,7 +415,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   display: none;
   animation: charDotPing 1.8s cubic-bezier(0,0,0.2,1) infinite;
 }
-#char-dot-ping.matrix-active { display: block; }
+#char-dot-ping.pulse-active { display: block; }
 @keyframes charDotPing {
   0%   { width: 18px; height: 18px; opacity: 0.7; }
   100% { width: 46px; height: 46px; opacity: 0; }
@@ -576,15 +576,15 @@ circle.vdot:hover { opacity: 0.75; }
   font-size: 9px; color: #888; cursor: pointer;
 }
 .rp-archetype-box {
-  border: 1px solid #874fff;
+  border: none;
   border-radius: 4px;
-  padding: 8px;
+  padding: 10px;
   font-size: 12px;
   font-weight: 400;
   color: #fff;
   line-height: 1.55;
   margin-top: 6px;
-  background: #3d1f82;
+  background: #b992eb;
 }
 
 /* reset button (kept for center panel) */
@@ -1775,9 +1775,9 @@ function buildSVG() {
       }
     });
     /* Axis titles */
-    const xT = makeSVG('text', { x:PAD.l+plotW/2, y:H-8, class:'ax-text', 'text-anchor':'middle', style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;' });
+    const xT = makeSVG('text', { x:PAD.l+plotW/2, y:H-8, class:'ax-text', 'text-anchor':'middle', style:'fill:#fff; font-weight:700; font-size:13px; letter-spacing:1px;' });
     xT.textContent = 'VILLAIN ARCHITECTURE INDEX (0 - 100)'; axisG.appendChild(xT);
-    const yT = makeSVG('text', { x:14, y:PAD.t+plotH/2, class:'ax-text', 'text-anchor':'middle', style:'fill:#333; font-weight:600; font-size:11px; letter-spacing:1px;', transform:`rotate(-90,14,${PAD.t+plotH/2})` });
+    const yT = makeSVG('text', { x:14, y:PAD.t+plotH/2, class:'ax-text', 'text-anchor':'middle', style:'fill:#fff; font-weight:700; font-size:13px; letter-spacing:1px;', transform:`rotate(-90,14,${PAD.t+plotH/2})` });
     yT.textContent = 'PREDICTED LETHALITY / BODY COUNT'; axisG.appendChild(yT);
 
   } else if (currentMode === 'mindset') {
@@ -1806,22 +1806,25 @@ function buildSVG() {
   charDotEl.style.display   = '';
   charLabelEl.style.display = '';
   charLabelEl.textContent = document.getElementById('char-name').value || 'Your Character';
-  /* HTML drag handle: visible only in matrix, synced to charPos + color */
+  /* HTML drag handle: visible only in matrix (drag is matrix-only), synced to charPos + color */
   if (charDotDiv) {
     if (currentMode === 'matrix') {
       charDotDiv.classList.add('matrix-active');
-      if (charDotPing) charDotPing.classList.add('matrix-active');
       if (!coachShown && !coachDismissed && charDotCoach) {
         coachShown = true;
         requestAnimationFrame(() => charDotCoach.classList.add('show'));
       }
     } else {
       charDotDiv.classList.remove('matrix-active');
-      if (charDotPing) charDotPing.classList.remove('matrix-active');
       if (charDotCoach) charDotCoach.classList.remove('show');
     }
     charDotDiv.style.background = charDotColor;
     charDotDiv.style.borderColor = charDotStroke === 'none' ? 'rgba(200,200,200,0.3)' : charDotStroke;
+  }
+  /* Pulsing ring: visible in ALL 3 modes — purely visual attention cue */
+  if (charDotPing) {
+    charDotPing.classList.add('pulse-active');
+    charDotPing.style.borderColor = charDotColor;
   }
 
   /* ── Update label visibility classes for current mode ── */
@@ -2231,21 +2234,26 @@ window.addEventListener('load', () => {
    DRAG ENGINE — matrix only
 ══════════════════════════════════════════════════════════ */
 
-/* Shared drag logic — called from both svg and window mousemove */
+/* Shared drag logic — called from both svg and window mousemove
+   Dot moves FREELY to any pixel under the cursor (both X and Y) */
 function _execDrag(clientX, clientY) {
   const rect  = svg.getBoundingClientRect();
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
   const DOT   = 9;
   const px    = Math.max(PAD.l + DOT, Math.min(PAD.l + plotW - DOT, clientX - rect.left));
+  const py    = Math.max(PAD.t + DOT, Math.min(PAD.t + plotH - DOT, clientY - rect.top));
   const t     = Math.max(0, Math.min(1, (px - PAD.l) / plotW));
 
+  /* X → Architecture Index sliders (social/wealth/anon) */
   charState.social = t * 3;
   charState.wealth = t * 4;
   charState.anon   = (1 - t) * 3;
 
-  const py = Math.max(PAD.t + DOT, Math.min(PAD.t + plotH - DOT,
-    PAD.t + plotH - (charLethalityScore() / 100) * plotH));
+  /* Y → directly follows cursor; also back-derives a lethality-correlated
+     value so the right panel + sliders stay meaningful while dragging */
+  const yPct = 1 - ((py - PAD.t - DOT) / (plotH - DOT * 2));
+  charState.kills = Math.max(0, Math.min(5, yPct * 5));
 
   charDotPos = { x: px, y: py };
 
