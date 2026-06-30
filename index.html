@@ -402,6 +402,57 @@ input[type=range].vslider::-webkit-slider-thumb {
 #char-dot-html.grabbing { cursor: grabbing; }
 #char-dot-html.matrix-active { display: block; }
 
+/* Pulsing ring (ping effect) — draws attention to draggability, matrix only */
+#char-dot-ping {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.8);
+  transform: translate(-50%, -50%);
+  z-index: 29;
+  pointer-events: none;
+  display: none;
+  animation: charDotPing 1.8s cubic-bezier(0,0,0.2,1) infinite;
+}
+#char-dot-ping.matrix-active { display: block; }
+@keyframes charDotPing {
+  0%   { width: 18px; height: 18px; opacity: 0.7; }
+  100% { width: 46px; height: 46px; opacity: 0; }
+}
+
+/* Coachmark hint bubble */
+#char-dot-coach {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 14px));
+  background: #141414;
+  border: 1px solid #3a3a3a;
+  color: #fff;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  z-index: 31;
+  pointer-events: none;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+}
+#char-dot-coach::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #141414;
+}
+#char-dot-coach.show { display: block; opacity: 1; }
+#char-dot-coach.fade-out { opacity: 0; }
+
 circle.vdot {
   /* spring-like cubic-bezier with slight overshoot for elastic feel */
   transition: cx 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -1087,6 +1138,9 @@ mark.kw.lit {
     <svg id="scatter-svg"></svg>
     <div id="tooltip"></div>
     <div id="villain-list"></div>
+    <!-- Coachmark: pulsing ring + hint bubble, matrix mode only -->
+    <div id="char-dot-ping"></div>
+    <div id="char-dot-coach">💡 Drag freely to calculate character DNA</div>
     <!-- HTML drag handle — sits on top of SVG, bypasses all SVG pointer-event issues -->
     <div id="char-dot-html" title="Your Character" draggable="false"></div>
   </div>
@@ -1300,10 +1354,24 @@ let isDragging    = false;
 let charDotPos    = null; /* free-drag override — {x,y} pixels, null = use calculated */
 
 /* ── Dot position helper ── */
+const charDotPing  = document.getElementById('char-dot-ping');
+const charDotCoach = document.getElementById('char-dot-coach');
+let coachShown    = false; /* shown once per session */
+let coachDismissed = false;
+
 function positionCharDotDiv(x, y) {
   if (!charDotDiv) return;
   charDotDiv.style.left = x + 'px';
   charDotDiv.style.top  = y + 'px';
+  if (charDotPing)  { charDotPing.style.left  = x + 'px'; charDotPing.style.top  = y + 'px'; }
+  if (charDotCoach) { charDotCoach.style.left = x + 'px'; charDotCoach.style.top = y + 'px'; }
+}
+
+function dismissCoachmark() {
+  if (!charDotCoach || coachDismissed) return;
+  coachDismissed = true;
+  charDotCoach.classList.add('fade-out');
+  charDotCoach.classList.remove('show');
 }
 
 /* ── DOCUMENT-LEVEL mousedown: start drag if click is near white dot ── */
@@ -1318,6 +1386,7 @@ document.addEventListener('mousedown', e => {
     isDragging = true;
     e.preventDefault();
     if (charDotDiv) charDotDiv.classList.add('grabbing');
+    dismissCoachmark();
   }
 });
 
@@ -1331,6 +1400,7 @@ document.addEventListener('touchstart', e => {
     isDragging = true;
     e.preventDefault();
     if (charDotDiv) charDotDiv.classList.add('grabbing');
+    dismissCoachmark();
   }
 }, { passive: false });
 let W = 0, H = 0;
@@ -1743,8 +1813,15 @@ function buildSVG() {
   if (charDotDiv) {
     if (currentMode === 'matrix') {
       charDotDiv.classList.add('matrix-active');
+      if (charDotPing) charDotPing.classList.add('matrix-active');
+      if (!coachShown && !coachDismissed && charDotCoach) {
+        coachShown = true;
+        requestAnimationFrame(() => charDotCoach.classList.add('show'));
+      }
     } else {
       charDotDiv.classList.remove('matrix-active');
+      if (charDotPing) charDotPing.classList.remove('matrix-active');
+      if (charDotCoach) charDotCoach.classList.remove('show');
     }
     charDotDiv.style.background = charDotColor;
     charDotDiv.style.borderColor = charDotStroke === 'none' ? 'rgba(200,200,200,0.3)' : charDotStroke;
@@ -2190,6 +2267,7 @@ svg.addEventListener('mousedown', e => {
     isDragging = true;
     e.preventDefault();
     if (charDotEl)  charDotEl.style.cursor = 'grabbing';
+    dismissCoachmark();
   }
 });
 
