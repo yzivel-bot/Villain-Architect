@@ -1642,7 +1642,7 @@ function computeGenderColumnX(counts, width) {
   const n = counts.length;
   const COL_W = width * 0.22;   /* each column spans 22% of total width */
   const totalGroupW = n * COL_W;
-  const startX = (width - totalGroupW) / 2;
+  const startX = (width - totalGroupW) / 2 - 20;
   return counts.map((_, i) => startX + COL_W * i + COL_W / 2);
 }
 
