@@ -1637,21 +1637,13 @@ let gLayout = { colX: [], step: 0, dotStart: 0, counts: [0,0,0,0] };
    (which places the dots) and buildSVG()'s header rendering (MALE/FEMALE/ALIEN
    labels) — both call this identically so headers and dots can never drift
    apart, regardless of render order.
-   Columns are weighted by villain count so dense columns (Male1/Male2) get
-   proportionally more width and sparse ones (Alien) don't leave the right
-   side of the canvas empty — keeps the whole group visually centered instead
-   of content clustering toward the left. */
+   Equal-width columns, centered as a group within [0, width]. */
 function computeGenderColumnX(counts, width) {
-  const MARGIN = 24;
-  const totalCount = counts.reduce((a,b) => a + b, 0) || 1;
-  const minColW = (width - 2 * MARGIN) * 0.12; /* floor so sparse columns still get visible room */
-  const rawW = counts.map(c => Math.max(minColW, (c / totalCount) * (width - 2 * MARGIN)));
-  const scale = (width - 2 * MARGIN) / rawW.reduce((a,b) => a + b, 0);
-  const colW4 = rawW.map(w => w * scale);
-  const colX  = [];
-  let cursor = MARGIN;
-  colW4.forEach(w => { colX.push(cursor + w / 2); cursor += w; });
-  return colX;
+  const n = counts.length;
+  const COL_W = width * 0.22;   /* each column spans 22% of total width */
+  const totalGroupW = n * COL_W;
+  const startX = (width - totalGroupW) / 2;
+  return counts.map((_, i) => startX + COL_W * i + COL_W / 2);
 }
 
 function computeGenderPositions() {
