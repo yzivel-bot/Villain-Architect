@@ -65,24 +65,24 @@ html, body {
 }
 
 .bot-toggle-fab {
-  position: absolute;
-  bottom: 18px;
-  right: 18px;
-  width: 40px;
-  height: 40px;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #141416;
   border: 1px solid var(--border-col);
-  color: var(--muted);
+  color: #8a8a8a;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0,0,0,0.5);
-  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.15s;
-  z-index: 20;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  z-index: 160;
 }
-.bot-toggle-fab:hover { background: rgba(255,255,255,0.08); transform: scale(1.06); }
+.bot-toggle-fab:hover { color: #fff; }
 .bot-toggle-fab.open {
   border-color: #874fff;
   color: #874fff;
@@ -98,46 +98,52 @@ html, body {
   flex-shrink: 0;
 }
 
-.field-header {
+.inp-wrap {
+  position: relative;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
 }
 
 .edit-btn {
+  position: absolute;
+  right: 8px;
   background: none;
   border: none;
   padding: 2px;
   cursor: pointer;
-  color: #777;
+  color: #6e6e6e;
   display: flex;
   align-items: center;
   line-height: 1;
   flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
 }
+.inp-wrap:hover .edit-btn,
+.editable-inp.editing ~ .edit-btn { opacity: 1; }
 .edit-btn:hover { color: #ccc; }
 
 .editable-inp {
   width: 100%;
-  background: transparent;
-  border: 1px solid #fff;
-  border-radius: 16px;
-  padding: 0 12px;
-  height: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 0 26px 0 12px;
+  height: 28px;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
   color: #fff;
   outline: none;
   cursor: default;
   box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
 }
 .editable-inp.editing {
-  background: #9e9d9d;
-  border: none;
-  padding: 0 13px; /* +1px to compensate removed border */
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #d3d3d3;
   cursor: text;
 }
+.editable-inp:focus { border-color: #d3d3d3; }
 
 .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
 
@@ -327,16 +333,6 @@ input[type=range].vslider::-webkit-slider-thumb {
   align-items: center;
 }
 
-.axis-legend-row {
-  display: none;
-  flex-shrink: 0;
-  gap: 24px;
-  padding: 0 28px;
-}
-.axis-legend-row.show { display: flex; }
-.axis-legend-row .toggle-label-item { flex: 0 0 auto; font-size: 11px; color: rgba(255,255,255,0.65); }
-#info-panel-archidx, #info-panel-axislethality { margin: 0 28px; }
-
 .mode-btn {
   flex: 1;
   height: 28px;
@@ -380,6 +376,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-bottom: 6px;
+  padding-left: 13px; /* matches .vl-dot width (7px) + .vl-item gap (6px) so it lines up with the names */
 }
 .vl-item {
   display: flex;
@@ -416,7 +413,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   pointer-events: none; /* visual only — SVG handles all mouse events */
   display: none;
   border: 2px solid rgba(200,200,200,0.3);
-  transition: none;
+  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
@@ -435,6 +432,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   z-index: 29;
   pointer-events: none;
   display: none;
+  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
   animation: charDotPing 1.1s cubic-bezier(0,0,0.2,1) infinite;
 }
 #char-dot-ping.pulse-active { display: block; }
@@ -578,6 +576,8 @@ circle.vdot:hover { opacity: 0.75; }
 }
 .tip-row { display: flex; align-items: center; gap: 6px; }
 .tip-icon { width: 13px; height: 13px; opacity: 0.6; flex-shrink: 0; }
+.tip-label { color: #9a9a9a; }
+.tip-value { color: #fff; }
 
 /* ════════════ RIGHT PANEL ════════════ */
 .right-panel {
@@ -636,12 +636,6 @@ circle.vdot:hover { opacity: 0.75; }
 /* archetype */
 .rp-archetype-hdr {
   display: flex; align-items: center; justify-content: space-between;
-}
-.rp-archetype-icons { display: flex; gap: 6px; }
-.rp-archetype-icon {
-  width: 15px; height: 15px; border: 1px solid #555; border-radius: 3px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; color: #888; cursor: pointer;
 }
 .rp-archetype-box {
   border: none;
@@ -730,27 +724,56 @@ circle.vdot:hover { opacity: 0.75; }
   align-items: center;
   flex-shrink: 0;
   cursor: pointer;
-  color: #fff;
-  opacity: 0.85;
-  transition: opacity 0.15s;
+  color: #8a8a8a;
+  transition: color 0.15s;
 }
-.ob-icon:hover { opacity: 1; }
+.ob-icon:hover { color: #fff; }
+.ob-icon svg * { stroke: currentColor; stroke-width: 2; }
 #ob-file { display: none; }
 
-/* ════════════ CHAT SCREEN ════════════ */
+/* ════════════ CHAT SCREEN (side panel) ════════════ */
 #chat-screen {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 460px;
+  max-width: 100vw;
   background: #000;
+  border-left: 1px solid var(--border-col);
+  box-shadow: -8px 0 24px rgba(0,0,0,0.4);
   z-index: 150;
   display: flex;
-  opacity: 0;
+  transform: translateX(100%);
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
 }
 #chat-screen.visible {
-  opacity: 1;
+  transform: translateX(0);
   pointer-events: all;
+}
+/* onboarding → full chat takes over the whole page; the FAB-triggered chat stays a side panel */
+#chat-screen.fullscreen {
+  left: 0;
+  width: auto;
+  border-left: none;
+  box-shadow: none;
+  transform: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#chat-screen.fullscreen.visible { opacity: 1; }
+
+/* panel mode (FAB-triggered, in-dashboard): no projects sidebar, no hamburger — just the chat itself */
+#chat-screen:not(.fullscreen) .cs-sidebar,
+#chat-screen:not(.fullscreen) .cs-sidebar-toggle {
+  display: none;
+}
+#chat-screen:not(.fullscreen) .cs-main {
+  padding-top: 24px;
+}
+#chat-screen:not(.fullscreen) .cs-cta {
+  display: none;
 }
 
 .cs-sidebar {
@@ -772,7 +795,7 @@ circle.vdot:hover { opacity: 0.75; }
 }
 
 .cs-sidebar-toggle {
-  position: fixed;
+  position: absolute;
   top: 24px;
   left: 24px;
   width: 36px;
@@ -900,6 +923,7 @@ circle.vdot:hover { opacity: 0.75; }
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #444 transparent;
+  scrollbar-gutter: stable;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -934,14 +958,21 @@ circle.vdot:hover { opacity: 0.75; }
 mark.kw {
   background: transparent;
   color: inherit;
+  margin: 0;
+  padding: 0;
+  border: none;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
   border-radius: 2px;
-  padding: 0 1px;
   font-style: normal;
-  transition: background 0.35s ease, color 0.35s ease;
+  box-shadow: 0 0 0 0 transparent;
+  transition: background 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
 }
 mark.kw.lit {
   background: #ec008c;
   color: #fff;
+  box-shadow: 0 0 0 1px #ec008c;
 }
 
 .cs-bot-response {
@@ -960,19 +991,21 @@ mark.kw.lit {
 
 .cs-summary-block {
   align-self: flex-start;
-  width: 719px;
+  width: fit-content;
   max-width: 100%;
   margin-bottom: 40px;
   display: none;
   flex-direction: column;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .cs-summary {
-  background: #1e1e1e;
-  border: 1px solid #333;
+  background: transparent;
+  border: 1px solid #2a2a2a;
   border-radius: 10px;
-  padding: 20px 18px;
+  padding: 18px 20px;
+  width: fit-content;
   font-family: 'Red Hat Display', sans-serif;
 }
 .cs-summary-header {
@@ -982,36 +1015,68 @@ mark.kw.lit {
   color: #fff;
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 11px;
+  white-space: nowrap;
 }
-.cs-summary-header svg { flex-shrink: 0; color: #d3cfcf; }
+.cs-summary-header svg { flex-shrink: 0; color: #8a8a8a; width: 18px; height: 18px; }
 .cs-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 14px;
   font-weight: 500;
-  color: #b8b6b3;
+  color: #8a8a8a;
   line-height: 1.7;
+  white-space: nowrap;
 }
-.cs-summary-row b { color: #fff; font-weight: 600; }
+.cs-summary-row .tip-icon { width: 14px; height: 14px; opacity: 0.6; flex-shrink: 0; }
+.cs-summary-row b { color: #d3cfcf; font-weight: 600; }
 
 .cs-cta {
-  width: 100%;
+  width: fit-content;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 24px;
-  height: 48px;
-  padding: 0 26px;
+  border-radius: 20px;
+  height: 36px;
+  padding: 0 20px;
   background: #ec008c;
   color: #fff;
   font-family: 'Red Hat Display', sans-serif;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
   transition: transform 0.15s ease, background 0.15s ease;
 }
-.cs-cta:hover { background: #ff2ea3; transform: scale(1.02); }
+.cs-cta:hover { background: #ff2ea3; transform: scale(1.03); }
 .cs-cta:active { transform: scale(0.98); }
+
+.cs-cta-secondary {
+  display: none;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #3a3a3a;
+  border-radius: 20px;
+  height: 36px;
+  padding: 0 20px;
+  background: transparent;
+  color: #b8b6b3;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.cs-cta-secondary:hover { border-color: #666; color: #fff; }
+/* only the FAB-triggered, in-dashboard chat gets a "restore previous state" action —
+   the standalone onboarding chat has no prior matrix state to go back to */
+#chat-screen:not(.fullscreen) .cs-cta-secondary {
+  display: flex;
+}
 </style>
 </head>
 <body>
@@ -1020,7 +1085,7 @@ mark.kw.lit {
 <div id="onboarding">
   <div class="ob-title">Villain<br>Architect</div>
   <div class="ob-bar" onclick="document.getElementById('ob-text').focus()">
-    <label class="ob-icon" for="ob-file" title="Upload a document">
+    <label class="ob-icon" for="ob-file">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M9 2V16M2 9H16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
@@ -1081,6 +1146,7 @@ mark.kw.lit {
       <div class="cs-summary-block" id="cs-summary-block">
         <div class="cs-summary" id="cs-summary"></div>
         <button class="cs-cta" id="cs-cta" onclick="openVillainMatrix()">Open The Villain Matrix</button>
+        <button class="cs-cta-secondary" id="cs-restore" onclick="restoreDashboardState()">Restore Previous Matrix State</button>
       </div>
     </div>
   </div>
@@ -1094,23 +1160,23 @@ mark.kw.lit {
 
 
   <div class="ctrl-group">
-    <div class="field-header">
-      <span class="ctrl-label">Project Name</span>
+    <span class="ctrl-label">Project Name</span>
+    <div class="inp-wrap">
+      <input class="editable-inp" type="text" value="Untitled Superhero Script" readonly id="project-name">
       <button class="edit-btn" onclick="toggleEdit('project-name')" title="Edit">
-        <svg width="15" height="15" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
-    <input class="editable-inp" type="text" value="Untitled Superhero Script" readonly id="project-name">
   </div>
 
   <div class="ctrl-group">
-    <div class="field-header">
-      <span class="ctrl-label">Character Name</span>
+    <span class="ctrl-label">Character Name</span>
+    <div class="inp-wrap">
+      <input class="editable-inp" type="text" value="Untitled" readonly id="char-name">
       <button class="edit-btn" onclick="toggleEdit('char-name')" title="Edit">
-        <svg width="15" height="15" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
-    <input class="editable-inp" type="text" value="Untitled" readonly id="char-name">
   </div>
 
   <div class="ctrl-group">
@@ -1203,12 +1269,6 @@ mark.kw.lit {
     <button class="mode-btn" id="mode-mindset" data-mode="mindset">Mindset</button>
     <button class="mode-btn active" id="mode-matrix" data-mode="matrix">Architect Matrix</button>
   </div>
-  <div class="axis-legend-row" id="axis-legend-row">
-    <span class="toggle-label-item">Villain Architecture Index<button type="button" class="info-ic" data-toggles="info-panel-archidx" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
-    <span class="toggle-label-item">Predicted Lethality<button type="button" class="info-ic" data-toggles="info-panel-axislethality" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
-  </div>
-  <div class="info-panel" id="info-panel-archidx"><div class="info-panel-inner">Architecture Index: A composite score calculating the villain's systemic complexity (DNA) based on Social Status, Wealth, and Anonymity. Higher scores indicate strategic, high-tier masterminds.</div></div>
-  <div class="info-panel" id="info-panel-axislethality"><div class="info-panel-inner">Predicted Lethality: An output predicting the villain's body count. It is derived from their resources: systemic assets (Wealth/Status) unlock widespread chaos, while low resources limit them to localized violence.</div></div>
   <div class="scatter-wrap" id="scatter-wrap">
     <svg id="scatter-svg"></svg>
     <div id="tooltip"></div>
@@ -1231,14 +1291,14 @@ mark.kw.lit {
     <div class="rp-metric">
       <span class="rp-metric-label">Survival Forecast<button type="button" class="info-ic" data-toggles="info-panel-survival" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
       <span class="rp-metric-value" id="rp-survival">58%</span>
-      <div class="info-panel" id="info-panel-survival"><div class="info-panel-inner">Survival Forecast: The historical probability of the character surviving the plot. High anonymity (masked) or low social status often leads to death, while high status or visible faces favor survival.</div></div>
+      <div class="info-panel" id="info-panel-survival"><div class="info-panel-inner">The probability of the character surviving the plot. High anonymity (masked) or low social status often leads to death, while high status or visible faces favor survival.</div></div>
     </div>
 
     <!-- Brutality -->
     <div class="rp-metric">
       <span class="rp-metric-label">Brutality<button type="button" class="info-ic" data-toggles="info-panel-brutality" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
       <span class="rp-metric-value small" id="rp-brutality">High</span>
-      <div class="info-panel" id="info-panel-brutality"><div class="info-panel-inner">Brutality Index: The nature of the villain's violence. Physical combatants register 'High/Extreme' brutality, while system-level villains trigger 'Calculated' or lower physical impact.</div></div>
+      <div class="info-panel" id="info-panel-brutality"><div class="info-panel-inner">The nature of the villain's violence. Physical combatants register 'High/Extreme' brutality, while system-level villains trigger 'Calculated' or lower physical impact.</div></div>
     </div>
 
     <!-- Mind over Power removed -->
@@ -1248,7 +1308,7 @@ mark.kw.lit {
     <!-- Psychological Fingerprint radar -->
     <div>
       <div class="rp-chart-label">Psychological Fingerprint<button type="button" class="info-ic" data-toggles="info-panel-psych" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></div>
-      <div class="info-panel" id="info-panel-psych"><div class="info-panel-inner">Psychological Fingerprint: A multi-dimensional mapping of the villain's traits across 6 core metrics, dynamically adjusting to visualize their profiling footprint.</div></div>
+      <div class="info-panel" id="info-panel-psych"><div class="info-panel-inner">A multi-dimensional mapping of the villain's traits across 6 core metrics, dynamically adjusting to visualize their profiling footprint.</div></div>
       <div class="rp-radar-wrap">
         <svg id="rp-radar" width="234" height="170" viewBox="0 0 220 160" style="width:100%"></svg>
       </div>
@@ -1257,7 +1317,7 @@ mark.kw.lit {
     <!-- Predicted Body Count bars -->
     <div>
       <div class="rp-chart-label">Predicted Body Count<button type="button" class="info-ic" data-toggles="info-panel-lethality" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></div>
-      <div class="info-panel" id="info-panel-lethality"><div class="info-panel-inner">Predicted Lethality: An output predicting the villain's body count. It is derived from their resources: systemic assets (Wealth/Status) unlock widespread chaos, while low resources limit them to localized violence.</div></div>
+      <div class="info-panel" id="info-panel-lethality"><div class="info-panel-inner">An output Predicting the villain's body count based on the direct correlation between facial concealment and lethality. As physical visibility decreases across five categories (from Visible to Alien), the scale of predicted violence increases significantly.</div></div>
       <svg id="rp-bars-html" width="234" height="155" viewBox="0 0 220 150" style="display:block;overflow:visible;width:100%"></svg>
     </div>
 
@@ -1265,21 +1325,16 @@ mark.kw.lit {
     <div>
       <div class="rp-archetype-hdr">
         <span class="rp-metric-label">Detected Archetype<button type="button" class="info-ic" data-toggles="info-panel-archetype" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
-        <div class="rp-archetype-icons">
-          <div class="rp-archetype-icon">⧉</div>
-          <div class="rp-archetype-icon">↓</div>
-        </div>
       </div>
-      <div class="info-panel" id="info-panel-archetype"><div class="info-panel-inner">Detected Archetype: The final narrative verdict. The algorithm compares your slider inputs against 50 iconic cinematic villains to classify your character's explicit screenwriting profile.</div></div>
+      <div class="info-panel" id="info-panel-archetype"><div class="info-panel-inner">The final narrative verdict. The algorithm compares your slider inputs against 50 iconic cinematic villains to classify your character's explicit screenwriting profile.</div></div>
       <div class="rp-archetype-box" id="rp-archetype">—</div>
     </div>
 
   </div>
 
-  <button class="bot-toggle-fab" id="bot-toggle-btn" onclick="toggleChat()" aria-label="Bot">
-    <svg width="16" height="16" viewBox="0 0 14 14" fill="none" style="flex-shrink:0">
-      <rect x="1" y="1" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.3"/>
-      <path d="M4 13L5.5 10H8.5L10 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <button class="bot-toggle-fab" id="bot-toggle-btn" onclick="toggleChat()" aria-label="Messages">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
 </div>
@@ -1559,7 +1614,7 @@ document.addEventListener('touchstart', e => {
   }
 }, { passive: false });
 let W = 0, H = 0;
-const PAD = { t:30, b:55, l:70, r:30 };
+const PAD = { t:42, b:64, l:80, r:30 };
 const charState   = { anon:2, wealth:3, social:0, kills:2 };
 const KILL_VALS      = [1, 10, 100, 1000, 10000, 1000000];
 const LETHALITY_MAX  = Math.log1p(Math.max(...VILLAINS.map(v => bodyNum(v.kills))));
@@ -1922,8 +1977,6 @@ function buildSVG() {
   if (!W || !H) return;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   document.getElementById('villain-list').classList.add('hidden');
-  const axisLegendRow = document.getElementById('axis-legend-row');
-  if (axisLegendRow) axisLegendRow.classList.toggle('show', currentMode === 'matrix');
 
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
@@ -1945,11 +1998,15 @@ function buildSVG() {
   if (svgAxisG) svgAxisG.remove();
   svgAxisG = makeSVG('g', { id:'axis-layer' });
   const axisG = svgAxisG;
+  svg.appendChild(axisG); /* attach immediately so getComputedTextLength() works during layout below */
+  /* Half rendered width of a text node incl. letter-spacing (getComputedTextLength ignores letter-spacing) */
+  const textHalfWidth = t => t.getComputedTextLength()/2; /* modern browsers already include letter-spacing in this measurement */
   const mkRegionLabel = (text, x, y, color) => {
     const fs = '15px'; /* all region labels same size */
     const t = makeSVG('text', { x, y, 'text-anchor':'middle', style:`fill:${color}; font-weight:400; font-size:${fs}; letter-spacing:2px; font-family:'Red Hat Display',sans-serif; pointer-events:none;` });
     t.textContent = text;
     axisG.appendChild(t);
+    return t;
   };
 
   if (currentMode === 'matrix') {
@@ -1981,23 +2038,31 @@ function buildSVG() {
         t.textContent = lbl; axisG.appendChild(t);
       }
     });
-    /* Axis titles */
-    const xT = makeSVG('text', { x:PAD.l+plotW/2, y:H-8, class:'ax-text', 'text-anchor':'middle', style:'fill:#fff; font-weight:400; font-size:13px; letter-spacing:1px;' });
-    xT.textContent = 'VILLAIN ARCHITECTURE INDEX (0 - 100)'; axisG.appendChild(xT);
-    const yT = makeSVG('text', { x:14, y:PAD.t+plotH/2, class:'ax-text', 'text-anchor':'middle', style:'fill:#fff; font-weight:400; font-size:13px; letter-spacing:1px;', transform:`rotate(-90,14,${PAD.t+plotH/2})` });
-    yT.textContent = 'PREDICTED LETHALITY / BODY COUNT'; axisG.appendChild(yT);
+    /* Axis titles — icon gap measured off real rendered text width. Offset is to icon CENTER,
+       so it must clear the icon's own radius (7) on top of the visual gap to the text edge. */
+    const ICON_GAP = 6;
+    const ICON_R = 7;
+    const xTitle = 'VILLAIN ARCHITECT INDEX (0 - 100)';
+    const xT = makeSVG('text', { x:PAD.l+plotW/2, y:H-14, class:'ax-text', 'text-anchor':'middle', style:'fill:#fff; font-weight:400; font-size:13px; letter-spacing:1px;' });
+    xT.textContent = xTitle; axisG.appendChild(xT);
+    mkAxisInfoIcon(axisG, PAD.l+plotW/2 + textHalfWidth(xT) + ICON_GAP + ICON_R, H-14 - 4, AXIS_INFO.x);
+
+    const yTitle = 'PREDICTED LETHALITY / BODY COUNT';
+    const yTx = 22, yTy = PAD.t+plotH/2;
+    const yT = makeSVG('text', { x:yTx, y:yTy, class:'ax-text', 'text-anchor':'middle', style:'fill:#fff; font-weight:400; font-size:13px; letter-spacing:1px;', transform:`rotate(-90,${yTx},${yTy})` });
+    yT.textContent = yTitle; axisG.appendChild(yT);
+    mkAxisInfoIcon(axisG, yTx - 4, yTy - textHalfWidth(yT) - ICON_GAP - ICON_R, AXIS_INFO.y);
 
   } else if (currentMode === 'mindset') {
     /* no divider lines — clean two-cloud layout */
     const headerY = MINDSET_HEADER_Y; /* shared with computeMindsetPositions' reserve calc */
-    mkRegionLabel('CEREBRAL / STRATEGIC',  W * 0.25, headerY, '#777');
-    mkRegionLabel('PHYSICAL / BRUTE FORCE', W * 0.75, headerY, '#777');
+    const cerebralEl = mkRegionLabel('CEREBRAL / STRATEGIC',  W * 0.25, headerY, '#777');
+    const physicalEl = mkRegionLabel('PHYSICAL / BRUTE FORCE', W * 0.75, headerY, '#777');
 
     /* Info icon + expandable text, anchored directly under each header */
-    const mkRegionInfoIcon = (key, headerText, cx, cy) => {
-      /* 15px font + 2px letter-spacing — real per-char width is much wider than body text */
-      const tw = headerText.length * 11.6;
-      const iconX = cx + tw / 2 + 18;
+    const mkRegionInfoIcon = (key, headerEl, cx, cy) => {
+      const tw = textHalfWidth(headerEl) * 2; /* full rendered width */
+      const iconX = cx + tw / 2 + 6 + 7; /* 6px gap to text edge + icon's own radius */
       const iconY = cy - 5; /* lift to align with header text's visual cap-height, not its baseline */
       const g = makeSVG('g', { class:'region-info-svg-ic', style:'cursor:pointer;' });
       const circle = makeSVG('circle', { cx:iconX, cy:iconY, r:7, fill:'none', stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5' });
@@ -2019,8 +2084,8 @@ function buildSVG() {
         MINDSET_INFO[key].lines = wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 22, tw * 1.15, 16);
       }
     };
-    mkRegionInfoIcon('cerebral', 'CEREBRAL / STRATEGIC',  W * 0.25, headerY);
-    mkRegionInfoIcon('physical', 'PHYSICAL / BRUTE FORCE', W * 0.75, headerY);
+    mkRegionInfoIcon('cerebral', cerebralEl, W * 0.25, headerY);
+    mkRegionInfoIcon('physical', physicalEl, W * 0.75, headerY);
 
   } else { /* gender — 4 columns, weighted by content density, centered as a group */
     const gFemales = VILLAINS.filter(v => FEMALE_NAMES.has(v.name)).length;
@@ -2100,6 +2165,8 @@ function buildSVG() {
         charDotEl.style.transition = 'none';
         charDotEl.setAttribute('cx', charPos.x);
         charDotEl.setAttribute('cy', charPos.y);
+        if (charDotPing) charDotPing.style.transition = 'none';
+        if (charDotDiv)  charDotDiv.style.transition = 'none';
         positionCharDotDiv(charPos.x, charPos.y); /* sync HTML drag handle */
         if (charLabelEl) {
           charLabelEl.style.transition = 'none';
@@ -2113,6 +2180,8 @@ function buildSVG() {
         VILLAINS.forEach((_, i) => { if (dotEls[i]) dotEls[i].circle.style.transition = ''; });
         if (charDotEl) charDotEl.style.transition = '';
         if (charLabelEl) charLabelEl.style.transition = '';
+        if (charDotPing) charDotPing.style.transition = '';
+        if (charDotDiv)  charDotDiv.style.transition = '';
         hasFirstRender = true;
       });
     } else {
@@ -2330,8 +2399,8 @@ const TIP_ICONS = {
   gender: `<svg class="tip-icon" viewBox="0 0 256 256" fill="none"><circle cx="120" cy="112" r="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="120" y1="168" x2="120" y2="232" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><line x1="88" y1="200" x2="152" y2="200" stroke="currentColor" stroke-linecap="round" stroke-width="16"/><polyline points="168 32 208 32 208 72" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="163.4" y1="76.6" x2="208" y2="32" stroke="currentColor" stroke-linecap="round" stroke-width="16"/></svg>`,
 };
 
-function tipRow(icon, text) {
-  return `<div class="tip-row">${TIP_ICONS[icon]}<span>${text}</span></div>`;
+function tipRow(icon, label, value) {
+  return `<div class="tip-row">${TIP_ICONS[icon]}<span class="tip-label">${label}:</span> <span class="tip-value">${value}</span></div>`;
 }
 
 function showTip(e, v, p) {
@@ -2341,13 +2410,13 @@ function showTip(e, v, p) {
   tipEl.innerHTML = `
     <strong>${v.name}</strong><br>
     <span style="opacity:0.6;font-size:12px;">${v.movie}</span>
-    ${tipRow('eye',    'Anonymity: ' + v.anon)}
-    ${tipRow('dollar', 'Wealth: '    + v.wealth)}
-    ${tipRow('crown',  'Status: '    + v.status)}
-    ${tipRow('skull',  'Body Count: '+ v.kills)}
-    ${tipRow('brain',  'Mindset: '   + v.mindset)}
-    ${tipRow('heart',  'Survives: '  + v.survives)}
-    ${tipRow('gender', 'Gender: '    + gender)}
+    ${tipRow('eye',    'Anonymity',  v.anon)}
+    ${tipRow('dollar', 'Wealth',     v.wealth)}
+    ${tipRow('crown',  'Status',     v.status)}
+    ${tipRow('skull',  'Body Count', v.kills)}
+    ${tipRow('brain',  'Mindset',    v.mindset)}
+    ${tipRow('heart',  'Survives',   v.survives)}
+    ${tipRow('gender', 'Gender',     gender)}
   `;
   tipEl.style.display = 'block';
   positionTip(e);
@@ -2366,6 +2435,36 @@ function positionTip(e) {
 
 function hideTip() {
   tipEl.style.display = 'none';
+  tipEl.style.whiteSpace = '';
+  tipEl.style.maxWidth = '';
+}
+
+/* ── Axis title hover tooltips (plain text, wraps) ── */
+const AXIS_INFO = {
+  x: 'The Villain Architect Index is a composite score calculating the villain\'s systemic complexity (DNA) based on Social Status, Wealth, and Anonymity. Higher scores indicate strategic, high-tier masterminds.',
+  y: 'The villain\'s body count is predicted based on the direct correlation between facial concealment and lethality. Across five categories (from Visible to Alien), a decrease in physical visibility significantly increases the scale of predicted violence.'
+};
+
+function showAxisTip(e, text) {
+  tipEl.innerHTML = `<span>${text}</span>`;
+  tipEl.style.whiteSpace = 'normal';
+  tipEl.style.maxWidth = '260px';
+  tipEl.style.display = 'block';
+  positionTip(e);
+  tipEl.addEventListener('mousemove', positionTip);
+}
+
+function mkAxisInfoIcon(axisG, cx, cy, text) {
+  const g = makeSVG('g', { style:'cursor:pointer;' });
+  const circle = makeSVG('circle', { cx, cy, r:7, fill:'none', stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5' });
+  const l1 = makeSVG('line', { x1:cx, y1:cy+0.5, x2:cx, y2:cy+3, stroke:'rgba(255,255,255,0.45)', 'stroke-width':'1.5', 'stroke-linecap':'round' });
+  const l2 = makeSVG('circle', { cx, cy:cy-3, r:0.9, fill:'rgba(255,255,255,0.45)' });
+  const hit = makeSVG('circle', { cx, cy, r:11, fill:'transparent' });
+  g.appendChild(circle); g.appendChild(l1); g.appendChild(l2); g.appendChild(hit);
+  g.addEventListener('mouseenter', e => { circle.setAttribute('stroke', '#fff'); l1.setAttribute('stroke', '#fff'); l2.setAttribute('fill', '#fff'); showAxisTip(e, text); });
+  g.addEventListener('mousemove', e => positionTip(e));
+  g.addEventListener('mouseleave', () => { circle.setAttribute('stroke', 'rgba(255,255,255,0.45)'); l1.setAttribute('stroke', 'rgba(255,255,255,0.45)'); l2.setAttribute('fill', 'rgba(255,255,255,0.45)'); hideTip(); });
+  axisG.appendChild(g);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -2473,6 +2572,12 @@ window.addEventListener('load', () => {
   } catch(e) { console.warn('buildSVG on load failed:', e); }
 });
 
+/* Red Hat Display loads async (display=swap) — text width used for icon placement
+   is wrong until the webfont swaps in, so rebuild once it's actually ready. */
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => { try { buildSVG(); } catch(e) {} });
+}
+
 /* ══════════════════════════════════════════════════════════
    DRAG ENGINE — matrix only
 ══════════════════════════════════════════════════════════ */
@@ -2502,6 +2607,8 @@ function _execDrag(clientX, clientY) {
 
   if (charDotEl)  { charDotEl.style.transition = 'none'; charDotEl.setAttribute('cx', px); charDotEl.setAttribute('cy', py); }
   if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', px + 13); charLabelEl.setAttribute('y', py + 4); }
+  if (charDotPing) charDotPing.style.transition = 'none'; /* follow cursor 1:1 while dragging, spring only on mode/toggle switches */
+  if (charDotDiv)  charDotDiv.style.transition = 'none';
   positionCharDotDiv(px, py); /* keeps drag handle + ping ring + coachmark in sync */
 
   updateSlidersFromState();
@@ -2530,6 +2637,8 @@ window.addEventListener('mouseup', () => {
   isDragging = false;
   if (charDotEl)  { charDotEl.style.cursor = 'grab'; charDotEl.style.transition = ''; }
   if (charLabelEl) charLabelEl.style.transition = '';
+  if (charDotPing) charDotPing.style.transition = '';
+  if (charDotDiv)  charDotDiv.style.transition = '';
   buildSVG();
   updateRightPanel();
 });
@@ -2551,11 +2660,8 @@ const DNA_KEYWORDS = [
 ];
 
 const BOT_LINES = [
-  'Interesting start.',
-  'A detective-style superhero facing an anonymous threat inside a mystery setup. This is a powerful, high-stakes foundation.',
-  'Since the protagonist has no idea who is behind this, your villain is currently a ghost to the audience.',
-  'To help us map this threat against our core database, we need to establish their physical and tactical footprint.',
-  "How does this unseen antagonist orchestrate these personal attacks? Are they acting as a lone mastermind operating from the shadows, or do they deploy aggressive, direct physical violence against the hero's allies?"
+  'Interesting start. A detective-style superhero facing an anonymous threat inside a mystery setup. This is a powerful, high-stakes foundation.',
+  'Since the protagonist has no idea who is behind this, your villain is currently a ghost to the audience. To help us map this threat against our core database, we need to establish their physical and tactical footprint.'
 ];
 
 function highlightKeywords(text) {
@@ -2606,9 +2712,9 @@ function runBotAnimation(text) {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           Initial Architectural Profile Generated:
         </div>
-        <div class="cs-summary-row">• Mindset: <b>Cerebral / Strategic</b></div>
-        <div class="cs-summary-row">• Anonymity: <b>High (The Ghost)</b></div>
-        <div class="cs-summary-row">• Estimated Status: <b>Medium</b></div>
+        <div class="cs-summary-row">${TIP_ICONS.brain}<span class="tip-label">Mindset:</span> <b>Cerebral / Strategic</b></div>
+        <div class="cs-summary-row">${TIP_ICONS.eye}<span class="tip-label">Anonymity:</span> <b>High (The Ghost)</b></div>
+        <div class="cs-summary-row">${TIP_ICONS.crown}<span class="tip-label">Estimated Status:</span> <b>Medium</b></div>
       `;
       summaryBlockEl.style.cssText = 'display:flex; opacity:0; transition:opacity 0.4s ease;';
       setTimeout(() => { summaryBlockEl.style.opacity = '1'; }, 40);
@@ -2667,6 +2773,8 @@ function launchChat(text) {
   const bubble = document.getElementById('cs-user-bubble');
   if (bubble) { bubble.style.display = ''; bubble.textContent = text || ''; }
 
+  const cs = document.getElementById('chat-screen');
+  if (cs) cs.classList.add('fullscreen'); /* onboarding chat takes over the whole page */
   showChatScreen();
 
   if (text) {
@@ -2677,6 +2785,8 @@ function launchChat(text) {
 
 function launchDashboard() {
   hideChatScreen();
+  const cs = document.getElementById('chat-screen');
+  if (cs) cs.classList.remove('fullscreen'); /* back to side-panel style for the FAB toggle */
   const app = document.querySelector('.app');
   if (app) app.style.display = 'flex';
   const btn = document.getElementById('bot-toggle-btn');
@@ -2690,6 +2800,38 @@ function launchDashboard() {
   });
 }
 
+let dashboardStateSnapshot = null;
+
+function snapshotDashboardState() {
+  dashboardStateSnapshot = {
+    charState: { ...charState },
+    charDotColor,
+    charDotStroke,
+    charDotPos: charDotPos ? { ...charDotPos } : null,
+    togOn: document.getElementById('tog-p').classList.contains('on') ? 'p' : 'c',
+    gender: document.querySelector('.g-dot.selected')?.id || null,
+  };
+}
+
+function restoreDashboardState() {
+  if (!dashboardStateSnapshot) return;
+  const s = dashboardStateSnapshot;
+  Object.assign(charState, s.charState);
+  charDotColor  = s.charDotColor;
+  charDotStroke = s.charDotStroke;
+  charDotPos    = s.charDotPos ? { ...s.charDotPos } : null;
+
+  document.getElementById('tog-c').classList.toggle('on', s.togOn === 'c');
+  document.getElementById('tog-p').classList.toggle('on', s.togOn === 'p');
+
+  document.querySelectorAll('.g-dot').forEach(el => el.classList.remove('selected'));
+  if (s.gender) document.getElementById(s.gender).classList.add('selected');
+
+  updateSlidersFromState();
+  buildSVG();
+  updateRightPanel();
+}
+
 function toggleChat() {
   const cs = document.getElementById('chat-screen');
   if (!cs) return;
@@ -2698,6 +2840,7 @@ function toggleChat() {
     hideChatScreen();
     if (btn) btn.classList.remove('open');
   } else {
+    if (!cs.classList.contains('fullscreen')) snapshotDashboardState();
     showChatScreen();
     if (btn) btn.classList.add('open');
   }
@@ -2852,7 +2995,7 @@ function drawRadar(vals) {
 function drawBars(selectedAnonIdx) {
   const el = $id('rp-bars-html'); if(!el) return;
   el.innerHTML = '';
-  const rows=[{l:'Visible',n:2,t:'2'},{l:'Face\nPaint',n:10,t:'10'},{l:'Half\nMask',n:60,t:'60'},{l:'Full\nMask',n:100,t:'100'},{l:'Alien',n:1e6,t:'trillion'}];
+  const rows=[{l:'Visible',n:2,t:'2'},{l:'Face\nPaint',n:10,t:'10'},{l:'Half\nMask',n:60,t:'60'},{l:'Full\nMask',n:100,t:'100'},{l:'Alien',n:1e6,t:'Trillion'}];
   const maxH=90, base=108, maxLog=Math.log1p(1e6);
   const bw=28, gap=14, totalW=rows.length*(bw+gap)-gap;
   const sx=(220-totalW)/2;
@@ -2867,7 +3010,7 @@ function drawBars(selectedAnonIdx) {
 
     /* count above bar */
     const ct=rpSvg('text',{x:x+bw/2,y:y-4,'text-anchor':'middle',fill:'#fff','font-size':'10','font-family':'Red Hat Display,sans-serif'});
-    ct.textContent=r.t==='trillion'&&!active?'trill':r.t; el.appendChild(ct);
+    ct.textContent=r.t; el.appendChild(ct);
 
     /* label below baseline */
     r.l.split('\n').forEach((part,pi)=>{
