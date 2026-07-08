@@ -28,7 +28,7 @@
   --pink: #FF3399;
   --red: #E41B23;
   --purple: #9e65e9;
-  --panel-bg: #171616;
+  --panel-bg: #0a0a0a;
   --border-col: #656262;
   --muted: #d3cfcf;
   --dim: #8A8A93;
@@ -57,7 +57,6 @@ html, body {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -84,8 +83,12 @@ html, body {
 }
 .bot-toggle-fab:hover { color: #fff; }
 .bot-toggle-fab.open {
-  border-color: #874fff;
-  color: #874fff;
+  border-color: #ec008c;
+  color: #ec008c;
+}
+/* only appears over the dashboard, never over the full-screen onboarding chat */
+#chat-screen.fullscreen.visible ~ .app .bot-toggle-fab {
+  display: none;
 }
 
 .logo {
@@ -146,6 +149,38 @@ html, body {
 .editable-inp:focus { border-color: #d3d3d3; }
 
 .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+
+/* uniform 20px spacing + thin divider between left-panel sections —
+   gap gives the 20px above each section, padding-bottom gives the 20px
+   below before its own divider, so the rhythm is symmetric throughout */
+.left-panel { gap: 20px; }
+.left-panel > .ctrl-group,
+.left-panel > .sliders-sec {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+/* toggle-row has its own background fill — the divider line lives 20px below the pill
+   via ::after instead of padding, so the dark capsule itself never gets stretched */
+.left-panel > .toggle-row {
+  position: relative;
+  margin-bottom: 20px;
+}
+.left-panel > .toggle-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.left-panel > .sliders-sec:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.left-panel > .logo + .ctrl-group {
+  padding-bottom: 0;
+  border-bottom: none;
+}
 
 .ctrl-label {
   font-size: 12px;
@@ -233,26 +268,36 @@ html, body {
 }
 .toggle-row {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: #1c1c1e;
-  border-radius: 20px;
-  padding: 2px;
+  border-radius: 18px;
+  padding: 3px;
   gap: 2px;
-  height: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .tog {
   flex: 1;
-  height: 24px;
+  margin: 0;
+  padding: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
-  border-radius: 18px;
+  border-radius: 15px;
   background: transparent;
   color: #888;
   font-family: 'Red Hat Display', sans-serif;
   font-size: 12px;
   font-weight: 500;
+  line-height: normal;
   cursor: pointer;
   transition: background 0.18s, color 0.18s;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 .tog.on { background: #fff; color: #000; font-weight: 600; }
 .tog:hover:not(.on) { color: #ccc; }
@@ -266,8 +311,8 @@ html, body {
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: var(--muted);
-  margin-bottom: 8px;
+  color: #fff;
+  margin-bottom: 14px;
 }
 .sl-title.lit { color: #fff; }
 
@@ -301,13 +346,13 @@ input[type=range].vslider::-webkit-slider-thumb {
 .sl-ticks {
   display: flex;
   justify-content: space-between;
-  padding-top: 5px;
+  padding-top: 14px;
 }
 
 .tl {
   font-size: 10px;
   font-weight: 400;
-  color: var(--muted);
+  color: #fff;
   text-align: center;
   line-height: 1.25;
   min-width: 24px;
@@ -413,7 +458,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   pointer-events: none; /* visual only — SVG handles all mouse events */
   display: none;
   border: 2px solid rgba(200,200,200,0.3);
-  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease;
   user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
@@ -432,7 +477,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   z-index: 29;
   pointer-events: none;
   display: none;
-  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease;
   animation: charDotPing 1.1s cubic-bezier(0,0,0.2,1) infinite;
 }
 #char-dot-ping.pulse-active { display: block; }
@@ -456,11 +501,14 @@ input[type=range].vslider::-webkit-slider-thumb {
   white-space: nowrap;
   z-index: 31;
   pointer-events: none;
+  align-items: center;
+  gap: 6px;
   display: none;
   opacity: 0;
   transition: opacity 0.35s ease;
   box-shadow: 0 4px 14px rgba(0,0,0,0.4);
 }
+#char-dot-coach svg { flex-shrink: 0; }
 #char-dot-coach::after {
   content: '';
   position: absolute;
@@ -470,7 +518,7 @@ input[type=range].vslider::-webkit-slider-thumb {
   border: 5px solid transparent;
   border-top-color: #141414;
 }
-#char-dot-coach.show { display: block; opacity: 1; }
+#char-dot-coach.show { display: flex; opacity: 1; }
 #char-dot-coach.fade-out { opacity: 0; }
 
 circle.vdot {
@@ -485,6 +533,12 @@ circle.vdot:hover { opacity: 0.75; }
 /* hide all labels mid-flight so they don't lag behind the dots */
 #scatter-svg.transitioning .vlabel,
 #scatter-svg.transitioning .vlabel.always-on { opacity: 0 !important; transition: none !important; }
+
+/* first paint of the dashboard — everything should appear together, no fly-in/fade-in */
+#scatter-svg.no-anim circle.vdot,
+#scatter-svg.no-anim .vlabel,
+#scatter-svg.no-anim .vlabel.always-on,
+#scatter-svg.no-anim .vgender { transition: none !important; }
 
 .vlabel {
   font-family: 'Red Hat Display', sans-serif;
@@ -584,16 +638,17 @@ circle.vdot:hover { opacity: 0.75; }
   position: relative;
   width: 282px;
   flex-shrink: 0;
-  background: #000;
+  background: var(--panel-bg);
   border-left: 1px solid #656262;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: #333 transparent;
+  scrollbar-gutter: stable;
   font-family: 'Red Hat Display', sans-serif;
 }
 
@@ -610,8 +665,22 @@ circle.vdot:hover { opacity: 0.75; }
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
   flex: 1;
+}
+
+/* uniform 20px spacing + thin divider between right-panel sections —
+   gap gives the 20px above, padding-bottom gives the 20px below before
+   its own divider, mirroring the left panel's rhythm */
+.rp-body > .rp-metric,
+.rp-body > .rp-metric ~ div:not(#rp-mop-text):not(.rp-export-row) {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.rp-body > :last-child,
+.rp-body > .rp-export-row {
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 /* metric blocks */
@@ -619,6 +688,20 @@ circle.vdot:hover { opacity: 0.75; }
 .rp-metric-label { font-size: 12px; font-weight: 500; color: #fff; } /* matches ctrl-label */
 .rp-metric-value { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.05; }
 .rp-metric-value.small { font-size: 20px; color: #fff; }
+
+.rp-compare-row { display: flex; align-items: baseline; gap: 12px; }
+.rp-baseline-chip {
+  display: none;
+  align-items: baseline;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1px solid #3a3a3a;
+  border-radius: 12px;
+  color: #7a7a7a;
+}
+.right-panel.comparing .rp-baseline-chip { display: flex; }
+.rp-baseline-tag { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: #666; }
+.rp-baseline-val { font-size: 13px; font-weight: 600; color: #999; }
 
 /* mind over power */
 .rp-mop-text { font-size: 12px; font-weight: 400; color: #fff; line-height: 1.5; margin-top: 4px; }
@@ -628,10 +711,10 @@ circle.vdot:hover { opacity: 0.75; }
 .rp-radar-wrap  { background: transparent; }
 .rp-bars-wrap   { display: flex; flex-direction: column; gap: 5px; }
 .rp-hbar-row    { display: flex; align-items: center; gap: 8px; }
-.rp-hbar-lbl    { font-size: 10px; color: #666; width: 62px; flex-shrink: 0; text-align: right; }
+.rp-hbar-lbl    { font-size: 10px; color: #fff; width: 62px; flex-shrink: 0; text-align: right; }
 .rp-hbar-track  { flex: 1; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
 .rp-hbar-fill   { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
-.rp-hbar-count  { font-size: 10px; color: #888; width: 36px; flex-shrink: 0; text-align: left; }
+.rp-hbar-count  { font-size: 10px; color: #fff; width: 36px; flex-shrink: 0; text-align: left; }
 
 /* archetype */
 .rp-archetype-hdr {
@@ -648,6 +731,128 @@ circle.vdot:hover { opacity: 0.75; }
   margin-top: 6px;
   background: #874fff;
 }
+
+.rp-export-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  border: 1px solid #874fff;
+  border-radius: 28px;
+  background: transparent;
+  color: #fff;
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.22s, border-color 0.22s;
+}
+.rp-export-btn:hover { background: rgba(135,79,255,0.15); border-color: #9a68ff; }
+.rp-export-btn:active { background: rgb(135,79,255); border-color: rgb(135,79,255); }
+
+/* ════════════ EXPORT MODAL ════════════ */
+.export-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  z-index: 300;
+}
+.export-modal.visible { opacity: 1; pointer-events: all; }
+
+.export-modal-panel {
+  position: relative;
+  width: 480px;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 48px);
+  overflow: visible;
+  background: #141416;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 22px;
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+}
+.export-modal.visible .export-modal-panel { transform: translateY(0) scale(1); }
+
+.export-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.export-modal-close:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+.export-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 22px;
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+.export-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+  margin-bottom: 22px;
+}
+.export-param { display: flex; flex-direction: column; gap: 3px; }
+.export-param-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: #7a7a7a; }
+.export-param-value { font-size: 14px; font-weight: 600; color: #fff; }
+
+.export-radar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding-top: 22px;
+  border-top: 1px solid #2a2a2a;
+}
+.export-radar-wrap { display: flex; justify-content: center; }
+#export-radar { width: 100%; max-width: 280px; height: auto; overflow: visible; }
+
+.export-archetype-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+  padding-top: 22px;
+  border-top: 1px solid #2a2a2a;
+}
+.export-archetype-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #ddd;
+  line-height: 1.65;
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+.export-modal-cta.cs-cta {
+  width: 100%;
+  background: #874fff;
+}
+.export-modal-cta.cs-cta:hover { background: #9a68ff; }
+.export-modal-cta.cs-cta:active { background: #6c3ed9; }
 
 /* reset button (kept for center panel) */
 .reset-btn {
@@ -691,12 +896,13 @@ circle.vdot:hover { opacity: 0.75; }
 
 .ob-bar {
   position: absolute;
-  top: calc(50% + 20px);
+  top: calc(50% - 20px);
   left: 50%;
   transform: translate(-50%, -50%);
   width: 640px;
   height: 46px;
-  border: 1px solid #fff;
+  background: #1a1a1a;
+  border: 1px solid #6a6a6a;
   border-radius: 24px;
   display: flex;
   align-items: center;
@@ -728,7 +934,21 @@ circle.vdot:hover { opacity: 0.75; }
   transition: color 0.15s;
 }
 .ob-icon:hover { color: #fff; }
-.ob-icon svg * { stroke: currentColor; stroke-width: 2; }
+.ob-icon svg * { stroke: currentColor; stroke-width: 1.3; }
+
+.ob-icon-plus {
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+}
+.ob-icon-plus:hover {
+  background-color: rgba(255,255,255,0.14);
+  color: #fff;
+}
 #ob-file { display: none; }
 
 /* ════════════ CHAT SCREEN (side panel) ════════════ */
@@ -737,7 +957,7 @@ circle.vdot:hover { opacity: 0.75; }
   top: 0;
   right: 0;
   bottom: 0;
-  width: 460px;
+  width: 282px;
   max-width: 100vw;
   background: #000;
   border-left: 1px solid var(--border-col);
@@ -746,7 +966,6 @@ circle.vdot:hover { opacity: 0.75; }
   display: flex;
   transform: translateX(100%);
   pointer-events: none;
-  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
 }
 #chat-screen.visible {
   transform: translateX(0);
@@ -765,6 +984,9 @@ circle.vdot:hover { opacity: 0.75; }
 #chat-screen.fullscreen.visible { opacity: 1; }
 
 /* panel mode (FAB-triggered, in-dashboard): no projects sidebar, no hamburger — just the chat itself */
+#chat-screen:not(.fullscreen) {
+  background: var(--panel-bg);
+}
 #chat-screen:not(.fullscreen) .cs-sidebar,
 #chat-screen:not(.fullscreen) .cs-sidebar-toggle {
   display: none;
@@ -975,6 +1197,86 @@ mark.kw.lit {
   box-shadow: 0 0 0 1px #ec008c;
 }
 
+.cs-loader {
+  align-self: flex-start;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.cs-loader-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #8a8a8a;
+  font-family: 'Red Hat Display', sans-serif;
+}
+.cs-loader-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cs-loader-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ec008c;
+  animation: cs-dot-bounce 1.2s ease-in-out infinite;
+}
+.cs-loader-dot:nth-child(2) { animation-delay: 0.15s; }
+.cs-loader-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes cs-dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Full-screen analysis loader — onboarding chat (Step 1) only, ahead of the profile card reveal */
+.cs-analysis-loader {
+  display: none;
+  position: fixed;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 200;
+}
+.cs-analysis-loader.visible { opacity: 1; }
+
+.cs-al-dots {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.cs-al-dot {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  border-radius: 50%;
+  animation: cs-al-drift 3.6s ease-in-out infinite;
+}
+.cs-al-dot.cs-al-c { width: 9px;  height: 9px;  background: #00E5FF; animation-duration: 3.4s; }
+.cs-al-dot.cs-al-m { width: 9px;  height: 9px;  background: #ec008c; animation-duration: 4.0s; animation-delay: -1.1s; }
+.cs-al-dot.cs-al-w { width: 12px; height: 12px; background: #fff;    animation-duration: 3.8s; animation-delay: -2.2s; box-shadow: 0 0 8px 1px rgba(255,255,255,0.35); }
+@keyframes cs-al-drift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-16px, -12px); }
+  50%  { transform: translate(14px, -16px); }
+  75%  { transform: translate(12px, 12px); }
+  100% { transform: translate(0, 0); }
+}
+.cs-al-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #8a8a8a;
+  font-family: 'Red Hat Display', sans-serif;
+  letter-spacing: 0.2px;
+}
+
 .cs-bot-response {
   align-self: flex-start;
   width: 719px;
@@ -1053,30 +1355,66 @@ mark.kw.lit {
 .cs-cta:hover { background: #ff2ea3; transform: scale(1.03); }
 .cs-cta:active { transform: scale(0.98); }
 
-.cs-cta-secondary {
+.cs-compare-switch {
   display: none;
   width: fit-content;
   align-items: center;
-  justify-content: center;
-  border: 1px solid #3a3a3a;
-  border-radius: 20px;
-  height: 36px;
-  padding: 0 20px;
+  gap: 10px;
+  border: none;
   background: transparent;
-  color: #b8b6b3;
+  padding: 0;
+  cursor: pointer;
+}
+.cs-compare-switch-label {
   font-family: 'Red Hat Display', sans-serif;
   font-size: 13px;
   font-weight: 700;
+  color: #fff;
   white-space: nowrap;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
 }
-.cs-cta-secondary:hover { border-color: #666; color: #fff; }
-/* only the FAB-triggered, in-dashboard chat gets a "restore previous state" action —
-   the standalone onboarding chat has no prior matrix state to go back to */
-#chat-screen:not(.fullscreen) .cs-cta-secondary {
+.cs-compare-switch-track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: #3a3a3a;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+.cs-compare-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s cubic-bezier(.4,0,.2,1);
+}
+.cs-compare-switch.on .cs-compare-switch-track { background: #ec008c; }
+.cs-compare-switch.on .cs-compare-switch-knob { transform: translateX(18px); }
+/* only the FAB-triggered, in-dashboard chat gets a "compare baseline" action —
+   the standalone onboarding chat has no prior matrix state to compare against */
+#chat-screen:not(.fullscreen) .cs-compare-switch {
   display: flex;
 }
+
+/* narrower, smaller-text message column for the FAB-triggered dashboard chat only —
+   matches the right panel's own content width (282px minus its 24px padding) */
+#chat-screen:not(.fullscreen) .cs-messages {
+  padding: 0 20px;
+  overflow-y: visible;
+}
+#chat-screen:not(.fullscreen) .cs-prompt-label { font-size: 11px; }
+#chat-screen:not(.fullscreen) .cs-user-bubble { width: 100%; font-size: 11px; padding: 10px; }
+#chat-screen:not(.fullscreen) .cs-bot-response { width: 100%; font-size: 11px; }
+#chat-screen:not(.fullscreen) .cs-summary-block { width: 100%; }
+#chat-screen:not(.fullscreen) .cs-summary { width: 100%; padding: 12px 14px; }
+#chat-screen:not(.fullscreen) .cs-summary-header { font-size: 11px; }
+#chat-screen:not(.fullscreen) .cs-summary-row { font-size: 11px; }
+#chat-screen:not(.fullscreen) .cs-cta,
+#chat-screen:not(.fullscreen) .cs-compare-switch { width: 100%; }
+#chat-screen:not(.fullscreen) .cs-cta { font-size: 12px; height: 32px; }
 </style>
 </head>
 <body>
@@ -1085,14 +1423,14 @@ mark.kw.lit {
 <div id="onboarding">
   <div class="ob-title">Villain<br>Architect</div>
   <div class="ob-bar" onclick="document.getElementById('ob-text').focus()">
-    <label class="ob-icon" for="ob-file">
+    <label class="ob-icon ob-icon-plus" for="ob-file">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M9 2V16M2 9H16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
     </label>
     <input type="file" id="ob-file" accept=".txt,.pdf,.doc,.docx,.csv,.fdx">
     <input type="text" id="ob-text" placeholder="Tell me something about your movie or upload a scene" onkeydown="if(event.key==='Enter'){event.preventDefault();launchChat(this.value.trim());}">
-    <button class="ob-icon" id="ob-submit" title="Continue" style="background:none;border:none;padding:0;">
+    <button class="ob-icon ob-icon-plus" id="ob-submit" title="Continue" style="border:none;padding:0;">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <rect x="6" y="2" width="6" height="9" rx="3" stroke="white" stroke-width="1.5"/>
         <path d="M3 9.5C3 12.5 5.7 15 9 15C12.3 15 15 12.5 15 9.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
@@ -1141,15 +1479,35 @@ mark.kw.lit {
   <div class="cs-main">
     <div class="cs-messages" id="cs-messages">
       <p class="cs-prompt-label">Tell me something about your movie or upload a scene</p>
+      <div class="cs-loader" id="cs-loader">
+        <div class="cs-loader-text">Analyzing character DNA...</div>
+        <div class="cs-loader-dots">
+          <span class="cs-loader-dot"></span><span class="cs-loader-dot"></span><span class="cs-loader-dot"></span>
+        </div>
+      </div>
       <div class="cs-user-bubble" id="cs-user-bubble"></div>
       <div class="cs-bot-response" id="cs-bot-response"></div>
       <div class="cs-summary-block" id="cs-summary-block">
         <div class="cs-summary" id="cs-summary"></div>
         <button class="cs-cta" id="cs-cta" onclick="openVillainMatrix()">Open The Villain Matrix</button>
-        <button class="cs-cta-secondary" id="cs-restore" onclick="restoreDashboardState()">Restore Previous Matrix State</button>
+        <button class="cs-compare-switch" id="cs-compare-toggle" onclick="toggleBaselineCompare()">
+          <span class="cs-compare-switch-label">Compare Initial Baseline</span>
+          <span class="cs-compare-switch-track"><span class="cs-compare-switch-knob"></span></span>
+        </button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Full-screen loader lives outside #chat-screen so it can stay visible independently
+     of the chat screen's own hide transition (fixes the pink-CTA flicker) -->
+<div class="cs-analysis-loader" id="cs-analysis-loader">
+  <div class="cs-al-dots">
+    <span class="cs-al-dot cs-al-c"></span>
+    <span class="cs-al-dot cs-al-m"></span>
+    <span class="cs-al-dot cs-al-w"></span>
+  </div>
+  <div class="cs-al-text">Analyzing character DNA...</div>
 </div>
 
 <div class="app">
@@ -1275,7 +1633,7 @@ mark.kw.lit {
     <div id="villain-list"></div>
     <!-- Coachmark: pulsing ring + hint bubble, matrix mode only -->
     <div id="char-dot-ping"></div>
-    <div id="char-dot-coach">💡 Drag freely to calculate character DNA</div>
+    <div id="char-dot-coach"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M15.09 14c.18-.98.65-1.74 1.41-2.5A6 6 0 1 0 8 11.5c.55.6 1.11 1.24 1.41 2.5"/></svg>Drag freely to calculate character DNA</div>
     <!-- HTML drag handle — sits on top of SVG, bypasses all SVG pointer-event issues -->
     <div id="char-dot-html" title="Your Character" draggable="false"></div>
   </div>
@@ -1290,14 +1648,20 @@ mark.kw.lit {
     <!-- Survival Forecast -->
     <div class="rp-metric">
       <span class="rp-metric-label">Survival Forecast<button type="button" class="info-ic" data-toggles="info-panel-survival" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
-      <span class="rp-metric-value" id="rp-survival">58%</span>
+      <div class="rp-compare-row">
+        <span class="rp-metric-value" id="rp-survival">58%</span>
+        <div class="rp-baseline-chip" id="rp-survival-baseline"><span class="rp-baseline-tag">Baseline</span><span class="rp-baseline-val"></span></div>
+      </div>
       <div class="info-panel" id="info-panel-survival"><div class="info-panel-inner">The probability of the character surviving the plot. High anonymity (masked) or low social status often leads to death, while high status or visible faces favor survival.</div></div>
     </div>
 
     <!-- Brutality -->
     <div class="rp-metric">
       <span class="rp-metric-label">Brutality<button type="button" class="info-ic" data-toggles="info-panel-brutality" aria-label="More info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></span>
-      <span class="rp-metric-value small" id="rp-brutality">High</span>
+      <div class="rp-compare-row">
+        <span class="rp-metric-value small" id="rp-brutality">High</span>
+        <div class="rp-baseline-chip" id="rp-brutality-baseline"><span class="rp-baseline-tag">Baseline</span><span class="rp-baseline-val"></span></div>
+      </div>
       <div class="info-panel" id="info-panel-brutality"><div class="info-panel-inner">The nature of the villain's violence. Physical combatants register 'High/Extreme' brutality, while system-level villains trigger 'Calculated' or lower physical impact.</div></div>
     </div>
 
@@ -1330,6 +1694,14 @@ mark.kw.lit {
       <div class="rp-archetype-box" id="rp-archetype">—</div>
     </div>
 
+    <!-- Export -->
+    <div class="rp-export-row">
+      <button class="rp-export-btn" id="rp-export-btn" onclick="openExportModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export Character DNA
+      </button>
+    </div>
+
   </div>
 
   <button class="bot-toggle-fab" id="bot-toggle-btn" onclick="toggleChat()" aria-label="Messages">
@@ -1340,6 +1712,26 @@ mark.kw.lit {
 </div>
 
 </div><!-- .app -->
+
+<!-- ══════════ EXPORT MODAL ══════════ -->
+<div class="export-modal" id="export-modal">
+  <div class="export-modal-panel">
+    <button class="export-modal-close" onclick="closeExportModal()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="export-modal-title">Character DNA Summary</div>
+    <div class="export-modal-grid" id="export-modal-grid"></div>
+    <div class="export-radar-section">
+      <span class="export-param-label">Psychological Fingerprint</span>
+      <div class="export-radar-wrap"><svg id="export-radar" viewBox="0 0 220 160"></svg></div>
+    </div>
+    <div class="export-archetype-section">
+      <span class="export-param-label">Detected Archetype</span>
+      <p class="export-archetype-text" id="export-archetype-text"></p>
+    </div>
+    <button class="cs-cta export-modal-cta" onclick="exportArtifact()">Export Character DNA Output</button>
+  </div>
+</div>
 
 <script>
 /* ══════════════════════════════════════════════════════════
@@ -1754,11 +2146,11 @@ function computeGenderPositions() {
 const MINDSET_HEADER_Y = PAD.t + 22;
 /* Fixed vertical space permanently reserved below the header for the
    expanded info text (sized for the worst case: 4 wrapped lines, each
-   16px, starting 22px below the header, plus a clearance buffer).
+   16px, starting 32px below the header, plus a clearance buffer).
    This never changes when a panel opens/closes — the dot cloud's centre
    is always positioned as if the text were open, so toggling it never
    moves a single dot. */
-const MINDSET_TEXT_RESERVE = 22 + 4 * 16 + 20; /* = 106px */
+const MINDSET_TEXT_RESERVE = 32 + 4 * 16 + 20; /* = 116px */
 
 function computeMindsetPositions() {
   /* Physical (0–50) → left half · Cerebral (51–100) → right half */
@@ -1956,7 +2348,7 @@ function initSVGLayers() {
   charDotEl = makeSVG('circle', {
     id: 'char-dot', cx: -300, cy: -300, r: 11.5,
     fill: charDotColor, stroke: charDotStroke, 'stroke-width': '2',
-    filter: 'url(#glow)', style: 'cursor:grab; pointer-events:none; transition:cx 0.45s cubic-bezier(0.34,1.56,0.64,1),cy 0.45s cubic-bezier(0.34,1.56,0.64,1);'
+    filter: 'url(#glow)', style: 'cursor:grab; pointer-events:none; transition:cx 0.45s cubic-bezier(0.34,1.56,0.64,1),cy 0.45s cubic-bezier(0.34,1.56,0.64,1),fill 0.3s ease,stroke 0.3s ease;'
   });
   svgDotsG.appendChild(charDotEl);
 
@@ -1981,19 +2373,25 @@ function buildSVG() {
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
 
-  /* ── Rebuild defs (size-dependent clipPath + glow) ── */
-  if (svgDefs) svgDefs.remove();
-  svgDefs = makeSVG('defs');
+  /* ── defs: clipPath is size-dependent and rebuilt each call; the glow filter is
+     static and built once — recreating it every call briefly broke the url(#glow)
+     reference on #char-dot, flashing the white dot invisible on every transition ── */
+  if (!svgDefs) {
+    svgDefs = makeSVG('defs');
+    svg.appendChild(svgDefs);
+    const filt = makeSVG('filter', { id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%' });
+    const fgBlur = makeSVG('feGaussianBlur', { stdDeviation:'3', result:'blur' });
+    const fgMerge = makeSVG('feMerge');
+    fgMerge.appendChild(makeSVG('feMergeNode', { in:'blur' }));
+    fgMerge.appendChild(makeSVG('feMergeNode', { in:'SourceGraphic' }));
+    filt.appendChild(fgBlur); filt.appendChild(fgMerge);
+    svgDefs.appendChild(filt);
+  }
+  const oldClip = document.getElementById('plot-clip');
+  if (oldClip) oldClip.remove();
   const clip = makeSVG('clipPath', { id:'plot-clip' });
   clip.appendChild(makeSVG('rect', { x:0, y:0, width:W, height:H }));
   svgDefs.appendChild(clip);
-  const filt = makeSVG('filter', { id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%' });
-  const fgBlur = makeSVG('feGaussianBlur', { stdDeviation:'3', result:'blur' });
-  const fgMerge = makeSVG('feMerge');
-  fgMerge.appendChild(makeSVG('feMergeNode', { in:'blur' }));
-  fgMerge.appendChild(makeSVG('feMergeNode', { in:'SourceGraphic' }));
-  filt.appendChild(fgBlur); filt.appendChild(fgMerge);
-  svgDefs.appendChild(filt);
   /* ── Rebuild axis layer only ── */
   if (svgAxisG) svgAxisG.remove();
   svgAxisG = makeSVG('g', { id:'axis-layer' });
@@ -2081,7 +2479,7 @@ function buildSVG() {
         /* Slightly wider than the header so the sentence wraps into ~4 balanced lines */
         const textEl = makeSVG('text', { x:cx, 'text-anchor':'middle', style:'fill:rgba(255,255,255,0.6); font-weight:400; font-size:11px; font-family:\'Red Hat Display\',sans-serif;' });
         axisG.appendChild(textEl);
-        MINDSET_INFO[key].lines = wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 22, tw * 1.15, 16);
+        MINDSET_INFO[key].lines = wrapSvgText(textEl, MINDSET_INFO[key].text, cx, cy + 32, tw * 1.15, 16);
       }
     };
     mkRegionInfoIcon('cerebral', cerebralEl, W * 0.25, headerY);
@@ -2170,7 +2568,7 @@ function buildSVG() {
         positionCharDotDiv(charPos.x, charPos.y); /* sync HTML drag handle */
         if (charLabelEl) {
           charLabelEl.style.transition = 'none';
-          charLabelEl.setAttribute('x', charPos.x + 13);
+          charLabelEl.setAttribute('x', charPos.x + 15);
           charLabelEl.setAttribute('y', charPos.y + 4);
           charLabelEl.textContent = document.getElementById('char-name').value || 'Your Character';
         }
@@ -2199,7 +2597,7 @@ function buildSVG() {
         /* flip label to left of dot when near right edge (genderless position) */
         const nearRight = charPos.x > W - 120;
         charLabelEl.setAttribute('text-anchor', nearRight ? 'end' : 'start');
-        charLabelEl.setAttribute('x', charPos.x + (nearRight ? -13 : 13));
+        charLabelEl.setAttribute('x', charPos.x + (nearRight ? -15 : 15));
         charLabelEl.setAttribute('y',    charPos.y + 4);
         positionCharDotDiv(charPos.x, charPos.y); /* sync HTML drag handle */
       }
@@ -2425,9 +2823,9 @@ function showTip(e, v, p) {
 
 function positionTip(e) {
   const rect = wrap.getBoundingClientRect();
-  let tx = e.clientX - rect.left + 14;
+  let tx = e.clientX - rect.left + 24;
   let ty = e.clientY - rect.top  - 10;
-  if (tx + 180 > W) tx -= 195;
+  if (tx + 190 > W) tx -= 215;
   if (ty + 120 > H) ty -= 125;
   tipEl.style.left = tx + 'px';
   tipEl.style.top  = ty + 'px';
@@ -2521,7 +2919,9 @@ function setTog(which) {
   buildSVG(); /* move dot to cerebral/physical side in mindset mode */
 }
 
-/* sliders */
+/* sliders — live input drags the dot instantly (no spring restart per tick,
+   which was causing the "chases itself" stutter); the spring re-engages and
+   a full rebuild runs once on release (see the slider 'change' listener below) */
 function onSlider(type, val) {
   charDotPos = null;
   if (type === 'anon') {
@@ -2537,9 +2937,30 @@ function onSlider(type, val) {
     charState.kills = val;
     updateTickHighlight('tk-kills', val);
   }
-  buildSVG();
+
+  const cp = getCharPos();
+  if (charDotEl)  { charDotEl.style.transition = 'none'; charDotEl.setAttribute('cx', cp.x); charDotEl.setAttribute('cy', cp.y); }
+  if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', cp.x + 15); charLabelEl.setAttribute('y', cp.y + 4); }
+  if (charDotPing) charDotPing.style.transition = 'none';
+  if (charDotDiv)  charDotDiv.style.transition = 'none';
+  positionCharDotDiv(cp.x, cp.y);
+
   updateRightPanel();
 }
+
+/* on release, re-enable springs and run a full rebuild for correctness */
+['sl-anon','sl-wealth','sl-social','sl-kills'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', () => {
+    if (charDotEl)   charDotEl.style.transition = '';
+    if (charLabelEl) charLabelEl.style.transition = '';
+    if (charDotPing) charDotPing.style.transition = '';
+    if (charDotDiv)  charDotDiv.style.transition = '';
+    buildSVG();
+    updateRightPanel();
+  });
+});
 
 function updateTickHighlight(ticksId, val) {
   const nearest = Math.round(val);
@@ -2606,7 +3027,7 @@ function _execDrag(clientX, clientY) {
   charDotPos = { x: px, y: py };
 
   if (charDotEl)  { charDotEl.style.transition = 'none'; charDotEl.setAttribute('cx', px); charDotEl.setAttribute('cy', py); }
-  if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', px + 13); charLabelEl.setAttribute('y', py + 4); }
+  if (charLabelEl){ charLabelEl.style.transition = 'none'; charLabelEl.setAttribute('x', px + 15); charLabelEl.setAttribute('y', py + 4); }
   if (charDotPing) charDotPing.style.transition = 'none'; /* follow cursor 1:1 while dragging, spring only on mode/toggle switches */
   if (charDotDiv)  charDotDiv.style.transition = 'none';
   positionCharDotDiv(px, py); /* keeps drag handle + ping ring + coachmark in sync */
@@ -2671,72 +3092,151 @@ function highlightKeywords(text) {
   return text.replace(regex, '<mark class="kw">$1</mark>');
 }
 
-function runBotAnimation(text) {
-  const bubble    = document.getElementById('cs-user-bubble');
+let isAnalyzing = false;
+const FULLSCREEN_LOADER_MS = 2400; /* cinematic hold — used both at sequence start and on CTA click, kept identical */
+
+const wait = ms => new Promise(res => setTimeout(res, ms));
+
+function showFullscreenLoader(analysisLoaderEl) {
+  analysisLoaderEl.style.display = 'flex';
+  void analysisLoaderEl.offsetWidth;
+  analysisLoaderEl.classList.add('visible');
+}
+/* shows the loader with NO fade-in — used whenever it must guard a screen transition so
+   there's never a frame where a competing fade lets the screen underneath show through */
+function showFullscreenLoaderInstant(analysisLoaderEl) {
+  analysisLoaderEl.style.transition = 'none';
+  analysisLoaderEl.style.display = 'flex';
+  void analysisLoaderEl.offsetWidth;
+  analysisLoaderEl.classList.add('visible');
+  void analysisLoaderEl.offsetWidth;
+  analysisLoaderEl.style.transition = '';
+}
+function hideFullscreenLoader(analysisLoaderEl) {
+  analysisLoaderEl.classList.remove('visible');
+  return wait(500).then(() => { analysisLoaderEl.style.display = 'none'; });
+}
+
+/* moves the single inline loader element right after `afterEl` and fades it in */
+function showInlineLoader(loaderEl, afterEl) {
+  afterEl.insertAdjacentElement('afterend', loaderEl);
+  loaderEl.style.display = 'flex';
+  void loaderEl.offsetWidth;
+  loaderEl.style.opacity = '1';
+}
+function hideInlineLoader(loaderEl) {
+  loaderEl.style.opacity = '0';
+  return wait(400).then(() => { loaderEl.style.display = 'none'; });
+}
+
+/* character-by-character typewriter across one or more paragraphs */
+function typewriteParagraphs(containerEl, lines, msPerChar = 18) {
+  return new Promise(resolve => {
+    containerEl.innerHTML = '';
+    containerEl.style.display = 'block';
+    let li = 0, ci = 0, p = null;
+    function tick() {
+      if (li >= lines.length) { resolve(); return; }
+      if (!p) { p = document.createElement('p'); containerEl.appendChild(p); }
+      p.textContent = lines[li].slice(0, ci + 1);
+      ci++;
+      if (ci >= lines[li].length) { li++; ci = 0; p = null; }
+      setTimeout(tick, msPerChar);
+    }
+    tick();
+  });
+}
+
+async function runBotAnimation(text) {
+  const bubble     = document.getElementById('cs-user-bubble');
+  const loaderEl   = document.getElementById('cs-loader');
   const responseEl = document.getElementById('cs-bot-response');
   const summaryEl  = document.getElementById('cs-summary');
   const summaryBlockEl = document.getElementById('cs-summary-block');
   const ctaEl      = document.getElementById('cs-cta');
+  const analysisLoaderEl = document.getElementById('cs-analysis-loader');
 
-  /* Step 1 — show plain text in bubble immediately */
-  bubble.textContent = text;
+  isAnalyzing = true;
 
-  /* Step 2 — after short pause, inject marks (still invisible) then light them up one by one */
-  setTimeout(() => {
-    bubble.innerHTML = highlightKeywords(text);
-    const marks = bubble.querySelectorAll('mark.kw');
-    let t = 0;
-    marks.forEach(mark => {
-      setTimeout(() => mark.classList.add('lit'), t);
-      t += 320;
-    });
+  /* reset state */
+  bubble.style.display = 'none';
+  bubble.innerHTML = '';
+  responseEl.style.display = 'none';
+  responseEl.innerHTML = '';
+  summaryBlockEl.style.display = 'none';
+  loaderEl.style.display = 'none';
+  loaderEl.style.opacity = '0';
 
-    /* Step 3 — after all highlights done, fade in bot response lines */
-    const afterHighlights = t + 450;
-    responseEl.innerHTML = '';
-    responseEl.style.display = 'block';
+  /* Moment 1 — full-screen loader (already shown instantly by launchChat — this just
+     ensures it's up if runBotAnimation is ever called some other way), then the uploaded
+     scene text renders once, in full, and stays permanently visible for the rest of the sequence */
+  showFullscreenLoaderInstant(analysisLoaderEl);
+  await wait(FULLSCREEN_LOADER_MS);
+  await hideFullscreenLoader(analysisLoaderEl);
 
-    BOT_LINES.forEach((line, i) => {
-      const p = document.createElement('p');
-      p.textContent = line;
-      p.style.cssText = 'opacity:0; transition:opacity 0.4s ease;';
-      responseEl.appendChild(p);
-      setTimeout(() => { p.style.opacity = '1'; }, afterHighlights + i * 220);
-    });
+  bubble.style.display = '';
+  bubble.innerHTML = highlightKeywords(text);
+  const marks = bubble.querySelectorAll('mark.kw');
 
-    /* Step 4 — summary profile readout appears after last line */
-    const afterResponse = afterHighlights + BOT_LINES.length * 220 + 300;
-    setTimeout(() => {
-      summaryEl.innerHTML = `
-        <div class="cs-summary-header">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Initial Architectural Profile Generated:
-        </div>
-        <div class="cs-summary-row">${TIP_ICONS.brain}<span class="tip-label">Mindset:</span> <b>Cerebral / Strategic</b></div>
-        <div class="cs-summary-row">${TIP_ICONS.eye}<span class="tip-label">Anonymity:</span> <b>High (The Ghost)</b></div>
-        <div class="cs-summary-row">${TIP_ICONS.crown}<span class="tip-label">Estimated Status:</span> <b>Medium</b></div>
-      `;
-      summaryBlockEl.style.cssText = 'display:flex; opacity:0; transition:opacity 0.4s ease;';
-      setTimeout(() => { summaryBlockEl.style.opacity = '1'; }, 40);
+  /* Moment 2 — inline loader under the text while marks fade in one by one, then fades out */
+  showInlineLoader(loaderEl, bubble);
+  await Promise.all([...marks].map((mark, i) => wait(i * 320).then(() => mark.classList.add('lit'))));
+  await wait(450);
+  await hideInlineLoader(loaderEl);
 
-      /* Step 5 — CTA button appears after summary */
-      setTimeout(() => {
-        ctaEl.style.cssText = 'opacity:0; transition:opacity 0.4s ease, transform 0.15s ease, background 0.15s ease;';
-        setTimeout(() => { ctaEl.style.opacity = '1'; }, 40);
-      }, 500);
-    }, afterResponse);
+  /* Moment 3 — straight into the diagnostic paragraph typewriter, no loader in between */
+  await typewriteParagraphs(responseEl, BOT_LINES);
 
-  }, 600);
+  /* Moment 4 — inline loader once, then the profile card + CTA reveal together (no separate fade) */
+  showInlineLoader(loaderEl, responseEl);
+  await wait(900);
+  await hideInlineLoader(loaderEl);
+
+  summaryEl.innerHTML = `
+    <div class="cs-summary-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Initial Architectural Profile Generated:
+    </div>
+    <div class="cs-summary-row">${TIP_ICONS.brain}<span class="tip-label">Mindset:</span> <b>Cerebral / Strategic</b></div>
+    <div class="cs-summary-row">${TIP_ICONS.eye}<span class="tip-label">Anonymity:</span> <b>High (The Ghost)</b></div>
+    <div class="cs-summary-row">${TIP_ICONS.crown}<span class="tip-label">Estimated Status:</span> <b>Medium</b></div>
+  `;
+  summaryBlockEl.style.cssText = 'display:flex; opacity:0; transition:opacity 0.4s ease;';
+  ctaEl.style.cssText = 'opacity:0; transition:opacity 0.4s ease, transform 0.15s ease, background 0.15s ease;';
+  await wait(40);
+  summaryBlockEl.style.opacity = '1';
+  ctaEl.style.opacity = '1';
+  isAnalyzing = false;
 }
 
 function openVillainMatrix() {
-  charState.anon   = 3;   /* Fully Masked — "the Ghost" */
-  charState.wealth = 2;   /* Middle Class */
-  charState.social = 1.5; /* Medium status, between Ordinary and Elite */
+  charState.anon   = 3; /* Fully Masked — "the Ghost" */
+  charState.wealth = 4; /* Infinite */
+  charState.social = 2; /* Elite — closest reachable match to the generated profile's Survival 70% / Brutality High */
   document.getElementById('tog-c').classList.add('on');
   document.getElementById('tog-p').classList.remove('on');
   updateSlidersFromState();
-  launchDashboard();
+
+  const isFullscreen = document.getElementById('chat-screen').classList.contains('fullscreen');
+  const analysisLoaderEl = document.getElementById('cs-analysis-loader');
+  if (isFullscreen && analysisLoaderEl) {
+    /* Step 1 — unmount the chat screen instantly (no fade) so it can never
+       flicker back into view underneath the loader */
+    const cs = document.getElementById('chat-screen');
+    cs.classList.remove('visible');
+    cs.style.display = 'none';
+
+    /* Step 2 — full-screen loader (instant, no fade-in — dashboard renders right after
+       and must never show through a still-fading-in loader), builds silently underneath */
+    showFullscreenLoaderInstant(analysisLoaderEl);
+    launchDashboard();
+    setTimeout(async () => {
+      /* Step 3 — fade the loader out onto the fully-built, stable dashboard */
+      await hideFullscreenLoader(analysisLoaderEl);
+    }, FULLSCREEN_LOADER_MS);
+  } else {
+    launchDashboard();
+  }
 }
 
 function toggleProjectsSidebar() {
@@ -2763,23 +3263,25 @@ function hideChatScreen() {
 }
 
 function launchChat(text) {
+  if (isAnalyzing) return; /* block starting a new analysis while one is already in flight */
   const ob = document.getElementById('onboarding');
   if (ob) ob.style.display = 'none';
-  if (!text) {
-    const b = document.getElementById('cs-user-bubble');
-    if (b) b.style.display = 'none';
-  }
-  /* ensure bubble is visible */
   const bubble = document.getElementById('cs-user-bubble');
-  if (bubble) { bubble.style.display = ''; bubble.textContent = text || ''; }
 
   const cs = document.getElementById('chat-screen');
   if (cs) cs.classList.add('fullscreen'); /* onboarding chat takes over the whole page */
-  showChatScreen();
 
   if (text) {
-    /* delay so chat screen fully fades in before animation starts */
-    setTimeout(() => runBotAnimation(text), 450);
+    /* full-screen loader shows in the very same tick the chat screen appears, so the
+       raw/empty chat is never exposed underneath (was the source of the pre-loader flicker) */
+    if (bubble) bubble.style.display = 'none';
+    const analysisLoaderEl = document.getElementById('cs-analysis-loader');
+    showFullscreenLoaderInstant(analysisLoaderEl);
+    showChatScreen();
+    runBotAnimation(text);
+  } else {
+    if (bubble) { bubble.style.display = 'none'; bubble.textContent = ''; }
+    showChatScreen();
   }
 }
 
@@ -2794,9 +3296,11 @@ function launchDashboard() {
   /* open matrix and populate right panel — wait one frame for layout */
   currentMode = 'matrix';
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'matrix'));
+  svg.classList.add('no-anim'); /* first paint: everything appears together, no fly-in/fade-in */
   requestAnimationFrame(() => {
     try { W = wrap.clientWidth; H = wrap.clientHeight; if (W && H) buildSVG(); } catch(e) {}
-    setTimeout(updateRightPanel, 50);
+    updateRightPanel();
+    requestAnimationFrame(() => svg.classList.remove('no-anim'));
   });
 }
 
@@ -2813,24 +3317,119 @@ function snapshotDashboardState() {
   };
 }
 
-function restoreDashboardState() {
-  if (!dashboardStateSnapshot) return;
-  const s = dashboardStateSnapshot;
-  Object.assign(charState, s.charState);
-  charDotColor  = s.charDotColor;
-  charDotStroke = s.charDotStroke;
-  charDotPos    = s.charDotPos ? { ...s.charDotPos } : null;
+/* Computes Survival Forecast + Brutality for an arbitrary charState snapshot,
+   without touching the live charState — same formulas as updateRightPanel(). */
+function computeBaselineMetrics(snapshotCharState) {
+  const live = charState;
+  const saved = { ...live };
+  Object.assign(live, snapshotCharState);
 
-  document.getElementById('tog-c').classList.toggle('on', s.togOn === 'c');
-  document.getElementById('tog-p').classList.toggle('on', s.togOn === 'p');
+  const score     = charMindsetScore();
+  const anonIdx   = Math.min(4, Math.max(0, Math.round(live.anon)));
+  const wealthIdx = Math.min(4, Math.max(0, Math.round(live.wealth)));
 
-  document.querySelectorAll('.g-dot').forEach(el => el.classList.remove('selected'));
-  if (s.gender) document.getElementById(s.gender).classList.add('selected');
+  const survival  = Math.min(100, Math.max(0, Math.round(score * 0.65 + wealthIdx/4*25 + (4-anonIdx)/4*10)));
+  const bLabels   = ['Minimal','Low','Medium','High','Extreme','Lethal'];
+  const brutalIdx = Math.min(5, Math.round(anonIdx/4*2 + (1-score/100)*3));
 
-  updateSlidersFromState();
-  buildSVG();
-  updateRightPanel();
+  Object.assign(live, saved);
+  return { survival, brutality: bLabels[brutalIdx] };
 }
+
+function toggleBaselineCompare() {
+  const btn = document.getElementById('cs-compare-toggle');
+  const rp  = document.querySelector('.right-panel');
+  if (!btn || !rp) return;
+
+  const isOn = btn.classList.toggle('on');
+  rp.classList.toggle('comparing', isOn);
+
+  if (isOn && dashboardStateSnapshot) {
+    const baseline = computeBaselineMetrics(dashboardStateSnapshot.charState);
+    const survivalVal   = document.querySelector('#rp-survival-baseline .rp-baseline-val');
+    const brutalityVal  = document.querySelector('#rp-brutality-baseline .rp-baseline-val');
+    if (survivalVal)  survivalVal.textContent  = baseline.survival + '%';
+    if (brutalityVal) brutalityVal.textContent = baseline.brutality;
+
+    /* close the chat panel so the comparison in the right panel is visible */
+    const cs = document.getElementById('chat-screen');
+    if (cs && cs.classList.contains('visible')) {
+      hideChatScreen();
+      const fab = document.getElementById('bot-toggle-btn');
+      if (fab) fab.classList.remove('open');
+    }
+  }
+}
+
+function openExportModal() {
+  const modal = document.getElementById('export-modal');
+  const grid  = document.getElementById('export-modal-grid');
+  if (!modal || !grid) return;
+
+  const statusMap = ['Outcast','Ordinary','Elite','Ruler'];
+  const wealthMap = ['None/Poor','Working','Middle Class','Wealthy','Infinite'];
+  const anonMap   = ['Visible','Face Paint','Half Masked','Fully Masked','Alien'];
+  const mindset   = document.getElementById('tog-p').classList.contains('on') ? 'Physical' : 'Cerebral';
+  const gender    = document.querySelector('.g-dot.selected')?.id.replace('g-','') || '—';
+  const gender_   = gender === '—' ? '—' : gender.charAt(0).toUpperCase() + gender.slice(1);
+
+  /* Predicted Body Count — same formula as updateRightPanel() */
+  const anonIdx = Math.min(4, Math.max(0, Math.round(charState.anon)));
+  const bodyCountRows = [{t:'2'},{t:'10'},{t:'60'},{t:'100'},{t:'Trillion'}];
+  const bodyCount     = bodyCountRows[anonIdx].t;
+
+  const params = [
+    ['Character', document.getElementById('char-name').value || 'Untitled'],
+    ['Project', document.getElementById('project-name').value || 'Untitled'],
+    ['Mindset', mindset],
+    ['Gender', gender_],
+    ['Anonymity', anonMap[Math.round(charState.anon)]],
+    ['Wealth', wealthMap[Math.round(charState.wealth)]],
+    ['Social Status', statusMap[Math.round(charState.social)]],
+    ['Survival Forecast', document.getElementById('rp-survival').textContent],
+    ['Brutality', document.getElementById('rp-brutality').textContent],
+    ['Predicted Body Count', bodyCount],
+  ];
+
+  grid.innerHTML = params.map(([label, value]) => `
+    <div class="export-param">
+      <span class="export-param-label">${label}</span>
+      <span class="export-param-value">${value}</span>
+    </div>
+  `).join('');
+
+  /* clone the live Psychological Fingerprint radar straight out of the right panel */
+  const liveRadar = document.getElementById('rp-radar');
+  const modalRadar = document.getElementById('export-radar');
+  if (liveRadar && modalRadar) modalRadar.innerHTML = liveRadar.innerHTML;
+
+  const archetypeText = document.getElementById('export-archetype-text');
+  if (archetypeText) archetypeText.textContent = document.getElementById('rp-archetype').textContent;
+
+  modal.style.display = 'flex';
+  void modal.offsetWidth;
+  modal.classList.add('visible');
+}
+
+function closeExportModal() {
+  const modal = document.getElementById('export-modal');
+  if (!modal) return;
+  modal.classList.remove('visible');
+  setTimeout(() => { if (!modal.classList.contains('visible')) modal.style.display = 'none'; }, 350);
+}
+
+function exportArtifact() {
+  const btn = document.querySelector('.export-modal-cta');
+  if (!btn) return;
+  const original = btn.textContent;
+  btn.textContent = 'Exported ✓';
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
+}
+
+document.getElementById('export-modal').addEventListener('click', e => {
+  if (e.target.id === 'export-modal') closeExportModal();
+});
 
 function toggleChat() {
   const cs = document.getElementById('chat-screen');
