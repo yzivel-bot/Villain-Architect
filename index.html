@@ -1753,7 +1753,7 @@ const PINNED_NAMES = new Set([
 
 const VILLAINS = [
   { name:'Hannibal Lecter',   anon:'Half Masked',  kills:'29',   wealth:'Wealthy',      status:'Outcast',  movie:'Silence of the Lambs',    genre:'Thriller',               mindset:'Cerebral', survives:'Yes' },
-  { name:'Darth Vader',       anon:'Fully Masked', kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Star Wars',               genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
+  { name:'Darth Vader',       anon:'Fully Masked', kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Star Wars',               genre:'Sci-Fi',                  mindset:'Physical', survives:'No',  index:94 },
   { name:'The Joker',         anon:'Face Paint',   kills:'2000', wealth:'None/Poor',    status:'Outcast',  movie:'The Dark Knight',         genre:'Superhero',               mindset:'Cerebral', survives:'Yes' },
   { name:'Anton Chigurh',     anon:'Visible',      kills:'14',   wealth:'None/Poor',    status:'Outcast',  movie:'No Country for Old Men',  genre:'Thriller',                mindset:'Physical', survives:'Yes' },
   { name:'Nurse Ratched',     anon:'Visible',      kills:'2',    wealth:'Middle Class', status:'Ordinary', movie:"Cuckoo's Nest",           genre:'Drama',                   mindset:'Cerebral', survives:'Yes' },
@@ -1765,20 +1765,20 @@ const VILLAINS = [
   { name:'Annie Wilkes',      anon:'Visible',      kills:'11',   wealth:'Middle Class', status:'Outcast',  movie:'Misery',                  genre:'Horror',                  mindset:'Cerebral', survives:'No'  },
   { name:'Alex DeLarge',      anon:'Face Paint',   kills:'1',    wealth:'None/Poor',    status:'Outcast',  movie:'A Clockwork Orange',      genre:'Thriller',                mindset:'Physical', survives:'Yes' },
   { name:'Jack Torrance',     anon:'Visible',      kills:'1',    wealth:'None/Poor',    status:'Ordinary', movie:'The Shining',             genre:'Horror',                  mindset:'Physical', survives:'No'  },
-  { name:'Thanos',            anon:'Alien',        kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Avengers: Infinity War',  genre:'Superhero',               mindset:'Physical', survives:'No'  },
+  { name:'Thanos',            anon:'Alien',        kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Avengers: Infinity War',  genre:'Superhero',               mindset:'Physical', survives:'No',  index:96 },
   { name:'Scar',              anon:'Visible',      kills:'100',  wealth:'Infinite',     status:'Ruler',    movie:'The Lion King',           genre:'Animated',                mindset:'Cerebral', survives:'No'  },
   { name:'Agent Smith',       anon:'Half Masked',  kills:'1m+',  wealth:'Wealthy',      status:'Elite',    movie:'The Matrix',              genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
   { name:'Patrick Bateman',   anon:'Visible',      kills:'24',   wealth:'None/Poor',    status:'Elite',    movie:'American Psycho',         genre:'Horror',                  mindset:'Physical', survives:'Yes' },
   { name:'Cruella de Vil',    anon:'Face Paint',   kills:'0',    wealth:'Wealthy',      status:'Elite',    movie:'101 Dalmatians',          genre:'Animated',                mindset:'Cerebral', survives:'Yes' },
   { name:'Amon Goeth',        anon:'Visible',      kills:'10k',  wealth:'Wealthy',      status:'Elite',    movie:"Schindler's List",        genre:'Drama',                   mindset:'Physical', survives:'No'  },
-  { name:'Sauron',            anon:'Face Paint',   kills:'1m+',  wealth:'Infinite',     status:'Outcast',  movie:'Lord of the Rings',       genre:'Fantasy',                 mindset:'Cerebral', survives:'No'  },
+  { name:'Sauron',            anon:'Face Paint',   kills:'1m+',  wealth:'Infinite',     status:'Outcast',  movie:'Lord of the Rings',       genre:'Fantasy',                 mindset:'Cerebral', survives:'No',  index:92 },
   { name:'Hal 9000',          anon:'Fully Masked', kills:'4',    wealth:'Wealthy',      status:'Outcast',  movie:'2001: Space Odyssey',     genre:'Sci-Fi',                  mindset:'Cerebral', survives:'No'  },
   { name:'Tommy DeVito',      anon:'Visible',      kills:'5',    wealth:'Middle Class', status:'Ordinary', movie:'Goodfellas',              genre:'Thriller',                mindset:'Physical', survives:'No'  },
   { name:'John Doe',          anon:'Visible',      kills:'7',    wealth:'Middle Class', status:'Ordinary', movie:'Se7en',                   genre:'Thriller',                mindset:'Cerebral', survives:'No'  },
   { name:'T-1000',            anon:'Fully Masked', kills:'12',   wealth:'Wealthy',      status:'Outcast',  movie:'Terminator 2',            genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
   { name:'Miranda Priestly',  anon:'Visible',      kills:'0',    wealth:'Wealthy',      status:'Ruler',    movie:'Devil Wears Prada',       genre:'Drama/Comedy',            mindset:'Cerebral', survives:'Yes' },
   { name:'Xenomorph',         anon:'Alien',        kills:'100',  wealth:'None/Poor',    status:'Outcast',  movie:'Alien',                   genre:'Horror',                  mindset:'Physical', survives:'No'  },
-  { name:'Palpatine',         anon:'Fully Masked', kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Star Wars',               genre:'Sci-Fi',                  mindset:'Cerebral', survives:'No'  },
+  { name:'Palpatine',         anon:'Fully Masked', kills:'1m+',  wealth:'Infinite',     status:'Ruler',    movie:'Star Wars',               genre:'Sci-Fi',                  mindset:'Cerebral', survives:'No',  index:98 },
   { name:'Roy Batty',         anon:'Visible',      kills:'4',    wealth:'None/Poor',    status:'Outcast',  movie:'Blade Runner',            genre:'Sci-Fi',                  mindset:'Physical', survives:'No'  },
   { name:'Catherine Tramell', anon:'Visible',      kills:'3',    wealth:'Wealthy',      status:'Elite',    movie:'Basic Instinct',          genre:'Thriller',                mindset:'Cerebral', survives:'Yes' },
   { name:'Michael Corleone',  anon:'Visible',      kills:'450',  wealth:'Wealthy',      status:'Ruler',    movie:'Godfather II',            genre:'Thriller',                mindset:'Cerebral', survives:'Yes' },
@@ -2030,28 +2030,36 @@ function calculateArchitectureIndex(status, wealth, anonymity) {
 }
 
 function computeMindsetScore(v) {
+  /* explicit index override for villains whose plotted X-position must be pinned
+     (the mega-tier masterminds) rather than derived from status/wealth/anon */
+  if (typeof v.index === 'number') return v.index;
   return calculateArchitectureIndex(v.status, v.wealth, v.anon);
 }
 
 /* Predicted Body Count — calculated output from status + wealth (0-100 scale) */
-function calculateLethalityScore(status, wealth) {
-  let score = 10; /* base baseline */
-  if (status === 'Ruler')       score += 60;
-  else if (status === 'Elite')  score += 40;
-  else if (status === 'Outcast') score -= 5;
-  if (wealth === 'Infinite')    score += 30;
-  else if (wealth === 'Wealthy') score += 15;
-  else if (wealth === 'Poor' || wealth === 'None/Poor') score -= 5;
-  return Math.max(5, Math.min(95, score));
+/* Lethality is driven by facial concealment (anonymity), matching the Y-axis's own
+   documented logic — NOT by status/wealth, which drive the X-axis (Architect Index).
+   Mixing the two previously let high-index-but-non-violent villains (Miranda Priestly,
+   Regina George) read as highly lethal just because they're rich/high-status. */
+function calculateLethalityScore(anonIdx) {
+  const score = 5 + (anonIdx / 4) * 90; /* 0 (Visible) → 5, 4 (Alien) → 95 */
+  return Math.max(5, Math.min(95, Math.round(score)));
 }
 
 function charLethalityScore() {
-  const statusMap = ['Outcast','Ordinary','Elite','Ruler'];
-  const wealthMap = ['None/Poor','Working','Middle Class','Wealthy','Infinite'];
-  return calculateLethalityScore(
-    statusMap[Math.round(charState.social)],
-    wealthMap[Math.round(charState.wealth)]
-  );
+  return calculateLethalityScore(Math.round(charState.anon));
+}
+
+/* Brutality tracks predicted lethality directly — a high-tier mastermind sitting at
+   the top of the Y-axis (Thanos, Vader, Palpatine) must read High/Extreme, never
+   Minimal. Previously this was inverted against the Architect Index (mindset score),
+   which suppressed brutality for exactly the villains it should have been highest for. */
+function lethalityToBrutality(lethality) {
+  if (lethality >= 90) return 'Extreme';
+  if (lethality >= 75) return 'High';
+  if (lethality >= 40) return 'Medium';
+  if (lethality >= 15) return 'Low';
+  return 'Minimal';
 }
 
 function charMindsetScore() {
@@ -3329,11 +3337,10 @@ function computeBaselineMetrics(snapshotCharState) {
   const wealthIdx = Math.min(4, Math.max(0, Math.round(live.wealth)));
 
   const survival  = Math.min(100, Math.max(0, Math.round(score * 0.65 + wealthIdx/4*25 + (4-anonIdx)/4*10)));
-  const bLabels   = ['Minimal','Low','Medium','High','Extreme','Lethal'];
-  const brutalIdx = Math.min(5, Math.round(anonIdx/4*2 + (1-score/100)*3));
+  const brutality = lethalityToBrutality(charLethalityScore());
 
   Object.assign(live, saved);
-  return { survival, brutality: bLabels[brutalIdx] };
+  return { survival, brutality };
 }
 
 function toggleBaselineCompare() {
@@ -3495,12 +3502,9 @@ function updateRightPanel() {
     const survival = Math.min(100, Math.max(0, Math.round(score * 0.65 + wealthIdx/4*25 + (4-anonIdx)/4*10)));
     const s1 = $id('rp-survival'); if(s1) s1.textContent = survival + '%';
 
-    /* 2 — Brutality (driven by anonymity × lethality proxy) */
-    const bLabels = ['Minimal','Low','Medium','High','Extreme','Lethal'];
-    const bColors = ['#fff','#fff','#fff','#fff','#fff','#fff'];
-    const brutalIdx = Math.min(5, Math.round(anonIdx/4*2 + (1-score/100)*3));
+    /* 2 — Brutality, driven directly by predicted lethality */
     const bEl = $id('rp-brutality');
-    if(bEl){ bEl.textContent = bLabels[brutalIdx]; bEl.style.color = bColors[brutalIdx]; }
+    if(bEl){ bEl.textContent = lethalityToBrutality(charLethalityScore()); bEl.style.color = '#fff'; }
 
     /* 3 — Mind over Power text */
     const cerN = VILLAINS.filter(v=>v.mindset==='Cerebral').length;
