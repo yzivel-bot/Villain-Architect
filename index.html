@@ -774,7 +774,8 @@ circle.vdot:hover { opacity: 0.75; }
   width: 480px;
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 48px);
-  overflow: visible;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: #141416;
   border: 1px solid #333;
   border-radius: 16px;
@@ -783,6 +784,12 @@ circle.vdot:hover { opacity: 0.75; }
   transition: transform 0.35s cubic-bezier(.4,0,.2,1);
 }
 .export-modal.visible .export-modal-panel { transform: translateY(0) scale(1); }
+
+.export-modal-panel::-webkit-scrollbar { width: 8px; }
+.export-modal-panel::-webkit-scrollbar-track { background: transparent; }
+.export-modal-panel::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+.export-modal-panel::-webkit-scrollbar-thumb:hover { background: #444; }
+.export-modal-panel { scrollbar-width: thin; scrollbar-color: #333 transparent; }
 
 .export-modal-close {
   position: absolute;
@@ -889,7 +896,7 @@ circle.vdot:hover { opacity: 0.75; }
   color: #fff;
   text-align: center;
   text-transform: uppercase;
-  margin-top: 285px;
+  margin-top: 180px;
   transform: translateY(-50%);
   user-select: none;
 }
